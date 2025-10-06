@@ -1,14 +1,11 @@
 package com.example.ecolab.ui.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -17,17 +14,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.ecolab.ui.screens.*
 import com.example.ecolab.ui.theme.AccentTeal
-import com.example.ecolab.ui.theme.EcoLabTheme
-import com.example.ecolab.ui.screens.HomeScreen
-import com.example.ecolab.ui.screens.LibraryScreen
-import com.example.ecolab.ui.screens.MapScreen
-import com.example.ecolab.ui.screens.ProfileScreen
-
-// --- Placeholder Screens (will be replaced by full implementations later) ---
-@Composable fun RankingScreen() { Box(Modifier.fillMaxSize()) { Text("Ranking Screen", Modifier.align(Alignment.Center)) } }
-@Composable fun AchievementsScreen() { Box(Modifier.fillMaxSize()) { Text("Achievements Screen", Modifier.align(Alignment.Center)) } }
-@Composable fun QuickActionScreen() { Box(Modifier.fillMaxSize()) { Text("Quick Action Screen", Modifier.align(Alignment.Center)) } }
 
 /**
  * The main navigation graph and Scaffold structure for the app, as per the design prompt.
@@ -36,6 +24,23 @@ import com.example.ecolab.ui.screens.ProfileScreen
 @Composable
 fun AppNavHost() {
     val navController = rememberNavController()
+
+    NavHost(navController = navController, startDestination = "main") {
+        // Main scaffold for the primary bottom nav screens
+        composable("main") {
+            MainScaffold(navController = navController)
+        }
+
+        // Secondary screens (do not show bottom bar)
+        composable("ranking") { RankingScreen() }
+        composable("achievements") { AchievementsScreen() }
+        composable("quick_action") { QuickActionScreen(onClose = { navController.popBackStack() }) }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MainScaffold(navController: androidx.navigation.NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
@@ -45,6 +50,8 @@ fun AppNavHost() {
         BottomNavItem.Library,
         BottomNavItem.Profile
     )
+
+    val innerNavController = rememberNavController()
 
     Scaffold(
         topBar = {
@@ -75,8 +82,8 @@ fun AppNavHost() {
                         label = { Text(screen.title) },
                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                         onClick = {
-                            navController.navigate(screen.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
+                            innerNavController.navigate(screen.route) {
+                                popUpTo(innerNavController.graph.findStartDestination().id) {
                                     saveState = true
                                 }
                                 launchSingleTop = true
@@ -96,22 +103,19 @@ fun AppNavHost() {
         }
     ) { innerPadding ->
         NavHost(
-            navController = navController,
+            navController = innerNavController,
             startDestination = BottomNavItem.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("home") { 
+            composable(BottomNavItem.Home.route) { 
                 HomeScreen(
                     onOpenRanking = { navController.navigate("ranking") },
                     onOpenAchievements = { navController.navigate("achievements") }
                 ) 
             }
-            composable("map") { MapScreen() }
-            composable("library") { LibraryScreen() }
-            composable("profile") { ProfileScreen() }
-            composable("ranking") { RankingScreen() }
-            composable("achievements") { AchievementsScreen() }
-            composable("quick_action") { QuickActionScreen() }
+            composable(BottomNavItem.Map.route) { MapScreen() }
+            composable(BottomNavItem.Library.route) { LibraryScreen() }
+            composable(BottomNavItem.Profile.route) { ProfileScreen() }
         }
     }
 }

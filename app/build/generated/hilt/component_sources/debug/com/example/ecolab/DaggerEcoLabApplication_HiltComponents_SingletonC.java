@@ -8,6 +8,8 @@ import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 import com.example.ecolab.data.repository.MockPointsRepository;
 import com.example.ecolab.di.AppModule;
+import com.example.ecolab.feature.achievements.AchievementsViewModel;
+import com.example.ecolab.feature.achievements.AchievementsViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.example.ecolab.feature.home.HomeViewModel;
 import com.example.ecolab.feature.home.HomeViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.example.ecolab.feature.library.LibraryViewModel;
@@ -16,6 +18,10 @@ import com.example.ecolab.feature.map.MapViewModel;
 import com.example.ecolab.feature.map.MapViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.example.ecolab.feature.profile.ProfileViewModel;
 import com.example.ecolab.feature.profile.ProfileViewModel_HiltModules_KeyModule_ProvideFactory;
+import com.example.ecolab.feature.quickaction.QuickActionViewModel;
+import com.example.ecolab.feature.quickaction.QuickActionViewModel_HiltModules_KeyModule_ProvideFactory;
+import com.example.ecolab.feature.ranking.RankingViewModel;
+import com.example.ecolab.feature.ranking.RankingViewModel_HiltModules_KeyModule_ProvideFactory;
 import dagger.hilt.android.ActivityRetainedLifecycle;
 import dagger.hilt.android.ViewModelLifecycle;
 import dagger.hilt.android.flags.HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule;
@@ -386,7 +392,7 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
 
     @Override
     public Set<String> getViewModelKeys() {
-      return SetBuilder.<String>newSetBuilder(4).add(HomeViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(LibraryViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(MapViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(ProfileViewModel_HiltModules_KeyModule_ProvideFactory.provide()).build();
+      return SetBuilder.<String>newSetBuilder(7).add(AchievementsViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(HomeViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(LibraryViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(MapViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(ProfileViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(QuickActionViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(RankingViewModel_HiltModules_KeyModule_ProvideFactory.provide()).build();
     }
 
     @Override
@@ -412,6 +418,8 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
 
     private final ViewModelCImpl viewModelCImpl = this;
 
+    private Provider<AchievementsViewModel> achievementsViewModelProvider;
+
     private Provider<HomeViewModel> homeViewModelProvider;
 
     private Provider<LibraryViewModel> libraryViewModelProvider;
@@ -419,6 +427,10 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
     private Provider<MapViewModel> mapViewModelProvider;
 
     private Provider<ProfileViewModel> profileViewModelProvider;
+
+    private Provider<QuickActionViewModel> quickActionViewModelProvider;
+
+    private Provider<RankingViewModel> rankingViewModelProvider;
 
     private ViewModelCImpl(SingletonCImpl singletonCImpl,
         ActivityRetainedCImpl activityRetainedCImpl, SavedStateHandle savedStateHandleParam,
@@ -433,15 +445,18 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
     @SuppressWarnings("unchecked")
     private void initialize(final SavedStateHandle savedStateHandleParam,
         final ViewModelLifecycle viewModelLifecycleParam) {
-      this.homeViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
-      this.libraryViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
-      this.mapViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
-      this.profileViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
+      this.achievementsViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
+      this.homeViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
+      this.libraryViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
+      this.mapViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
+      this.profileViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 4);
+      this.quickActionViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 5);
+      this.rankingViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 6);
     }
 
     @Override
     public Map<String, Provider<ViewModel>> getHiltViewModelMap() {
-      return MapBuilder.<String, Provider<ViewModel>>newMapBuilder(4).put("com.example.ecolab.feature.home.HomeViewModel", ((Provider) homeViewModelProvider)).put("com.example.ecolab.feature.library.LibraryViewModel", ((Provider) libraryViewModelProvider)).put("com.example.ecolab.feature.map.MapViewModel", ((Provider) mapViewModelProvider)).put("com.example.ecolab.feature.profile.ProfileViewModel", ((Provider) profileViewModelProvider)).build();
+      return MapBuilder.<String, Provider<ViewModel>>newMapBuilder(7).put("com.example.ecolab.feature.achievements.AchievementsViewModel", ((Provider) achievementsViewModelProvider)).put("com.example.ecolab.feature.home.HomeViewModel", ((Provider) homeViewModelProvider)).put("com.example.ecolab.feature.library.LibraryViewModel", ((Provider) libraryViewModelProvider)).put("com.example.ecolab.feature.map.MapViewModel", ((Provider) mapViewModelProvider)).put("com.example.ecolab.feature.profile.ProfileViewModel", ((Provider) profileViewModelProvider)).put("com.example.ecolab.feature.quickaction.QuickActionViewModel", ((Provider) quickActionViewModelProvider)).put("com.example.ecolab.feature.ranking.RankingViewModel", ((Provider) rankingViewModelProvider)).build();
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -465,17 +480,26 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
       @Override
       public T get() {
         switch (id) {
-          case 0: // com.example.ecolab.feature.home.HomeViewModel 
+          case 0: // com.example.ecolab.feature.achievements.AchievementsViewModel 
+          return (T) new AchievementsViewModel();
+
+          case 1: // com.example.ecolab.feature.home.HomeViewModel 
           return (T) new HomeViewModel(singletonCImpl.mockPointsRepositoryProvider.get());
 
-          case 1: // com.example.ecolab.feature.library.LibraryViewModel 
+          case 2: // com.example.ecolab.feature.library.LibraryViewModel 
           return (T) new LibraryViewModel();
 
-          case 2: // com.example.ecolab.feature.map.MapViewModel 
+          case 3: // com.example.ecolab.feature.map.MapViewModel 
           return (T) new MapViewModel(singletonCImpl.mockPointsRepositoryProvider.get());
 
-          case 3: // com.example.ecolab.feature.profile.ProfileViewModel 
+          case 4: // com.example.ecolab.feature.profile.ProfileViewModel 
           return (T) new ProfileViewModel();
+
+          case 5: // com.example.ecolab.feature.quickaction.QuickActionViewModel 
+          return (T) new QuickActionViewModel();
+
+          case 6: // com.example.ecolab.feature.ranking.RankingViewModel 
+          return (T) new RankingViewModel();
 
           default: throw new AssertionError(id);
         }

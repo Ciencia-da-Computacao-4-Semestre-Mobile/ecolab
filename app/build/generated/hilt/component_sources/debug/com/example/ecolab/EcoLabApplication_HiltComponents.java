@@ -2,10 +2,13 @@ package com.example.ecolab;
 
 import com.example.ecolab.di.AppModule;
 import com.example.ecolab.di.RepositoryModule;
+import com.example.ecolab.feature.achievements.AchievementsViewModel_HiltModules;
 import com.example.ecolab.feature.home.HomeViewModel_HiltModules;
 import com.example.ecolab.feature.library.LibraryViewModel_HiltModules;
 import com.example.ecolab.feature.map.MapViewModel_HiltModules;
 import com.example.ecolab.feature.profile.ProfileViewModel_HiltModules;
+import com.example.ecolab.feature.quickaction.QuickActionViewModel_HiltModules;
+import com.example.ecolab.feature.ranking.RankingViewModel_HiltModules;
 import dagger.Binds;
 import dagger.Component;
 import dagger.Module;
@@ -157,13 +160,16 @@ public final class EcoLabApplication_HiltComponents {
 
   @Subcomponent(
       modules = {
+          AchievementsViewModel_HiltModules.KeyModule.class,
           ActivityCBuilderModule.class,
           ViewModelCBuilderModule.class,
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
           HomeViewModel_HiltModules.KeyModule.class,
           LibraryViewModel_HiltModules.KeyModule.class,
           MapViewModel_HiltModules.KeyModule.class,
-          ProfileViewModel_HiltModules.KeyModule.class
+          ProfileViewModel_HiltModules.KeyModule.class,
+          QuickActionViewModel_HiltModules.KeyModule.class,
+          RankingViewModel_HiltModules.KeyModule.class
       }
   )
   @ActivityRetainedScoped
@@ -199,11 +205,14 @@ public final class EcoLabApplication_HiltComponents {
 
   @Subcomponent(
       modules = {
+          AchievementsViewModel_HiltModules.BindsModule.class,
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
           HomeViewModel_HiltModules.BindsModule.class,
           LibraryViewModel_HiltModules.BindsModule.class,
           MapViewModel_HiltModules.BindsModule.class,
-          ProfileViewModel_HiltModules.BindsModule.class
+          ProfileViewModel_HiltModules.BindsModule.class,
+          QuickActionViewModel_HiltModules.BindsModule.class,
+          RankingViewModel_HiltModules.BindsModule.class
       }
   )
   @ViewModelScoped
