@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.ecolab.app-mergeDebugResources-77:/values-ko/values-ko.xml",
+            "outputFile": "com.example.ecolab.app-mergeDebugResources-78:/values-ko/values-ko.xml",
             "map": [
                 {
                     "source": "C:\\Users\\NicolasLimaFreitas\\.gradle\\caches\\transforms-4\\7a10e005593f4b36ff3bd5d7deccf325\\transformed\\jetified-ui-release\\res\\values-ko\\values-ko.xml",

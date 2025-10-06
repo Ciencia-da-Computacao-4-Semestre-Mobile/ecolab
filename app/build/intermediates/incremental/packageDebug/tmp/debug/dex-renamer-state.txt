@@ -1,4 +1,4 @@
-#Mon Oct 06 09:45:51 BRT 2025
+#Mon Oct 06 11:55:41 BRT 2025
 base.0=C\:\\Users\\NicolasLimaFreitas\\Downloads\\androiapp\\android\\android\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
 base.1=C\:\\Users\\NicolasLimaFreitas\\Downloads\\androiapp\\android\\android\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
 base.10=C\:\\Users\\NicolasLimaFreitas\\Downloads\\androiapp\\android\\android\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\6\\classes.dex

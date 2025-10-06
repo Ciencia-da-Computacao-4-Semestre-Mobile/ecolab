@@ -1,14 +1,18 @@
 package com.example.ecolab.data.model
 
-/**
- * Data class representing a collection point, as defined in the project prompt.
- */
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "collection_points")
 data class CollectionPoint(
-    val id: Long,
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
     val name: String,
-    val description: String,
+    val address: String,
+    val openingHours: String? = null,
+    val wasteType: String,
+    val photoUri: String,
     val latitude: Double,
     val longitude: Double,
-    val category: String,
-    var isFavorite: Boolean = false
+    val userSubmitted: Boolean = true
 )

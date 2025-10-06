@@ -61,24 +61,24 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    
+
     // Lifecycle
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
-    
+
     // Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
-    
+
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
-    
+
     // Google Maps
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
-    
+
     // Compose BOM
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
@@ -90,27 +90,31 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.maps.compose)
     implementation(libs.accompanist.permissions)
+    implementation("io.coil-kt:coil-compose:2.5.0")
     // Compose Material Icons (extended set)
     implementation(libs.androidx.compose.material.icons.extended)
-    
+
     // DataStore
     implementation(libs.androidx.datastore.preferences)
-    
+
     // Splash Screen
     implementation(libs.androidx.core.splashscreen)
-    
+
     // Serialization
     implementation(libs.kotlinx.serialization.json)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
 
+    // Coordinate Conversion (Proj4j)
+    implementation("org.locationtech.proj4j:proj4j:1.1.5")
+
     // Networking - Retrofit/Moshi/OkHttp
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.moshi)
     implementation(libs.moshi.kotlin)
     implementation(libs.okhttp.logging.interceptor)
-    
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)

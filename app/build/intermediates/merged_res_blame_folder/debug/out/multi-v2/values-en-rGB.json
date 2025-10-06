@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.ecolab.app-mergeDebugResources-77:/values-en-rGB/values-en-rGB.xml",
+            "outputFile": "com.example.ecolab.app-mergeDebugResources-78:/values-en-rGB/values-en-rGB.xml",
             "map": [
                 {
                     "source": "C:\\Users\\NicolasLimaFreitas\\.gradle\\caches\\transforms-4\\9613b1db257f51800489cf1b33f48fa9\\transformed\\jetified-foundation-release\\res\\values-en-rGB\\values-en-rGB.xml",

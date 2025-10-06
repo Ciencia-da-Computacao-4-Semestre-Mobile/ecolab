@@ -10,12 +10,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,18 +23,16 @@ import com.example.ecolab.data.model.CollectionPoint
 
 /**
  * A reusable card component to display a single collection point.
- * Follows the no-shadow, 12dp corner radius design from the prompt.
  */
 @Composable
 fun PointCard(
     point: CollectionPoint,
-    onClick: () -> Unit,
-    onFavorite: () -> Unit
+    onClick: () -> Unit
 ) {
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium, // 12dp from Shapes.kt
+        shape = MaterialTheme.shapes.medium,
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -55,15 +50,7 @@ fun PointCard(
             Spacer(Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(point.name, style = MaterialTheme.typography.titleMedium)
-                Text(point.description, style = MaterialTheme.typography.bodySmall)
-            }
-            Spacer(Modifier.width(8.dp))
-            IconButton(onClick = onFavorite) {
-                Icon(
-                    imageVector = if (point.isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                    contentDescription = "Favoritar",
-                    tint = if (point.isFavorite) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Text(point.wasteType, style = MaterialTheme.typography.bodySmall)
             }
         }
     }

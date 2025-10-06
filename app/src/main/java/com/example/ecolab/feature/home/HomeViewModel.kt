@@ -3,13 +3,12 @@ package com.example.ecolab.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecolab.data.model.CollectionPoint
-import com.example.ecolab.domain.PointsRepository
+import com.example.ecolab.data.repository.CollectionPointRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // Data class for the UI state
@@ -20,20 +19,14 @@ data class HomeUiState(
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: PointsRepository
+    private val repository: CollectionPointRepository
 ) : ViewModel() {
 
-    val uiState: StateFlow<HomeUiState> = repository.observePoints()
+    val uiState: StateFlow<HomeUiState> = repository.getAllPoints()
         .map { points -> HomeUiState(points = points, isLoading = false) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = HomeUiState(isLoading = true)
         )
-
-    fun toggleFavorite(id: Long) {
-        viewModelScope.launch {
-            repository.toggleFavorite(id)
-        }
-    }
 }

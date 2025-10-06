@@ -20,7 +20,7 @@ import dagger.hilt.processor.internal.definecomponent.codegen._dagger_hilt_compo
 import hilt_aggregated_deps._com_example_ecolab_EcoLabApplication_GeneratedInjector;
 import hilt_aggregated_deps._com_example_ecolab_MainActivity_GeneratedInjector;
 import hilt_aggregated_deps._com_example_ecolab_di_AppModule;
-import hilt_aggregated_deps._com_example_ecolab_di_RepositoryModule;
+import hilt_aggregated_deps._com_example_ecolab_di_DatabaseModule;
 import hilt_aggregated_deps._com_example_ecolab_feature_achievements_AchievementsViewModel_HiltModules_BindsModule;
 import hilt_aggregated_deps._com_example_ecolab_feature_achievements_AchievementsViewModel_HiltModules_KeyModule;
 import hilt_aggregated_deps._com_example_ecolab_feature_home_HomeViewModel_HiltModules_BindsModule;
@@ -77,7 +77,7 @@ import hilt_aggregated_deps._dagger_hilt_android_internal_modules_HiltWrapper_Ac
         _com_example_ecolab_EcoLabApplication_GeneratedInjector.class,
         _com_example_ecolab_MainActivity_GeneratedInjector.class,
         _com_example_ecolab_di_AppModule.class,
-        _com_example_ecolab_di_RepositoryModule.class,
+        _com_example_ecolab_di_DatabaseModule.class,
         _com_example_ecolab_feature_achievements_AchievementsViewModel_HiltModules_BindsModule.class,
         _com_example_ecolab_feature_achievements_AchievementsViewModel_HiltModules_KeyModule.class,
         _com_example_ecolab_feature_home_HomeViewModel_HiltModules_BindsModule.class,

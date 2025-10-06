@@ -1,23 +1,38 @@
 package com.example.ecolab.feature.quickaction
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.ecolab.data.model.CollectionPoint
+import com.example.ecolab.data.repository.CollectionPointRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class QuickActionUiState(
     val selectedWasteType: String? = null,
-    val photoUri: String? = null, // Placeholder for photo URI
-    val location: Pair<Double, Double>? = null // Placeholder for Lat/Lng
+    val photoUri: String? = null,
+    val location: Pair<Double, Double>? = null
 )
 
+sealed interface QuickActionEvent {
+    object SubmissionSuccess : QuickActionEvent
+}
+
 @HiltViewModel
-class QuickActionViewModel @Inject constructor() : ViewModel() {
+class QuickActionViewModel @Inject constructor(
+    private val repository: CollectionPointRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(QuickActionUiState())
     val uiState = _uiState.asStateFlow()
+
+    private val _eventChannel = MutableSharedFlow<QuickActionEvent>()
+    val eventChannel = _eventChannel.asSharedFlow()
 
     fun onWasteTypeSelected(type: String) {
         _uiState.update { it.copy(selectedWasteType = type) }
@@ -32,7 +47,26 @@ class QuickActionViewModel @Inject constructor() : ViewModel() {
     }
 
     fun submit() {
-        // TODO: Implement submission logic (e.g., save to repository)
-        println("Submitting new collection point: ${uiState.value}")
+        viewModelScope.launch {
+            val currentState = uiState.value
+            val wasteType = currentState.selectedWasteType
+            val photoUri = currentState.photoUri
+            val location = currentState.location
+
+            if (wasteType != null && photoUri != null && location != null) {
+                val newPoint = CollectionPoint(
+                    name = "Ponto de Coleta Adicionado", // Placeholder name
+                    wasteType = wasteType,
+                    photoUri = photoUri,
+                    latitude = location.first,
+                    longitude = location.second
+                )
+                repository.addPoint(newPoint)
+                _eventChannel.emit(QuickActionEvent.SubmissionSuccess)
+            } else {
+                // Optional: handle error case, e.g., show a toast
+                println("Error: Cannot submit with incomplete data.")
+            }
+        }
     }
 }

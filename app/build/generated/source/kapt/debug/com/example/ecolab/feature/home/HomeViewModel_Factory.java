@@ -1,6 +1,6 @@
 package com.example.ecolab.feature.home;
 
-import com.example.ecolab.domain.PointsRepository;
+import com.example.ecolab.data.repository.CollectionPointRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
@@ -22,9 +22,9 @@ import javax.inject.Provider;
     "KotlinInternalInJava"
 })
 public final class HomeViewModel_Factory implements Factory<HomeViewModel> {
-  private final Provider<PointsRepository> repositoryProvider;
+  private final Provider<CollectionPointRepository> repositoryProvider;
 
-  public HomeViewModel_Factory(Provider<PointsRepository> repositoryProvider) {
+  public HomeViewModel_Factory(Provider<CollectionPointRepository> repositoryProvider) {
     this.repositoryProvider = repositoryProvider;
   }
 
@@ -33,11 +33,12 @@ public final class HomeViewModel_Factory implements Factory<HomeViewModel> {
     return newInstance(repositoryProvider.get());
   }
 
-  public static HomeViewModel_Factory create(Provider<PointsRepository> repositoryProvider) {
+  public static HomeViewModel_Factory create(
+      Provider<CollectionPointRepository> repositoryProvider) {
     return new HomeViewModel_Factory(repositoryProvider);
   }
 
-  public static HomeViewModel newInstance(PointsRepository repository) {
+  public static HomeViewModel newInstance(CollectionPointRepository repository) {
     return new HomeViewModel(repository);
   }
 }

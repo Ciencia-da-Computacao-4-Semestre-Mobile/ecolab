@@ -62,16 +62,6 @@ private fun MainScaffold(navController: androidx.navigation.NavController) {
                 )
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate("quick_action") },
-                containerColor = AccentTeal,
-                elevation = FloatingActionButtonDefaults.elevation(0.dp) // No shadow
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Nova Ação")
-            }
-        },
-        floatingActionButtonPosition = FabPosition.Center,
         bottomBar = {
             NavigationBar(
                 tonalElevation = 0.dp // No shadow
@@ -113,7 +103,7 @@ private fun MainScaffold(navController: androidx.navigation.NavController) {
                     onOpenAchievements = { navController.navigate("achievements") }
                 ) 
             }
-            composable(BottomNavItem.Map.route) { MapScreen() }
+            composable(BottomNavItem.Map.route) { MapScreen(onNavigateToQuickAction = { navController.navigate("quick_action") }) }
             composable(BottomNavItem.Library.route) { LibraryScreen() }
             composable(BottomNavItem.Profile.route) { ProfileScreen() }
         }

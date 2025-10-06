@@ -50,12 +50,10 @@ fun HomeScreen(
     ) {
         item { Spacer(Modifier.height(4.dp)) }
 
-        // "Missão do Dia" Card
         item {
             MissionOfTheDayCard()
         }
 
-        // Shortcuts
         item {
             ShortcutsRow(
                 onOpenRanking = onOpenRanking,
@@ -63,7 +61,6 @@ fun HomeScreen(
             )
         }
 
-        // Nearby Points Title
         item {
             Text(
                 "Pontos próximos",
@@ -71,12 +68,10 @@ fun HomeScreen(
             )
         }
 
-        // List of Points
         items(uiState.points) { point ->
             PointCard(
                 point = point,
-                onClick = { /* TODO: Navigate to point details */ },
-                onFavorite = { viewModel.toggleFavorite(point.id) }
+                onClick = { /* TODO: Navigate to point details */ }
             )
         }
 
@@ -154,9 +149,8 @@ private fun HomeScreenPreview() {
             ShortcutsRow({}, {})
              Text("Pontos próximos", style = MaterialTheme.typography.titleMedium)
             PointCard(
-                point = CollectionPoint(1, "Ecoponto Preview", "Descrição do local", 0.0, 0.0, "Multi", true),
-                onClick = {},
-                onFavorite = {}
+                point = CollectionPoint(1, "Ecoponto Preview", "Multi", "", -23.55, -46.63, true),
+                onClick = {}
             )
         }
     }

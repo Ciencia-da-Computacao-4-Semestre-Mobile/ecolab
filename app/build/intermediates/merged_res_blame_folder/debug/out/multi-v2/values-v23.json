@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.ecolab.app-mergeDebugResources-77:/values-v23/values-v23.xml",
+            "outputFile": "com.example.ecolab.app-mergeDebugResources-78:/values-v23/values-v23.xml",
             "map": [
                 {
                     "source": "C:\\Users\\NicolasLimaFreitas\\.gradle\\caches\\transforms-4\\6a0b975297ce7c56fa8771d69d4ad5f8\\transformed\\cardview-1.0.0\\res\\values-v23\\values-v23.xml",

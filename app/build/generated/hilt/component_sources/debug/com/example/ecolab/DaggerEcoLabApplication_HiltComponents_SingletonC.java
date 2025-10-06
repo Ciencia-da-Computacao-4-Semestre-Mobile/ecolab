@@ -6,8 +6,13 @@ import android.view.View;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
-import com.example.ecolab.data.repository.MockPointsRepository;
+import com.example.ecolab.data.local.AppDatabase;
+import com.example.ecolab.data.model.CollectionPointDao;
+import com.example.ecolab.data.repository.CollectionPointRepository;
 import com.example.ecolab.di.AppModule;
+import com.example.ecolab.di.DatabaseModule;
+import com.example.ecolab.di.DatabaseModule_ProvideAppDatabaseFactory;
+import com.example.ecolab.di.DatabaseModule_ProvideCollectionPointDaoFactory;
 import com.example.ecolab.feature.achievements.AchievementsViewModel;
 import com.example.ecolab.feature.achievements.AchievementsViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.example.ecolab.feature.home.HomeViewModel;
@@ -36,7 +41,9 @@ import dagger.hilt.android.internal.lifecycle.DefaultViewModelFactories;
 import dagger.hilt.android.internal.lifecycle.DefaultViewModelFactories_InternalFactoryFactory_Factory;
 import dagger.hilt.android.internal.managers.ActivityRetainedComponentManager_LifecycleModule_ProvideActivityRetainedLifecycleFactory;
 import dagger.hilt.android.internal.modules.ApplicationContextModule;
+import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideContextFactory;
 import dagger.internal.DaggerGenerated;
+import dagger.internal.DelegateFactory;
 import dagger.internal.DoubleCheck;
 import dagger.internal.MapBuilder;
 import dagger.internal.Preconditions;
@@ -66,11 +73,9 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
     return new Builder();
   }
 
-  public static EcoLabApplication_HiltComponents.SingletonC create() {
-    return new Builder().build();
-  }
-
   public static final class Builder {
+    private ApplicationContextModule applicationContextModule;
+
     private Builder() {
     }
 
@@ -83,12 +88,17 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
       return this;
     }
 
+    public Builder applicationContextModule(ApplicationContextModule applicationContextModule) {
+      this.applicationContextModule = Preconditions.checkNotNull(applicationContextModule);
+      return this;
+    }
+
     /**
      * @deprecated This module is declared, but an instance is not used in the component. This method is a no-op. For more, see https://dagger.dev/unused-modules.
      */
     @Deprecated
-    public Builder applicationContextModule(ApplicationContextModule applicationContextModule) {
-      Preconditions.checkNotNull(applicationContextModule);
+    public Builder databaseModule(DatabaseModule databaseModule) {
+      Preconditions.checkNotNull(databaseModule);
       return this;
     }
 
@@ -103,7 +113,8 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
     }
 
     public EcoLabApplication_HiltComponents.SingletonC build() {
-      return new SingletonCImpl();
+      Preconditions.checkBuilderRequirement(applicationContextModule, ApplicationContextModule.class);
+      return new SingletonCImpl(applicationContextModule);
     }
   }
 
@@ -484,19 +495,19 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
           return (T) new AchievementsViewModel();
 
           case 1: // com.example.ecolab.feature.home.HomeViewModel 
-          return (T) new HomeViewModel(singletonCImpl.mockPointsRepositoryProvider.get());
+          return (T) new HomeViewModel(singletonCImpl.collectionPointRepositoryProvider.get());
 
           case 2: // com.example.ecolab.feature.library.LibraryViewModel 
           return (T) new LibraryViewModel();
 
           case 3: // com.example.ecolab.feature.map.MapViewModel 
-          return (T) new MapViewModel(singletonCImpl.mockPointsRepositoryProvider.get());
+          return (T) new MapViewModel(singletonCImpl.collectionPointRepositoryProvider.get());
 
           case 4: // com.example.ecolab.feature.profile.ProfileViewModel 
           return (T) new ProfileViewModel();
 
           case 5: // com.example.ecolab.feature.quickaction.QuickActionViewModel 
-          return (T) new QuickActionViewModel();
+          return (T) new QuickActionViewModel(singletonCImpl.collectionPointRepositoryProvider.get());
 
           case 6: // com.example.ecolab.feature.ranking.RankingViewModel 
           return (T) new RankingViewModel();
@@ -576,19 +587,28 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
   }
 
   private static final class SingletonCImpl extends EcoLabApplication_HiltComponents.SingletonC {
+    private final ApplicationContextModule applicationContextModule;
+
     private final SingletonCImpl singletonCImpl = this;
 
-    private Provider<MockPointsRepository> mockPointsRepositoryProvider;
+    private Provider<CollectionPointDao> provideCollectionPointDaoProvider;
 
-    private SingletonCImpl() {
+    private Provider<AppDatabase> provideAppDatabaseProvider;
 
-      initialize();
+    private Provider<CollectionPointRepository> collectionPointRepositoryProvider;
+
+    private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
+      this.applicationContextModule = applicationContextModuleParam;
+      initialize(applicationContextModuleParam);
 
     }
 
     @SuppressWarnings("unchecked")
-    private void initialize() {
-      this.mockPointsRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<MockPointsRepository>(singletonCImpl, 0));
+    private void initialize(final ApplicationContextModule applicationContextModuleParam) {
+      this.provideCollectionPointDaoProvider = new DelegateFactory<>();
+      this.provideAppDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<AppDatabase>(singletonCImpl, 2));
+      DelegateFactory.setDelegate(provideCollectionPointDaoProvider, new SwitchingProvider<>(singletonCImpl, 1));
+      this.collectionPointRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<CollectionPointRepository>(singletonCImpl, 0));
     }
 
     @Override
@@ -624,8 +644,14 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
       @Override
       public T get() {
         switch (id) {
-          case 0: // com.example.ecolab.data.repository.MockPointsRepository 
-          return (T) new MockPointsRepository();
+          case 0: // com.example.ecolab.data.repository.CollectionPointRepository 
+          return (T) new CollectionPointRepository(singletonCImpl.provideCollectionPointDaoProvider.get());
+
+          case 1: // com.example.ecolab.data.model.CollectionPointDao 
+          return (T) DatabaseModule_ProvideCollectionPointDaoFactory.provideCollectionPointDao(singletonCImpl.provideAppDatabaseProvider.get());
+
+          case 2: // com.example.ecolab.data.local.AppDatabase 
+          return (T) DatabaseModule_ProvideAppDatabaseFactory.provideAppDatabase(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.provideCollectionPointDaoProvider);
 
           default: throw new AssertionError(id);
         }

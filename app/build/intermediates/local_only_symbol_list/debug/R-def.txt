@@ -295,3 +295,4 @@ style Widget.EcoLab.CardView
 style Widget.EcoLab.TextInputLayout
 xml backup_rules
 xml data_extraction_rules
+xml file_paths

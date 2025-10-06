@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.ecolab.app-mergeDebugResources-77:/values-es-rUS/values-es-rUS.xml",
+            "outputFile": "com.example.ecolab.app-mergeDebugResources-78:/values-es-rUS/values-es-rUS.xml",
             "map": [
                 {
                     "source": "C:\\Users\\NicolasLimaFreitas\\.gradle\\caches\\transforms-4\\ab1cd79a703fab92a2eea1f17736ed07\\transformed\\jetified-play-services-base-18.1.0\\res\\values-es-rUS\\values.xml",

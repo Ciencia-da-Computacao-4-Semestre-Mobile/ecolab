@@ -1,7 +1,7 @@
 package com.example.ecolab;
 
 import com.example.ecolab.di.AppModule;
-import com.example.ecolab.di.RepositoryModule;
+import com.example.ecolab.di.DatabaseModule;
 import com.example.ecolab.feature.achievements.AchievementsViewModel_HiltModules;
 import com.example.ecolab.feature.home.HomeViewModel_HiltModules;
 import com.example.ecolab.feature.library.LibraryViewModel_HiltModules;
@@ -134,10 +134,10 @@ public final class EcoLabApplication_HiltComponents {
       modules = {
           AppModule.class,
           ApplicationContextModule.class,
+          DatabaseModule.class,
           ActivityRetainedCBuilderModule.class,
           ServiceCBuilderModule.class,
-          HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule.class,
-          RepositoryModule.class
+          HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule.class
       }
   )
   @Singleton
