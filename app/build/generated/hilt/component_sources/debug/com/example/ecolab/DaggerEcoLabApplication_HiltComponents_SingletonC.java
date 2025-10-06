@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModel;
 import com.example.ecolab.data.local.AppDatabase;
 import com.example.ecolab.data.model.CollectionPointDao;
 import com.example.ecolab.data.repository.CollectionPointRepository;
+import com.example.ecolab.data.repository.RankingRepository;
+import com.example.ecolab.data.repository.UserProgressRepository;
 import com.example.ecolab.di.AppModule;
 import com.example.ecolab.di.DatabaseModule;
 import com.example.ecolab.di.DatabaseModule_ProvideAppDatabaseFactory;
@@ -492,10 +494,10 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
       public T get() {
         switch (id) {
           case 0: // com.example.ecolab.feature.achievements.AchievementsViewModel 
-          return (T) new AchievementsViewModel();
+          return (T) new AchievementsViewModel(singletonCImpl.userProgressRepositoryProvider.get());
 
           case 1: // com.example.ecolab.feature.home.HomeViewModel 
-          return (T) new HomeViewModel(singletonCImpl.collectionPointRepositoryProvider.get());
+          return (T) new HomeViewModel(singletonCImpl.collectionPointRepositoryProvider.get(), singletonCImpl.userProgressRepositoryProvider.get());
 
           case 2: // com.example.ecolab.feature.library.LibraryViewModel 
           return (T) new LibraryViewModel();
@@ -507,10 +509,10 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
           return (T) new ProfileViewModel();
 
           case 5: // com.example.ecolab.feature.quickaction.QuickActionViewModel 
-          return (T) new QuickActionViewModel(singletonCImpl.collectionPointRepositoryProvider.get());
+          return (T) new QuickActionViewModel(singletonCImpl.collectionPointRepositoryProvider.get(), singletonCImpl.userProgressRepositoryProvider.get());
 
           case 6: // com.example.ecolab.feature.ranking.RankingViewModel 
-          return (T) new RankingViewModel();
+          return (T) new RankingViewModel(singletonCImpl.rankingRepositoryProvider.get());
 
           default: throw new AssertionError(id);
         }
@@ -591,11 +593,15 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
 
     private final SingletonCImpl singletonCImpl = this;
 
+    private Provider<UserProgressRepository> userProgressRepositoryProvider;
+
     private Provider<CollectionPointDao> provideCollectionPointDaoProvider;
 
     private Provider<AppDatabase> provideAppDatabaseProvider;
 
     private Provider<CollectionPointRepository> collectionPointRepositoryProvider;
+
+    private Provider<RankingRepository> rankingRepositoryProvider;
 
     private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
       this.applicationContextModule = applicationContextModuleParam;
@@ -605,10 +611,12 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
 
     @SuppressWarnings("unchecked")
     private void initialize(final ApplicationContextModule applicationContextModuleParam) {
+      this.userProgressRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<UserProgressRepository>(singletonCImpl, 0));
       this.provideCollectionPointDaoProvider = new DelegateFactory<>();
-      this.provideAppDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<AppDatabase>(singletonCImpl, 2));
-      DelegateFactory.setDelegate(provideCollectionPointDaoProvider, new SwitchingProvider<>(singletonCImpl, 1));
-      this.collectionPointRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<CollectionPointRepository>(singletonCImpl, 0));
+      this.provideAppDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<AppDatabase>(singletonCImpl, 3));
+      DelegateFactory.setDelegate(provideCollectionPointDaoProvider, new SwitchingProvider<>(singletonCImpl, 2));
+      this.collectionPointRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<CollectionPointRepository>(singletonCImpl, 1));
+      this.rankingRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<RankingRepository>(singletonCImpl, 4));
     }
 
     @Override
@@ -644,14 +652,20 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
       @Override
       public T get() {
         switch (id) {
-          case 0: // com.example.ecolab.data.repository.CollectionPointRepository 
+          case 0: // com.example.ecolab.data.repository.UserProgressRepository 
+          return (T) new UserProgressRepository(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 1: // com.example.ecolab.data.repository.CollectionPointRepository 
           return (T) new CollectionPointRepository(singletonCImpl.provideCollectionPointDaoProvider.get());
 
-          case 1: // com.example.ecolab.data.model.CollectionPointDao 
+          case 2: // com.example.ecolab.data.model.CollectionPointDao 
           return (T) DatabaseModule_ProvideCollectionPointDaoFactory.provideCollectionPointDao(singletonCImpl.provideAppDatabaseProvider.get());
 
-          case 2: // com.example.ecolab.data.local.AppDatabase 
+          case 3: // com.example.ecolab.data.local.AppDatabase 
           return (T) DatabaseModule_ProvideAppDatabaseFactory.provideAppDatabase(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.provideCollectionPointDaoProvider);
+
+          case 4: // com.example.ecolab.data.repository.RankingRepository 
+          return (T) new RankingRepository();
 
           default: throw new AssertionError(id);
         }

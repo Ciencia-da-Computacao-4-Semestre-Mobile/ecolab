@@ -37,7 +37,7 @@ public final class CollectionPointDao_Impl implements CollectionPointDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `collection_points` (`id`,`name`,`wasteType`,`photoUri`,`latitude`,`longitude`,`userSubmitted`) VALUES (nullif(?, 0),?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `collection_points` (`id`,`name`,`address`,`openingHours`,`wasteType`,`photoUri`,`latitude`,`longitude`,`userSubmitted`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -49,20 +49,30 @@ public final class CollectionPointDao_Impl implements CollectionPointDao {
         } else {
           statement.bindString(2, entity.getName());
         }
-        if (entity.getWasteType() == null) {
+        if (entity.getAddress() == null) {
           statement.bindNull(3);
         } else {
-          statement.bindString(3, entity.getWasteType());
+          statement.bindString(3, entity.getAddress());
         }
-        if (entity.getPhotoUri() == null) {
+        if (entity.getOpeningHours() == null) {
           statement.bindNull(4);
         } else {
-          statement.bindString(4, entity.getPhotoUri());
+          statement.bindString(4, entity.getOpeningHours());
         }
-        statement.bindDouble(5, entity.getLatitude());
-        statement.bindDouble(6, entity.getLongitude());
+        if (entity.getWasteType() == null) {
+          statement.bindNull(5);
+        } else {
+          statement.bindString(5, entity.getWasteType());
+        }
+        if (entity.getPhotoUri() == null) {
+          statement.bindNull(6);
+        } else {
+          statement.bindString(6, entity.getPhotoUri());
+        }
+        statement.bindDouble(7, entity.getLatitude());
+        statement.bindDouble(8, entity.getLongitude());
         final int _tmp = entity.getUserSubmitted() ? 1 : 0;
-        statement.bindLong(7, _tmp);
+        statement.bindLong(9, _tmp);
       }
     };
   }
@@ -86,6 +96,25 @@ public final class CollectionPointDao_Impl implements CollectionPointDao {
   }
 
   @Override
+  public Object insertAll(final List<CollectionPoint> points,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        __db.beginTransaction();
+        try {
+          __insertionAdapterOfCollectionPoint.insert(points);
+          __db.setTransactionSuccessful();
+          return Unit.INSTANCE;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
   public Flow<List<CollectionPoint>> getAllPoints() {
     final String _sql = "SELECT * FROM collection_points ORDER BY id DESC";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
@@ -97,6 +126,8 @@ public final class CollectionPointDao_Impl implements CollectionPointDao {
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+          final int _cursorIndexOfAddress = CursorUtil.getColumnIndexOrThrow(_cursor, "address");
+          final int _cursorIndexOfOpeningHours = CursorUtil.getColumnIndexOrThrow(_cursor, "openingHours");
           final int _cursorIndexOfWasteType = CursorUtil.getColumnIndexOrThrow(_cursor, "wasteType");
           final int _cursorIndexOfPhotoUri = CursorUtil.getColumnIndexOrThrow(_cursor, "photoUri");
           final int _cursorIndexOfLatitude = CursorUtil.getColumnIndexOrThrow(_cursor, "latitude");
@@ -112,6 +143,18 @@ public final class CollectionPointDao_Impl implements CollectionPointDao {
               _tmpName = null;
             } else {
               _tmpName = _cursor.getString(_cursorIndexOfName);
+            }
+            final String _tmpAddress;
+            if (_cursor.isNull(_cursorIndexOfAddress)) {
+              _tmpAddress = null;
+            } else {
+              _tmpAddress = _cursor.getString(_cursorIndexOfAddress);
+            }
+            final String _tmpOpeningHours;
+            if (_cursor.isNull(_cursorIndexOfOpeningHours)) {
+              _tmpOpeningHours = null;
+            } else {
+              _tmpOpeningHours = _cursor.getString(_cursorIndexOfOpeningHours);
             }
             final String _tmpWasteType;
             if (_cursor.isNull(_cursorIndexOfWasteType)) {
@@ -133,7 +176,7 @@ public final class CollectionPointDao_Impl implements CollectionPointDao {
             final int _tmp;
             _tmp = _cursor.getInt(_cursorIndexOfUserSubmitted);
             _tmpUserSubmitted = _tmp != 0;
-            _item = new CollectionPoint(_tmpId,_tmpName,_tmpWasteType,_tmpPhotoUri,_tmpLatitude,_tmpLongitude,_tmpUserSubmitted);
+            _item = new CollectionPoint(_tmpId,_tmpName,_tmpAddress,_tmpOpeningHours,_tmpWasteType,_tmpPhotoUri,_tmpLatitude,_tmpLongitude,_tmpUserSubmitted);
             _result.add(_item);
           }
           return _result;

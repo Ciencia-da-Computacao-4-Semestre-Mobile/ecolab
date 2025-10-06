@@ -17,229 +17,203 @@
 13    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 13-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:7:5-81
 13-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:7:22-78
-14    <uses-permission android:name="android.permission.CAMERA" />
-14-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:8:5-65
-14-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:8:22-62
-15    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-15-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:9:5-80
-15-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:9:22-77
-16    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-16-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:10:5-81
-16-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:10:22-78
+14
+15    <!-- Include required permissions for Google Maps API to run. -->
+16    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+16-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:23:5-79
+16-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:23:22-76
 17
-18    <!-- Include required permissions for Google Maps API to run. -->
-19    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-19-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:23:5-79
-19-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:23:22-76
-20
-21    <uses-feature
-21-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:26:5-28:35
-22        android:glEsVersion="0x00020000"
-22-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:27:9-41
-23        android:required="true" />
-23-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:28:9-32
-24
-25    <queries>
-25-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:30:5-34:15
-26
-27        <!-- Needs to be explicitly declared on Android R+ -->
-28        <package android:name="com.google.android.apps.maps" />
-28-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:33:9-64
-28-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:33:18-61
-29    </queries>
-30
-31    <permission
-31-->[androidx.core:core:1.12.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\e73c7ca39a66de1d9d05395b8b797fb9\transformed\core-1.12.0\AndroidManifest.xml:22:5-24:47
-32        android:name="com.example.ecolab.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-32-->[androidx.core:core:1.12.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\e73c7ca39a66de1d9d05395b8b797fb9\transformed\core-1.12.0\AndroidManifest.xml:23:9-81
-33        android:protectionLevel="signature" />
-33-->[androidx.core:core:1.12.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\e73c7ca39a66de1d9d05395b8b797fb9\transformed\core-1.12.0\AndroidManifest.xml:24:9-44
-34
-35    <uses-permission android:name="com.example.ecolab.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-35-->[androidx.core:core:1.12.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\e73c7ca39a66de1d9d05395b8b797fb9\transformed\core-1.12.0\AndroidManifest.xml:26:5-97
-35-->[androidx.core:core:1.12.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\e73c7ca39a66de1d9d05395b8b797fb9\transformed\core-1.12.0\AndroidManifest.xml:26:22-94
-36
-37    <application
-37-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:12:5-48:19
-38        android:name="com.example.ecolab.EcoLabApplication"
-38-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:13:9-42
-39        android:allowBackup="true"
-39-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:14:9-35
-40        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-40-->[androidx.core:core:1.12.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\e73c7ca39a66de1d9d05395b8b797fb9\transformed\core-1.12.0\AndroidManifest.xml:28:18-86
-41        android:dataExtractionRules="@xml/data_extraction_rules"
-41-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:15:9-65
-42        android:debuggable="true"
-43        android:extractNativeLibs="false"
-44        android:fullBackupContent="@xml/backup_rules"
+18    <uses-feature
+18-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:26:5-28:35
+19        android:glEsVersion="0x00020000"
+19-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:27:9-41
+20        android:required="true" />
+20-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:28:9-32
+21
+22    <queries>
+22-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:30:5-34:15
+23
+24        <!-- Needs to be explicitly declared on Android R+ -->
+25        <package android:name="com.google.android.apps.maps" />
+25-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:33:9-64
+25-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:33:18-61
+26    </queries>
+27
+28    <permission
+28-->[androidx.core:core:1.12.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\e73c7ca39a66de1d9d05395b8b797fb9\transformed\core-1.12.0\AndroidManifest.xml:22:5-24:47
+29        android:name="com.example.ecolab.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+29-->[androidx.core:core:1.12.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\e73c7ca39a66de1d9d05395b8b797fb9\transformed\core-1.12.0\AndroidManifest.xml:23:9-81
+30        android:protectionLevel="signature" />
+30-->[androidx.core:core:1.12.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\e73c7ca39a66de1d9d05395b8b797fb9\transformed\core-1.12.0\AndroidManifest.xml:24:9-44
+31
+32    <uses-permission android:name="com.example.ecolab.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+32-->[androidx.core:core:1.12.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\e73c7ca39a66de1d9d05395b8b797fb9\transformed\core-1.12.0\AndroidManifest.xml:26:5-97
+32-->[androidx.core:core:1.12.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\e73c7ca39a66de1d9d05395b8b797fb9\transformed\core-1.12.0\AndroidManifest.xml:26:22-94
+33
+34    <application
+34-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:9:5-35:19
+35        android:name="com.example.ecolab.EcoLabApplication"
+35-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:10:9-42
+36        android:allowBackup="true"
+36-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:11:9-35
+37        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+37-->[androidx.core:core:1.12.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\e73c7ca39a66de1d9d05395b8b797fb9\transformed\core-1.12.0\AndroidManifest.xml:28:18-86
+38        android:dataExtractionRules="@xml/data_extraction_rules"
+38-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:12:9-65
+39        android:debuggable="true"
+40        android:extractNativeLibs="false"
+41        android:fullBackupContent="@xml/backup_rules"
+41-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:13:9-54
+42        android:icon="@mipmap/ic_launcher"
+42-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:14:9-43
+43        android:label="@string/app_name"
+43-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:15:9-41
+44        android:roundIcon="@mipmap/ic_launcher_round"
 44-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:16:9-54
-45        android:icon="@mipmap/ic_launcher"
-45-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:17:9-43
-46        android:label="@string/app_name"
-46-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:18:9-41
-47        android:roundIcon="@mipmap/ic_launcher_round"
-47-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:19:9-54
-48        android:supportsRtl="true"
-48-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:20:9-35
-49        android:testOnly="true"
-50        android:theme="@style/Theme.EcoLab" >
-50-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:21:9-44
-51        <meta-data
-51-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:24:9-26:71
-52            android:name="com.google.android.geo.API_KEY"
-52-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:25:13-58
-53            android:value="AIzaSyAi6jFe6e8mqUTicjDYng73zj-M3jrMuJU" />
-53-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:26:13-68
-54
-55        <activity
-55-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:28:9-36:20
-56            android:name="com.example.ecolab.MainActivity"
-56-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:29:13-41
-57            android:exported="true"
-57-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:30:13-36
-58            android:theme="@style/Theme.EcoLab" >
-58-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:31:13-48
-59            <intent-filter>
-59-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:32:13-35:29
-60                <action android:name="android.intent.action.MAIN" />
-60-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:33:17-69
-60-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:33:25-66
-61
-62                <category android:name="android.intent.category.LAUNCHER" />
-62-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:34:17-77
-62-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:34:27-74
-63            </intent-filter>
-64        </activity>
-65
-66        <provider
-67            android:name="androidx.core.content.FileProvider"
-67-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:39:13-62
-68            android:authorities="com.example.ecolab.provider"
-68-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:40:13-60
-69            android:exported="false"
-69-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:41:13-37
-70            android:grantUriPermissions="true" >
-70-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:42:13-47
-71            <meta-data
-71-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:43:13-45:54
-72                android:name="android.support.FILE_PROVIDER_PATHS"
-72-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:44:17-67
-73                android:resource="@xml/file_paths" />
-73-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:45:17-51
-74        </provider>
-75
-76        <!-- Needs to be explicitly declared on P+ -->
-77        <uses-library
-77-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:39:9-41:40
-78            android:name="org.apache.http.legacy"
-78-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:40:13-50
-79            android:required="false" />
-79-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:41:13-37
+45        android:supportsRtl="true"
+45-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:17:9-35
+46        android:testOnly="true"
+47        android:theme="@style/Theme.EcoLab.Splash" >
+47-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:18:9-51
+48        <meta-data
+49            android:name="com.google.android.geo.API_KEY"
+49-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:22:13-58
+50            android:value="AIzaSyAi6jFe6e8mqUTicjDYng73zj-M3jrMuJU" />
+50-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:23:13-44
+51
+52        <activity
+52-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:25:9-34:20
+53            android:name="com.example.ecolab.MainActivity"
+53-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:26:13-41
+54            android:exported="true"
+54-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:27:13-36
+55            android:label="@string/app_name"
+55-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:28:13-45
+56            android:theme="@style/Theme.EcoLab.Splash" >
+56-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:29:13-55
+57            <intent-filter>
+57-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:30:13-33:29
+58                <action android:name="android.intent.action.MAIN" />
+58-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:31:17-69
+58-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:31:25-66
+59
+60                <category android:name="android.intent.category.LAUNCHER" />
+60-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:32:17-77
+60-->C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:32:27-74
+61            </intent-filter>
+62        </activity>
+63        <!-- Needs to be explicitly declared on P+ -->
+64        <uses-library
+64-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:39:9-41:40
+65            android:name="org.apache.http.legacy"
+65-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:40:13-50
+66            android:required="false" />
+66-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b1918e28d15989e2b66f3fe03a0ec913\transformed\jetified-play-services-maps-18.2.0\AndroidManifest.xml:41:13-37
+67
+68        <activity
+68-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\ab1cd79a703fab92a2eea1f17736ed07\transformed\jetified-play-services-base-18.1.0\AndroidManifest.xml:20:9-22:45
+69            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+69-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\ab1cd79a703fab92a2eea1f17736ed07\transformed\jetified-play-services-base-18.1.0\AndroidManifest.xml:20:19-85
+70            android:exported="false"
+70-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\ab1cd79a703fab92a2eea1f17736ed07\transformed\jetified-play-services-base-18.1.0\AndroidManifest.xml:22:19-43
+71            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+71-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\ab1cd79a703fab92a2eea1f17736ed07\transformed\jetified-play-services-base-18.1.0\AndroidManifest.xml:21:19-78
+72
+73        <meta-data
+73-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b8af0f33eb0bc34bf3cf0040fd955595\transformed\jetified-play-services-basement-18.1.0\AndroidManifest.xml:21:9-23:69
+74            android:name="com.google.android.gms.version"
+74-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b8af0f33eb0bc34bf3cf0040fd955595\transformed\jetified-play-services-basement-18.1.0\AndroidManifest.xml:22:13-58
+75            android:value="@integer/google_play_services_version" />
+75-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b8af0f33eb0bc34bf3cf0040fd955595\transformed\jetified-play-services-basement-18.1.0\AndroidManifest.xml:23:13-66
+76
+77        <activity
+77-->[androidx.compose.ui:ui-tooling-android:1.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\63ba6f443f07951e5a6669b7462ad08b\transformed\jetified-ui-tooling-release\AndroidManifest.xml:23:9-25:39
+78            android:name="androidx.compose.ui.tooling.PreviewActivity"
+78-->[androidx.compose.ui:ui-tooling-android:1.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\63ba6f443f07951e5a6669b7462ad08b\transformed\jetified-ui-tooling-release\AndroidManifest.xml:24:13-71
+79            android:exported="true" />
+79-->[androidx.compose.ui:ui-tooling-android:1.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\63ba6f443f07951e5a6669b7462ad08b\transformed\jetified-ui-tooling-release\AndroidManifest.xml:25:13-36
 80
-81        <activity
-81-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\ab1cd79a703fab92a2eea1f17736ed07\transformed\jetified-play-services-base-18.1.0\AndroidManifest.xml:20:9-22:45
-82            android:name="com.google.android.gms.common.api.GoogleApiActivity"
-82-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\ab1cd79a703fab92a2eea1f17736ed07\transformed\jetified-play-services-base-18.1.0\AndroidManifest.xml:20:19-85
-83            android:exported="false"
-83-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\ab1cd79a703fab92a2eea1f17736ed07\transformed\jetified-play-services-base-18.1.0\AndroidManifest.xml:22:19-43
-84            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-84-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\ab1cd79a703fab92a2eea1f17736ed07\transformed\jetified-play-services-base-18.1.0\AndroidManifest.xml:21:19-78
-85
-86        <meta-data
-86-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b8af0f33eb0bc34bf3cf0040fd955595\transformed\jetified-play-services-basement-18.1.0\AndroidManifest.xml:21:9-23:69
-87            android:name="com.google.android.gms.version"
-87-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b8af0f33eb0bc34bf3cf0040fd955595\transformed\jetified-play-services-basement-18.1.0\AndroidManifest.xml:22:13-58
-88            android:value="@integer/google_play_services_version" />
-88-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\b8af0f33eb0bc34bf3cf0040fd955595\transformed\jetified-play-services-basement-18.1.0\AndroidManifest.xml:23:13-66
-89
-90        <activity
-90-->[androidx.compose.ui:ui-tooling-android:1.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\63ba6f443f07951e5a6669b7462ad08b\transformed\jetified-ui-tooling-release\AndroidManifest.xml:23:9-25:39
-91            android:name="androidx.compose.ui.tooling.PreviewActivity"
-91-->[androidx.compose.ui:ui-tooling-android:1.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\63ba6f443f07951e5a6669b7462ad08b\transformed\jetified-ui-tooling-release\AndroidManifest.xml:24:13-71
-92            android:exported="true" />
-92-->[androidx.compose.ui:ui-tooling-android:1.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\63ba6f443f07951e5a6669b7462ad08b\transformed\jetified-ui-tooling-release\AndroidManifest.xml:25:13-36
-93
-94        <provider
-94-->[androidx.emoji2:emoji2:1.3.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\0293e663fa6e995af3b5d3ab04538751\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
-95            android:name="androidx.startup.InitializationProvider"
-95-->[androidx.emoji2:emoji2:1.3.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\0293e663fa6e995af3b5d3ab04538751\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:25:13-67
-96            android:authorities="com.example.ecolab.androidx-startup"
-96-->[androidx.emoji2:emoji2:1.3.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\0293e663fa6e995af3b5d3ab04538751\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:26:13-68
-97            android:exported="false" >
-97-->[androidx.emoji2:emoji2:1.3.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\0293e663fa6e995af3b5d3ab04538751\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:27:13-37
-98            <meta-data
-98-->[androidx.emoji2:emoji2:1.3.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\0293e663fa6e995af3b5d3ab04538751\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
-99                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-99-->[androidx.emoji2:emoji2:1.3.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\0293e663fa6e995af3b5d3ab04538751\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:30:17-75
-100                android:value="androidx.startup" />
-100-->[androidx.emoji2:emoji2:1.3.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\0293e663fa6e995af3b5d3ab04538751\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:31:17-49
-101            <meta-data
-101-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\14b5bf0ef92d8053395335267b9114de\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:29:13-31:52
-102                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-102-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\14b5bf0ef92d8053395335267b9114de\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:30:17-78
-103                android:value="androidx.startup" />
-103-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\14b5bf0ef92d8053395335267b9114de\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:31:17-49
-104            <meta-data
-104-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
-105                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-105-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
-106                android:value="androidx.startup" />
-106-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
-107        </provider>
-108
-109        <activity
-109-->[androidx.compose.ui:ui-test-manifest:1.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\3cd50198beebeb180c844240279909aa\transformed\jetified-ui-test-manifest-1.6.1\AndroidManifest.xml:23:9-25:39
-110            android:name="androidx.activity.ComponentActivity"
-110-->[androidx.compose.ui:ui-test-manifest:1.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\3cd50198beebeb180c844240279909aa\transformed\jetified-ui-test-manifest-1.6.1\AndroidManifest.xml:24:13-63
-111            android:exported="true" />
-111-->[androidx.compose.ui:ui-test-manifest:1.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\3cd50198beebeb180c844240279909aa\transformed\jetified-ui-test-manifest-1.6.1\AndroidManifest.xml:25:13-36
-112
-113        <service
-113-->[androidx.room:room-runtime:2.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\920ac8b48927f38d82cc719adc790c3c\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
-114            android:name="androidx.room.MultiInstanceInvalidationService"
-114-->[androidx.room:room-runtime:2.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\920ac8b48927f38d82cc719adc790c3c\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
-115            android:directBootAware="true"
-115-->[androidx.room:room-runtime:2.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\920ac8b48927f38d82cc719adc790c3c\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
-116            android:exported="false" />
-116-->[androidx.room:room-runtime:2.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\920ac8b48927f38d82cc719adc790c3c\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
-117
-118        <receiver
-118-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
-119            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-119-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
-120            android:directBootAware="false"
-120-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
-121            android:enabled="true"
-121-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
-122            android:exported="true"
-122-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
-123            android:permission="android.permission.DUMP" >
-123-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
-124            <intent-filter>
-124-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
-125                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-125-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
-125-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
-126            </intent-filter>
-127            <intent-filter>
-127-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
-128                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-128-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
-128-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
-129            </intent-filter>
-130            <intent-filter>
-130-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
-131                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-131-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
-131-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
-132            </intent-filter>
-133            <intent-filter>
-133-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
-134                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-134-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
-134-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
-135            </intent-filter>
-136        </receiver>
-137    </application>
-138
-139</manifest>
+81        <provider
+81-->[androidx.emoji2:emoji2:1.3.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\0293e663fa6e995af3b5d3ab04538751\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+82            android:name="androidx.startup.InitializationProvider"
+82-->[androidx.emoji2:emoji2:1.3.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\0293e663fa6e995af3b5d3ab04538751\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:25:13-67
+83            android:authorities="com.example.ecolab.androidx-startup"
+83-->[androidx.emoji2:emoji2:1.3.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\0293e663fa6e995af3b5d3ab04538751\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:26:13-68
+84            android:exported="false" >
+84-->[androidx.emoji2:emoji2:1.3.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\0293e663fa6e995af3b5d3ab04538751\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:27:13-37
+85            <meta-data
+85-->[androidx.emoji2:emoji2:1.3.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\0293e663fa6e995af3b5d3ab04538751\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+86                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+86-->[androidx.emoji2:emoji2:1.3.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\0293e663fa6e995af3b5d3ab04538751\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:30:17-75
+87                android:value="androidx.startup" />
+87-->[androidx.emoji2:emoji2:1.3.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\0293e663fa6e995af3b5d3ab04538751\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:31:17-49
+88            <meta-data
+88-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\14b5bf0ef92d8053395335267b9114de\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:29:13-31:52
+89                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+89-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\14b5bf0ef92d8053395335267b9114de\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:30:17-78
+90                android:value="androidx.startup" />
+90-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\14b5bf0ef92d8053395335267b9114de\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:31:17-49
+91            <meta-data
+91-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+92                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+92-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+93                android:value="androidx.startup" />
+93-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+94        </provider>
+95
+96        <activity
+96-->[androidx.compose.ui:ui-test-manifest:1.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\3cd50198beebeb180c844240279909aa\transformed\jetified-ui-test-manifest-1.6.1\AndroidManifest.xml:23:9-25:39
+97            android:name="androidx.activity.ComponentActivity"
+97-->[androidx.compose.ui:ui-test-manifest:1.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\3cd50198beebeb180c844240279909aa\transformed\jetified-ui-test-manifest-1.6.1\AndroidManifest.xml:24:13-63
+98            android:exported="true" />
+98-->[androidx.compose.ui:ui-test-manifest:1.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\3cd50198beebeb180c844240279909aa\transformed\jetified-ui-test-manifest-1.6.1\AndroidManifest.xml:25:13-36
+99
+100        <service
+100-->[androidx.room:room-runtime:2.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\920ac8b48927f38d82cc719adc790c3c\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
+101            android:name="androidx.room.MultiInstanceInvalidationService"
+101-->[androidx.room:room-runtime:2.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\920ac8b48927f38d82cc719adc790c3c\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
+102            android:directBootAware="true"
+102-->[androidx.room:room-runtime:2.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\920ac8b48927f38d82cc719adc790c3c\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
+103            android:exported="false" />
+103-->[androidx.room:room-runtime:2.6.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\920ac8b48927f38d82cc719adc790c3c\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
+104
+105        <receiver
+105-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+106            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+106-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+107            android:directBootAware="false"
+107-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+108            android:enabled="true"
+108-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+109            android:exported="true"
+109-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+110            android:permission="android.permission.DUMP" >
+110-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+111            <intent-filter>
+111-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+112                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+112-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+112-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+113            </intent-filter>
+114            <intent-filter>
+114-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+115                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+115-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+115-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+116            </intent-filter>
+117            <intent-filter>
+117-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+118                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+118-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+118-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+119            </intent-filter>
+120            <intent-filter>
+120-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+121                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+121-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+121-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\01c02376eeceded13483ccac60e446f7\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
+122            </intent-filter>
+123        </receiver>
+124    </application>
+125
+126</manifest>

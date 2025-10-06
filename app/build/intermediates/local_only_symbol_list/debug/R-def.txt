@@ -95,6 +95,7 @@ drawable ic_close
 drawable ic_delete
 drawable ic_download
 drawable ic_ecolab_logo
+drawable ic_ecolab_logo_with_text
 drawable ic_education
 drawable ic_help
 drawable ic_history
@@ -112,6 +113,7 @@ drawable ic_settings
 drawable ic_star
 drawable ic_time
 drawable ic_trophy
+drawable splash_icon
 mipmap ic_launcher
 mipmap ic_launcher_round
 string about
@@ -289,6 +291,7 @@ string water_conservation
 string water_conservation_description
 string yes
 style Theme.EcoLab
+style Theme.EcoLab.Splash
 style Widget.EcoLab.BottomNavigationView
 style Widget.EcoLab.Button
 style Widget.EcoLab.CardView

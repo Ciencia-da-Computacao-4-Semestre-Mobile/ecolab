@@ -1,6 +1,7 @@
 package com.example.ecolab.feature.quickaction;
 
 import com.example.ecolab.data.repository.CollectionPointRepository;
+import com.example.ecolab.data.repository.UserProgressRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
@@ -22,23 +23,31 @@ import javax.inject.Provider;
     "KotlinInternalInJava"
 })
 public final class QuickActionViewModel_Factory implements Factory<QuickActionViewModel> {
-  private final Provider<CollectionPointRepository> repositoryProvider;
+  private final Provider<CollectionPointRepository> collectionPointRepositoryProvider;
 
-  public QuickActionViewModel_Factory(Provider<CollectionPointRepository> repositoryProvider) {
-    this.repositoryProvider = repositoryProvider;
+  private final Provider<UserProgressRepository> userProgressRepositoryProvider;
+
+  public QuickActionViewModel_Factory(
+      Provider<CollectionPointRepository> collectionPointRepositoryProvider,
+      Provider<UserProgressRepository> userProgressRepositoryProvider) {
+    this.collectionPointRepositoryProvider = collectionPointRepositoryProvider;
+    this.userProgressRepositoryProvider = userProgressRepositoryProvider;
   }
 
   @Override
   public QuickActionViewModel get() {
-    return newInstance(repositoryProvider.get());
+    return newInstance(collectionPointRepositoryProvider.get(), userProgressRepositoryProvider.get());
   }
 
   public static QuickActionViewModel_Factory create(
-      Provider<CollectionPointRepository> repositoryProvider) {
-    return new QuickActionViewModel_Factory(repositoryProvider);
+      Provider<CollectionPointRepository> collectionPointRepositoryProvider,
+      Provider<UserProgressRepository> userProgressRepositoryProvider) {
+    return new QuickActionViewModel_Factory(collectionPointRepositoryProvider, userProgressRepositoryProvider);
   }
 
-  public static QuickActionViewModel newInstance(CollectionPointRepository repository) {
-    return new QuickActionViewModel(repository);
+  public static QuickActionViewModel newInstance(
+      CollectionPointRepository collectionPointRepository,
+      UserProgressRepository userProgressRepository) {
+    return new QuickActionViewModel(collectionPointRepository, userProgressRepository);
   }
 }

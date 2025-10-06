@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:ns1="http://schemas.android.com/tools">
     <color name="background">@color/background_primary</color>
     <color name="background_primary">#FAFAFA</color>
     <color name="background_secondary">#F5F5F5</color>
@@ -292,11 +292,8 @@
         <item name="colorOutlineVariant">@color/outline_variant</item>
         
         
-        
         <item name="android:statusBarColor">@color/primary_color</item>
         <item name="android:windowLightStatusBar">false</item>
-        
-        
         <item name="android:navigationBarColor">@color/surface_primary</item>
         <item name="android:windowLightNavigationBar">true</item>
         
@@ -306,11 +303,24 @@
         <item name="android:windowTranslucentNavigation">false</item>
         
         
-        
         <item name="materialCardViewStyle">@style/Widget.EcoLab.CardView</item>
         <item name="materialButtonStyle">@style/Widget.EcoLab.Button</item>
         <item name="textInputStyle">@style/Widget.EcoLab.TextInputLayout</item>
         <item name="bottomNavigationStyle">@style/Widget.EcoLab.BottomNavigationView</item>
+    </style>
+    <style name="Theme.EcoLab.Splash" parent="Theme.SplashScreen">
+        
+        <item name="windowSplashScreenBackground">@color/background_primary</item>
+        
+        
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+        
+        
+        <item name="android:statusBarColor" ns1:targetApi="l">@color/background_primary</item>
+        <item name="android:navigationBarColor" ns1:targetApi="l">@color/background_primary</item>
+
+        
+        <item name="postSplashScreenTheme">@style/Theme.EcoLab</item>
     </style>
     <style name="Widget.EcoLab.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
         <item name="android:background">@color/bottom_nav_background</item>

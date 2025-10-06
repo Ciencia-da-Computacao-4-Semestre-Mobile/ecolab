@@ -3100,6 +3100,7 @@ drawable ic_close
 drawable ic_delete
 drawable ic_download
 drawable ic_ecolab_logo
+drawable ic_ecolab_logo_with_text
 drawable ic_education
 drawable ic_help
 drawable ic_history
@@ -3199,6 +3200,7 @@ drawable notification_template_icon_bg
 drawable notification_template_icon_low_bg
 drawable notification_tile_bg
 drawable notify_panel_notification_icon_bg
+drawable splash_icon
 drawable test_level_drawable
 drawable tooltip_frame_dark
 drawable tooltip_frame_light
@@ -4866,6 +4868,7 @@ style Theme_Design_Light_BottomSheetDialog
 style Theme_Design_Light_NoActionBar
 style Theme_Design_NoActionBar
 style Theme_EcoLab
+style Theme_EcoLab_Splash
 style Theme_Material3_Dark
 style Theme_Material3_Dark_BottomSheetDialog
 style Theme_Material3_Dark_Dialog

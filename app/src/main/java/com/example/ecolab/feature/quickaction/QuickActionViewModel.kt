@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecolab.data.model.CollectionPoint
 import com.example.ecolab.data.repository.CollectionPointRepository
+import com.example.ecolab.data.repository.UserProgressRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +26,8 @@ sealed interface QuickActionEvent {
 
 @HiltViewModel
 class QuickActionViewModel @Inject constructor(
-    private val repository: CollectionPointRepository
+    private val collectionPointRepository: CollectionPointRepository,
+    private val userProgressRepository: UserProgressRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(QuickActionUiState())
@@ -55,16 +57,21 @@ class QuickActionViewModel @Inject constructor(
 
             if (wasteType != null && photoUri != null && location != null) {
                 val newPoint = CollectionPoint(
-                    name = "Ponto de Coleta Adicionado", // Placeholder name
+                    name = "Novo Ponto de Coleta",
+                    address = "Endereço a ser preenchido",
                     wasteType = wasteType,
                     photoUri = photoUri,
                     latitude = location.first,
-                    longitude = location.second
+                    longitude = location.second,
+                    userSubmitted = true
                 )
-                repository.addPoint(newPoint)
+                collectionPointRepository.addPoint(newPoint)
+
+                // Complete the relevant mission
+                userProgressRepository.completeMission(wasteType)
+
                 _eventChannel.emit(QuickActionEvent.SubmissionSuccess)
             } else {
-                // Optional: handle error case, e.g., show a toast
                 println("Error: Cannot submit with incomplete data.")
             }
         }

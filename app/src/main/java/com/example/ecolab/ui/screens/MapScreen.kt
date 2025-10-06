@@ -1,5 +1,6 @@
 package com.example.ecolab.ui.screens
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,7 +47,16 @@ fun MapScreen(
         val gmmIntentUri = Uri.parse("google.navigation:q=${point.latitude},${point.longitude}")
         val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
         mapIntent.setPackage("com.google.android.apps.maps")
-        context.startActivity(mapIntent)
+
+        try {
+            // Attempt to start Google Maps
+            context.startActivity(mapIntent)
+        } catch (e: ActivityNotFoundException) {
+            // If Google Maps is not installed, open in browser as a fallback
+            val webIntentUri = Uri.parse("https://www.google.com/maps/dir/?api=1&destination=${point.latitude},${point.longitude}")
+            val webIntent = Intent(Intent.ACTION_VIEW, webIntentUri)
+            context.startActivity(webIntent)
+        }
     }
 
     Scaffold(
@@ -75,6 +85,7 @@ fun MapScreen(
         }
     }
 
+    // Show the bottom sheet if a point is selected
     selectedPoint?.let { point ->
         PointDetailsSheet(
             point = point,

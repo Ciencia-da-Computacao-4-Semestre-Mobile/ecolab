@@ -32,8 +32,8 @@ fun AppNavHost() {
         }
 
         // Secondary screens (do not show bottom bar)
-        composable("ranking") { RankingScreen() }
-        composable("achievements") { AchievementsScreen() }
+        composable("ranking") { RankingScreen(onNavigateBack = { navController.popBackStack() }) }
+        composable("achievements") { AchievementsScreen(onNavigateBack = { navController.popBackStack() }) }
         composable("quick_action") { QuickActionScreen(onClose = { navController.popBackStack() }) }
     }
 }
@@ -54,14 +54,6 @@ private fun MainScaffold(navController: androidx.navigation.NavController) {
     val innerNavController = rememberNavController()
 
     Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Eco Lab") },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-        },
         bottomBar = {
             NavigationBar(
                 tonalElevation = 0.dp // No shadow
@@ -70,7 +62,7 @@ private fun MainScaffold(navController: androidx.navigation.NavController) {
                     NavigationBarItem(
                         icon = { Icon(screen.icon, contentDescription = screen.title) },
                         label = { Text(screen.title) },
-                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                        selected = innerNavController.currentBackStackEntryAsState().value?.destination?.hierarchy?.any { it.route == screen.route } == true,
                         onClick = {
                             innerNavController.navigate(screen.route) {
                                 popUpTo(innerNavController.graph.findStartDestination().id) {

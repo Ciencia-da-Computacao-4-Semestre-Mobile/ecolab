@@ -1,6 +1,7 @@
 package com.example.ecolab.feature.home;
 
 import com.example.ecolab.data.repository.CollectionPointRepository;
+import com.example.ecolab.data.repository.UserProgressRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
@@ -22,23 +23,30 @@ import javax.inject.Provider;
     "KotlinInternalInJava"
 })
 public final class HomeViewModel_Factory implements Factory<HomeViewModel> {
-  private final Provider<CollectionPointRepository> repositoryProvider;
+  private final Provider<CollectionPointRepository> collectionPointRepositoryProvider;
 
-  public HomeViewModel_Factory(Provider<CollectionPointRepository> repositoryProvider) {
-    this.repositoryProvider = repositoryProvider;
+  private final Provider<UserProgressRepository> userProgressRepositoryProvider;
+
+  public HomeViewModel_Factory(
+      Provider<CollectionPointRepository> collectionPointRepositoryProvider,
+      Provider<UserProgressRepository> userProgressRepositoryProvider) {
+    this.collectionPointRepositoryProvider = collectionPointRepositoryProvider;
+    this.userProgressRepositoryProvider = userProgressRepositoryProvider;
   }
 
   @Override
   public HomeViewModel get() {
-    return newInstance(repositoryProvider.get());
+    return newInstance(collectionPointRepositoryProvider.get(), userProgressRepositoryProvider.get());
   }
 
   public static HomeViewModel_Factory create(
-      Provider<CollectionPointRepository> repositoryProvider) {
-    return new HomeViewModel_Factory(repositoryProvider);
+      Provider<CollectionPointRepository> collectionPointRepositoryProvider,
+      Provider<UserProgressRepository> userProgressRepositoryProvider) {
+    return new HomeViewModel_Factory(collectionPointRepositoryProvider, userProgressRepositoryProvider);
   }
 
-  public static HomeViewModel newInstance(CollectionPointRepository repository) {
-    return new HomeViewModel(repository);
+  public static HomeViewModel newInstance(CollectionPointRepository collectionPointRepository,
+      UserProgressRepository userProgressRepository) {
+    return new HomeViewModel(collectionPointRepository, userProgressRepository);
   }
 }

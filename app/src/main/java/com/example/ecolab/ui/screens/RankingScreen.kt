@@ -1,6 +1,7 @@
 package com.example.ecolab.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,15 +9,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -25,51 +33,54 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.ecolab.feature.ranking.RankedUser
+import com.example.ecolab.data.model.RankedUser
 import com.example.ecolab.feature.ranking.RankingViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RankingScreen(
-    viewModel: RankingViewModel = hiltViewModel()
-) {
+fun RankingScreen(viewModel: RankingViewModel = hiltViewModel(), onNavigateBack: () -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
-    val tabs = listOf("Semanal", "Geral")
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        // Tabs for weekly/general ranking
-        TabRow(selectedTabIndex = uiState.selectedTabIndex) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
-                    selected = uiState.selectedTabIndex == index,
-                    onClick = { viewModel.onTabSelected(index) },
-                    text = { Text(title) }
-                )
-            }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Ranking") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Voltar")
+                    }
+                }
+            )
         }
-
-        // List of ranked users
-        LazyColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(uiState.users) { user ->
-                RankingItem(user = user)
+    ) {
+        if (uiState.isLoading) {
+            Box(modifier = Modifier.fillMaxSize().padding(it), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(it).padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(uiState.users) { user ->
+                    UserRankingCard(user = user)
+                }
             }
         }
     }
 }
 
 @Composable
-private fun RankingItem(user: RankedUser) {
-    val isCurrentUser = user.name == "Você" // Simple check for highlighting
+private fun UserRankingCard(user: RankedUser) {
+    val cardColor = if (user.isCurrentUser) {
+        MaterialTheme.colorScheme.primaryContainer
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(0.dp),
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(
-            containerColor = if (isCurrentUser) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
+        colors = CardDefaults.cardColors(containerColor = cardColor)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -77,13 +88,22 @@ private fun RankingItem(user: RankedUser) {
         ) {
             Text(
                 text = "#${user.position}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(end = 16.dp)
             )
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(text = user.name, style = MaterialTheme.typography.bodyLarge)
-            Spacer(modifier = Modifier.weight(1f))
-            Text(text = "${user.points} pts", fontWeight = FontWeight.SemiBold)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(user.name, style = MaterialTheme.typography.titleMedium)
+                Text("${user.score} pts", style = MaterialTheme.typography.bodyMedium)
+            }
+            if (user.position <= 3) {
+                Icon(
+                    imageVector = Icons.Default.EmojiEvents,
+                    contentDescription = "Top 3",
+                    tint = MaterialTheme.colorScheme.tertiary, // A gold-like color
+                    modifier = Modifier.size(32.dp)
+                )
+            }
         }
     }
 }
