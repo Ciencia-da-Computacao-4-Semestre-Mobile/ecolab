@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    STRINGS.XML - RECURSOS DE TEXTO DO ECOLAB
+    ==========================================
+    
+    Este arquivo contém todos os recursos de texto utilizados no aplicativo EcoLab.
+    A organização dos strings segue uma estrutura hierárquica por funcionalidade,
+    facilitando a manutenção e localização futura.
+    
+    ESTRUTURA DE ORGANIZAÇÃO:
+    - Navegação: Textos relacionados à navegação e menus
+    - Home: Textos da tela principal/dashboard
+    - Mapa: Textos relacionados ao mapa e localização
+    - Tipos de Coleta: Categorias de materiais recicláveis
+    - Educação: Conteúdo educativo e artigos
+    - Gamificação: Sistema de pontos, conquistas e ranking
+    - Perfil: Configurações e dados do usuário
+    - Ações: Botões e ações comuns
+    - Mensagens: Feedbacks e notificações
+    - Formulários: Labels e hints de campos
+    - Permissões: Textos relacionados a permissões do sistema
+    - Estatísticas: Métricas e dados quantitativos
+    
+    CONVENÇÕES DE NOMENCLATURA:
+    - snake_case para nomes de strings
+    - Prefixos por categoria quando necessário
+    - Sufixos descritivos (_title, _description, _hint, etc.)
+    
+    LOCALIZAÇÃO:
+    Este arquivo serve como base para futuras traduções.
+    Para adicionar novos idiomas, criar pastas values-[código_idioma]/
+    
+    FORMATAÇÃO:
+    - Strings com formatação usam %d, %s, etc.
+    - Strings com formatação complexa marcadas com formatted="false"
+    - Caracteres especiais escapados adequadamente
+-->
+<resources>
+    <!-- IDENTIFICAÇÃO DO APLICATIVO -->
+    <string name="app_name">EcoLab</string>
+    
+    <!-- 
+        NAVEGAÇÃO
+        =========
+        Textos utilizados na navegação principal do aplicativo,
+        incluindo bottom navigation, drawer e menus contextuais.
+    -->
+    <string name="home">Início</string>
+    <string name="mapa">Mapa</string>
+    <string name="nav_map">Mapa</string>
+    <string name="nav_add_point">Adicionar</string>
+    <string name="nav_settings">Configurações</string>
+    <string name="educacao">Educação</string>
+    <string name="gamificacao">Gamificação</string>
+    <string name="perfil">Perfil</string>
+    
+    <!-- 
+        HOME / DASHBOARD
+        ================
+        Textos da tela principal do aplicativo, incluindo:
+        - Estatísticas do usuário (pontos, nível)
+        - Ações principais (cards de navegação)
+        - Histórico de atividades recentes
+    -->
+    <string name="pontos">Pontos</string>
+    <string name="nivel">Nível</string>
+    <string name="level_format">Nível %d</string>
+    <string name="adicionar_ponto">Adicionar Ponto</string>
+    <string name="acoes_recentes">Ações Recentes</string>
+    <string name="acoes_principais">Ações Principais</string>
+    
+    <!-- 
+        MAPA E LOCALIZAÇÃO
+        ==================
+        Textos relacionados à funcionalidade de mapa, incluindo:
+        - Visualização de pontos ecológicos
+        - Adição de novos pontos
+        - Navegação e localização
+        - Interações com marcadores
+    -->
+    <string name="adicionar_ponto_coleta">Adicionar Ponto de Coleta</string>
+    <string name="navegar_para_local">Navegar para Local</string>
+    <string name="fechar">Fechar</string>
+    
+    <!-- 
+        TIPOS DE COLETA / MATERIAIS
+        ===========================
+        Categorias de materiais recicláveis suportados pelo aplicativo.
+        Utilizados em formulários de adição de pontos e filtros de busca.
+        Cada tipo corresponde a um enum EcoPointType no código Kotlin.
+    -->
+    <string name="papel">Papel</string>
+    <string name="plastico">Plástico</string>
+    <string name="vidro">Vidro</string>
+    <string name="metal">Metal</string>
+    <string name="organico">Orgânico</string>
+    
+    <!-- 
+        EDUCAÇÃO AMBIENTAL
+        ==================
+        Textos relacionados ao módulo educativo do aplicativo, incluindo:
+        - Artigos sobre sustentabilidade
+        - Vídeos educativos
+        - Dicas práticas
+        - Categorização de conteúdo
+        - Métricas de tempo de leitura
+    -->
+    <string name="conteudo_educativo">Conteúdo Educativo</string>
+    <string name="artigos">Artigos</string>
+    <string name="videos">Vídeos</string>
+    <string name="dicas">Dicas</string>
+    <string name="tempo_leitura">%d min de leitura</string>
+    
+    <!-- 
+        GAMIFICAÇÃO
+        ===========
+        Sistema de gamificação para engajamento do usuário, incluindo:
+        - Conquistas e badges
+        - Sistema de ranking/leaderboard
+        - Desafios e metas
+        - Pontuação e progressão
+    -->
+    <string name="conquistas">Conquistas</string>
+    <string name="ranking">Ranking</string>
+    <string name="desafios">Desafios</string>
+    <string name="badges">Badges</string>
+    
+    <!-- 
+        PERFIL E CONFIGURAÇÕES
+        ======================
+        Textos relacionados ao perfil do usuário e configurações do app, incluindo:
+        - Configurações de notificações
+        - Preferências de tema
+        - Gerenciamento de dados
+        - Histórico de atividades
+        - Configurações de privacidade
+    -->
+    <string name="configuracoes">Configurações</string>
+    <string name="settings">Configurações</string>
+    <string name="historico_acoes">Histórico de Ações</string>
+    <string name="notificacoes">Notificações</string>
+    <string name="notifications">Notificações</string>
+    <string name="help">Ajuda</string>
+    <string name="evolucao">Evolução</string>
+    <string name="editar_perfil">Editar Perfil</string>
+    
+    <!-- Settings Section -->
+    <string name="enable_notifications">Ativar notificações</string>
+    <string name="location_updates">Atualizações de localização</string>
+    <string name="theme">Tema</string>
+    <string name="light_theme">Tema claro</string>
+    <string name="dark_theme">Tema escuro</string>
+    <string name="system_theme">Tema do sistema</string>
+    <string name="data_management">Gerenciamento de dados</string>
+    <string name="clear_cache">Limpar cache</string>
+    <string name="export_data">Exportar dados</string>
+    <string name="delete_account">Excluir conta</string>
+    
+    <!-- 
+        AÇÕES E BOTÕES
+        ==============
+        Textos para botões e ações comuns utilizados em toda a aplicação.
+        Padronização de terminologia para consistência da UX.
+    -->
+    <string name="salvar">Salvar</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="confirmar">Confirmar</string>
+    <string name="voltar">Voltar</string>
+    <string name="compartilhar">Compartilhar</string>
+    <string name="favoritar">Favoritar</string>
+    
+    <!-- 
+        MENSAGENS E FEEDBACK
+        ====================
+        Textos para feedback ao usuário, incluindo:
+        - Estados de carregamento
+        - Mensagens de erro
+        - Confirmações de sucesso
+        - Notificações do sistema
+    -->
+    <string name="carregando">Carregando…</string>
+    <string name="erro_conexao">Erro de conexão. Tente novamente.</string>
+    <string name="sucesso_salvo">Salvo com sucesso!</string>
+    <string name="ponto_adicionado">Ponto de coleta adicionado!</string>
+    
+    <!-- 
+        FORMULÁRIOS E CAMPOS
+        ====================
+        Labels, hints e textos de validação para formulários.
+        Utilizados principalmente na adição de pontos ecológicos.
+    -->
+    <string name="nome">Nome</string>
+    <string name="descricao">Descrição</string>
+    <string name="localizacao">Localização</string>
+    <string name="tipo_material">Tipo de Material</string>
+    <string name="foto">Foto</string>
+    <string name="obrigatório">Obrigatório</string>
+    
+    <!-- 
+        PERMISSÕES DO SISTEMA
+        =====================
+        Textos relacionados a solicitações de permissões do Android.
+        Incluem explicações claras sobre o uso das permissões para compliance.
+    -->
+    <string name="permissao_localizacao">Permissão de localização necessária</string>
+    <string name="permissao_camera">Permissão de câmera necessária</string>
+    
+    <!-- 
+        ESTATÍSTICAS E MÉTRICAS
+        =======================
+        Textos para exibição de dados quantitativos e métricas do usuário.
+        Utilizados em dashboards e telas de progresso.
+    -->
+    <string name="total_points">Pontos Totais</string>
+    <string name="monthly_points">Pontos do Mês</string>
+    <string name="collection_points_registered">Pontos Cadastrados</string>
+    <string name="recycling_actions_completed">Ações Realizadas</string>
+    <string name="collection_points">Pontos de Coleta</string>
+    <string name="recycling_actions">Ações de Reciclagem</string>
+    <string name="statistics_title">Estatísticas</string>
+
+    <!-- Educação -->
+    <string name="education_title">Educação Ambiental</string>
+    <string name="education_subtitle">Aprenda sobre sustentabilidade e reciclagem</string>
+    <string name="filter_all">Todos</string>
+    <string name="composting">Compostagem</string>
+    <string name="recycling">Reciclagem</string>
+    <string name="sustainability">Sustentabilidade</string>
+
+    <!-- Gamificação -->
+    <string name="gamification_title">Gamificação</string>
+    <string name="achievements_title">Conquistas</string>
+    <string name="leaderboard_title">Ranking</string>
+    <string name="view_all">Ver Todos</string>
+
+    <!-- Perfil -->
+    <string name="edit_profile">Editar Perfil</string>
+    <string name="action_history">Histórico de Ações</string>
+    <string name="logout">Sair</string>
+
+    <!-- Eco Point Types -->
+    <string name="recycling_point">Ponto de Reciclagem</string>
+    <string name="recycling_point_description">Local para descarte de materiais recicláveis</string>
+    <string name="composting_point">Compostagem</string>
+    <string name="composting_point_description">Local para compostagem de resíduos orgânicos</string>
+    <string name="solar_panel">Painel Solar</string>
+    <string name="solar_panel_description">Instalação de energia solar</string>
+    <string name="water_conservation">Conservação de Água</string>
+    <string name="water_conservation_description">Sistema de conservação e reuso de água</string>
+    <string name="green_area">Área Verde</string>
+    <string name="green_area_description">Espaço verde urbano ou natural</string>
+    <string name="electric_charging">Carregamento Elétrico</string>
+    <string name="electric_charging_description">Estação de carregamento para veículos elétricos</string>
+    <string name="organic_garden">Horta Orgânica</string>
+    <string name="organic_garden_description">Horta comunitária ou orgânica</string>
+    <string name="environmental_education">Educação Ambiental</string>
+    <string name="environmental_education_description">Centro de educação e conscientização ambiental</string>
+
+    <!-- Add Point Screen -->
+    <string name="add_point_title">Adicionar Ponto Ecológico</string>
+    <string name="point_name">Nome do ponto</string>
+    <string name="point_name_hint">Digite o nome do ponto ecológico</string>
+    <string name="point_description">Descrição</string>
+    <string name="point_description_hint">Descreva o ponto ecológico</string>
+    <string name="point_type">Tipo</string>
+    <string name="select_type">Selecionar tipo</string>
+    <string name="use_current_location">Usar localização atual</string>
+    <string name="save_point">Salvar Ponto</string>
+    <string name="point_saved">Ponto salvo com sucesso!</string>
+    <string name="error_saving_point">Erro ao salvar ponto</string>
+    <string name="name_required">Nome é obrigatório</string>
+    <string name="description_required">Descrição é obrigatória</string>
+    <string name="type_required">Tipo é obrigatório</string>
+    <string name="location_required">Localização é obrigatória</string>
+
+    <!-- Map Screen -->
+    <string name="map_title">Pontos Ecológicos</string>
+    <string name="my_location">Minha Localização</string>
+    <string name="location_permission_required">Permissão de localização necessária</string>
+    <string name="location_permission_denied">Permissão de localização negada</string>
+    <string name="loading_location">Carregando localização...</string>
+    <string name="error_loading_location">Erro ao carregar localização</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Configurações</string>
+    <string name="appearance">Aparência</string>
+    <string name="dynamic_colors">Cores dinâmicas</string>
+    <string name="map_settings">Mapa</string>
+    <string name="auto_location">Localização automática</string>
+    <string name="auto_location_description">Detectar localização automaticamente</string>
+    <string name="map_type">Tipo de mapa</string>
+    <string name="map_type_description">Escolha o tipo de mapa</string>
+    <string name="dark_theme_description">Ativar tema escuro</string>
+    <string name="dynamic_colors_description">Usar cores dinâmicas do sistema</string>
+    <string name="add_point">Adicionar ponto</string>
+    <string name="location_not_available">Localização não disponível</string>
+    <string name="get_current_location">Obter localização atual</string>
+    <string name="add_eco_point">Adicionar Ponto Ecológico</string>
+    <string name="back">Voltar</string>
+    <string name="location">Localização</string>
+    <string name="coordinates_format" formatted="false">Coordenadas: %.6f, %.6f</string>
+    <string name="push_notifications">Notificações push</string>
+    <string name="push_notifications_description">Receber notificações do aplicativo</string>
+    <string name="location_alerts">Alertas de localização</string>
+    <string name="location_alerts_description">Receber alertas baseados na localização</string>
+    <string name="data">Dados</string>
+    <string name="sync_data">Sincronizar dados</string>
+    <string name="sync_data_description">Sincronizar dados com a nuvem</string>
+    <string name="clear_data">Limpar dados</string>
+    <string name="clear_cache_description">Limpar cache do aplicativo</string>
+    <string name="about">Sobre</string>
+    <string name="app_version">Versão do app</string>
+    <string name="privacy_policy">Política de privacidade</string>
+    <string name="privacy_policy_description">Leia nossa política de privacidade</string>
+    <string name="terms_of_service">Termos de serviço</string>
+    <string name="terms_of_service_description">Consulte os termos de uso</string>
+
+    <!-- Common -->
+    <string name="ok">OK</string>
+    <string name="yes">Sim</string>
+    <string name="no">Não</string>
+    <string name="loading">Carregando...</string>
+    <string name="error">Erro</string>
+    <string name="retry">Tentar novamente</string>
+    <string name="close">Fechar</string>
+
+    <!-- Permissions -->
+    <string name="permission_location_title">Permissão de Localização</string>
+    <string name="permission_location_message">O EcoLab precisa acessar sua localização para mostrar pontos ecológicos próximos e permitir adicionar novos pontos.</string>
+    <string name="permission_denied_title">Permissão Negada</string>
+    <string name="permission_denied_message">Para usar todos os recursos do app, é necessário conceder permissão de localização nas configurações.</string>
+    <string name="go_to_settings">Ir para Configurações</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Início</string>
+    <string name="nav_education">Educação</string>
+    <string name="nav_gamification">Gamificação</string>
+    <string name="nav_profile">Perfil</string>
+    <string name="add_collection_point">Adicionar Ponto de Coleta</string>
+</resources>
