@@ -6,22 +6,16 @@ import android.view.View;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
+import com.example.ecolab.data.repository.MockPointsRepository;
 import com.example.ecolab.di.AppModule;
-import com.example.ecolab.di.AppModule_ProvideAuthRepositoryFactory;
-import com.example.ecolab.di.AppModule_ProvideLoginUseCaseFactory;
-import com.example.ecolab.domain.auth.AuthRepository;
-import com.example.ecolab.domain.auth.LoginUseCase;
-import com.example.ecolab.presentation.MainActivity;
-import com.example.ecolab.presentation.ui.conquests.ConquestsViewModel;
-import com.example.ecolab.presentation.ui.conquests.ConquestsViewModel_HiltModules_KeyModule_ProvideFactory;
-import com.example.ecolab.presentation.ui.education.EducationViewModel;
-import com.example.ecolab.presentation.ui.education.EducationViewModel_HiltModules_KeyModule_ProvideFactory;
-import com.example.ecolab.presentation.ui.login.LoginViewModel;
-import com.example.ecolab.presentation.ui.login.LoginViewModel_HiltModules_KeyModule_ProvideFactory;
-import com.example.ecolab.presentation.ui.map.MapViewModel;
-import com.example.ecolab.presentation.ui.map.MapViewModel_HiltModules_KeyModule_ProvideFactory;
-import com.example.ecolab.presentation.ui.profile.ProfileViewModel;
-import com.example.ecolab.presentation.ui.profile.ProfileViewModel_HiltModules_KeyModule_ProvideFactory;
+import com.example.ecolab.feature.home.HomeViewModel;
+import com.example.ecolab.feature.home.HomeViewModel_HiltModules_KeyModule_ProvideFactory;
+import com.example.ecolab.feature.library.LibraryViewModel;
+import com.example.ecolab.feature.library.LibraryViewModel_HiltModules_KeyModule_ProvideFactory;
+import com.example.ecolab.feature.map.MapViewModel;
+import com.example.ecolab.feature.map.MapViewModel_HiltModules_KeyModule_ProvideFactory;
+import com.example.ecolab.feature.profile.ProfileViewModel;
+import com.example.ecolab.feature.profile.ProfileViewModel_HiltModules_KeyModule_ProvideFactory;
 import dagger.hilt.android.ActivityRetainedLifecycle;
 import dagger.hilt.android.ViewModelLifecycle;
 import dagger.hilt.android.flags.HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule;
@@ -36,7 +30,6 @@ import dagger.hilt.android.internal.lifecycle.DefaultViewModelFactories;
 import dagger.hilt.android.internal.lifecycle.DefaultViewModelFactories_InternalFactoryFactory_Factory;
 import dagger.hilt.android.internal.managers.ActivityRetainedComponentManager_LifecycleModule_ProvideActivityRetainedLifecycleFactory;
 import dagger.hilt.android.internal.modules.ApplicationContextModule;
-import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideContextFactory;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.DoubleCheck;
 import dagger.internal.MapBuilder;
@@ -67,9 +60,11 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
     return new Builder();
   }
 
-  public static final class Builder {
-    private ApplicationContextModule applicationContextModule;
+  public static EcoLabApplication_HiltComponents.SingletonC create() {
+    return new Builder().build();
+  }
 
+  public static final class Builder {
     private Builder() {
     }
 
@@ -82,8 +77,12 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
       return this;
     }
 
+    /**
+     * @deprecated This module is declared, but an instance is not used in the component. This method is a no-op. For more, see https://dagger.dev/unused-modules.
+     */
+    @Deprecated
     public Builder applicationContextModule(ApplicationContextModule applicationContextModule) {
-      this.applicationContextModule = Preconditions.checkNotNull(applicationContextModule);
+      Preconditions.checkNotNull(applicationContextModule);
       return this;
     }
 
@@ -98,8 +97,7 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
     }
 
     public EcoLabApplication_HiltComponents.SingletonC build() {
-      Preconditions.checkBuilderRequirement(applicationContextModule, ApplicationContextModule.class);
-      return new SingletonCImpl(applicationContextModule);
+      return new SingletonCImpl();
     }
   }
 
@@ -388,7 +386,7 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
 
     @Override
     public Set<String> getViewModelKeys() {
-      return SetBuilder.<String>newSetBuilder(5).add(ConquestsViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(EducationViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(LoginViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(MapViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(ProfileViewModel_HiltModules_KeyModule_ProvideFactory.provide()).build();
+      return SetBuilder.<String>newSetBuilder(4).add(HomeViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(LibraryViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(MapViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(ProfileViewModel_HiltModules_KeyModule_ProvideFactory.provide()).build();
     }
 
     @Override
@@ -414,11 +412,9 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
 
     private final ViewModelCImpl viewModelCImpl = this;
 
-    private Provider<ConquestsViewModel> conquestsViewModelProvider;
+    private Provider<HomeViewModel> homeViewModelProvider;
 
-    private Provider<EducationViewModel> educationViewModelProvider;
-
-    private Provider<LoginViewModel> loginViewModelProvider;
+    private Provider<LibraryViewModel> libraryViewModelProvider;
 
     private Provider<MapViewModel> mapViewModelProvider;
 
@@ -437,16 +433,15 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
     @SuppressWarnings("unchecked")
     private void initialize(final SavedStateHandle savedStateHandleParam,
         final ViewModelLifecycle viewModelLifecycleParam) {
-      this.conquestsViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
-      this.educationViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
-      this.loginViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
-      this.mapViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
-      this.profileViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 4);
+      this.homeViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
+      this.libraryViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
+      this.mapViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
+      this.profileViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
     }
 
     @Override
     public Map<String, Provider<ViewModel>> getHiltViewModelMap() {
-      return MapBuilder.<String, Provider<ViewModel>>newMapBuilder(5).put("com.example.ecolab.presentation.ui.conquests.ConquestsViewModel", ((Provider) conquestsViewModelProvider)).put("com.example.ecolab.presentation.ui.education.EducationViewModel", ((Provider) educationViewModelProvider)).put("com.example.ecolab.presentation.ui.login.LoginViewModel", ((Provider) loginViewModelProvider)).put("com.example.ecolab.presentation.ui.map.MapViewModel", ((Provider) mapViewModelProvider)).put("com.example.ecolab.presentation.ui.profile.ProfileViewModel", ((Provider) profileViewModelProvider)).build();
+      return MapBuilder.<String, Provider<ViewModel>>newMapBuilder(4).put("com.example.ecolab.feature.home.HomeViewModel", ((Provider) homeViewModelProvider)).put("com.example.ecolab.feature.library.LibraryViewModel", ((Provider) libraryViewModelProvider)).put("com.example.ecolab.feature.map.MapViewModel", ((Provider) mapViewModelProvider)).put("com.example.ecolab.feature.profile.ProfileViewModel", ((Provider) profileViewModelProvider)).build();
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -470,19 +465,16 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
       @Override
       public T get() {
         switch (id) {
-          case 0: // com.example.ecolab.presentation.ui.conquests.ConquestsViewModel 
-          return (T) new ConquestsViewModel();
+          case 0: // com.example.ecolab.feature.home.HomeViewModel 
+          return (T) new HomeViewModel(singletonCImpl.mockPointsRepositoryProvider.get());
 
-          case 1: // com.example.ecolab.presentation.ui.education.EducationViewModel 
-          return (T) new EducationViewModel();
+          case 1: // com.example.ecolab.feature.library.LibraryViewModel 
+          return (T) new LibraryViewModel();
 
-          case 2: // com.example.ecolab.presentation.ui.login.LoginViewModel 
-          return (T) new LoginViewModel(singletonCImpl.provideLoginUseCaseProvider.get());
+          case 2: // com.example.ecolab.feature.map.MapViewModel 
+          return (T) new MapViewModel(singletonCImpl.mockPointsRepositoryProvider.get());
 
-          case 3: // com.example.ecolab.presentation.ui.map.MapViewModel 
-          return (T) new MapViewModel(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
-
-          case 4: // com.example.ecolab.presentation.ui.profile.ProfileViewModel 
+          case 3: // com.example.ecolab.feature.profile.ProfileViewModel 
           return (T) new ProfileViewModel();
 
           default: throw new AssertionError(id);
@@ -560,24 +552,19 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
   }
 
   private static final class SingletonCImpl extends EcoLabApplication_HiltComponents.SingletonC {
-    private final ApplicationContextModule applicationContextModule;
-
     private final SingletonCImpl singletonCImpl = this;
 
-    private Provider<AuthRepository> provideAuthRepositoryProvider;
+    private Provider<MockPointsRepository> mockPointsRepositoryProvider;
 
-    private Provider<LoginUseCase> provideLoginUseCaseProvider;
+    private SingletonCImpl() {
 
-    private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
-      this.applicationContextModule = applicationContextModuleParam;
-      initialize(applicationContextModuleParam);
+      initialize();
 
     }
 
     @SuppressWarnings("unchecked")
-    private void initialize(final ApplicationContextModule applicationContextModuleParam) {
-      this.provideAuthRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<AuthRepository>(singletonCImpl, 1));
-      this.provideLoginUseCaseProvider = DoubleCheck.provider(new SwitchingProvider<LoginUseCase>(singletonCImpl, 0));
+    private void initialize() {
+      this.mockPointsRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<MockPointsRepository>(singletonCImpl, 0));
     }
 
     @Override
@@ -613,11 +600,8 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
       @Override
       public T get() {
         switch (id) {
-          case 0: // com.example.ecolab.domain.auth.LoginUseCase 
-          return (T) AppModule_ProvideLoginUseCaseFactory.provideLoginUseCase(singletonCImpl.provideAuthRepositoryProvider.get());
-
-          case 1: // com.example.ecolab.domain.auth.AuthRepository 
-          return (T) AppModule_ProvideAuthRepositoryFactory.provideAuthRepository();
+          case 0: // com.example.ecolab.data.repository.MockPointsRepository 
+          return (T) new MockPointsRepository();
 
           default: throw new AssertionError(id);
         }

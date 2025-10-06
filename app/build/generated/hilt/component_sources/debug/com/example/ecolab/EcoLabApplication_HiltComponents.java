@@ -1,12 +1,11 @@
 package com.example.ecolab;
 
 import com.example.ecolab.di.AppModule;
-import com.example.ecolab.presentation.MainActivity_GeneratedInjector;
-import com.example.ecolab.presentation.ui.conquests.ConquestsViewModel_HiltModules;
-import com.example.ecolab.presentation.ui.education.EducationViewModel_HiltModules;
-import com.example.ecolab.presentation.ui.login.LoginViewModel_HiltModules;
-import com.example.ecolab.presentation.ui.map.MapViewModel_HiltModules;
-import com.example.ecolab.presentation.ui.profile.ProfileViewModel_HiltModules;
+import com.example.ecolab.di.RepositoryModule;
+import com.example.ecolab.feature.home.HomeViewModel_HiltModules;
+import com.example.ecolab.feature.library.LibraryViewModel_HiltModules;
+import com.example.ecolab.feature.map.MapViewModel_HiltModules;
+import com.example.ecolab.feature.profile.ProfileViewModel_HiltModules;
 import dagger.Binds;
 import dagger.Component;
 import dagger.Module;
@@ -134,7 +133,8 @@ public final class EcoLabApplication_HiltComponents {
           ApplicationContextModule.class,
           ActivityRetainedCBuilderModule.class,
           ServiceCBuilderModule.class,
-          HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule.class
+          HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule.class,
+          RepositoryModule.class
       }
   )
   @Singleton
@@ -157,12 +157,11 @@ public final class EcoLabApplication_HiltComponents {
 
   @Subcomponent(
       modules = {
-          ConquestsViewModel_HiltModules.KeyModule.class,
           ActivityCBuilderModule.class,
           ViewModelCBuilderModule.class,
-          EducationViewModel_HiltModules.KeyModule.class,
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
-          LoginViewModel_HiltModules.KeyModule.class,
+          HomeViewModel_HiltModules.KeyModule.class,
+          LibraryViewModel_HiltModules.KeyModule.class,
           MapViewModel_HiltModules.KeyModule.class,
           ProfileViewModel_HiltModules.KeyModule.class
       }
@@ -200,10 +199,9 @@ public final class EcoLabApplication_HiltComponents {
 
   @Subcomponent(
       modules = {
-          ConquestsViewModel_HiltModules.BindsModule.class,
-          EducationViewModel_HiltModules.BindsModule.class,
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
-          LoginViewModel_HiltModules.BindsModule.class,
+          HomeViewModel_HiltModules.BindsModule.class,
+          LibraryViewModel_HiltModules.BindsModule.class,
           MapViewModel_HiltModules.BindsModule.class,
           ProfileViewModel_HiltModules.BindsModule.class
       }
