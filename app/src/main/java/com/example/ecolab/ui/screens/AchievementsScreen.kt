@@ -1,122 +1,58 @@
 package com.example.ecolab.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.ecolab.data.model.Achievement
-import com.example.ecolab.feature.achievements.AchievementsViewModel
+import com.example.ecolab.ui.theme.Palette
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AchievementsScreen(
-    viewModel: AchievementsViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit
-) {
-    val achievements by viewModel.achievements.collectAsState()
+fun AchievementsScreen() {
+    val unlockedCount = 8
+    val totalCount = 24
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Conquistas") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Voltar")
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Text(
+            text = "Conquistas ($unlockedCount/$totalCount)",
+            style = MaterialTheme.typography.headlineSmall,
+            color = Palette.text
+        )
+        Spacer(Modifier.height(8.dp))
+        LinearProgressIndicator(
+            progress = { unlockedCount.toFloat() / totalCount.toFloat() },
+            modifier = Modifier.fillMaxWidth(),
+            color = Palette.primary,
+            trackColor = Palette.divider
+        )
+        Spacer(Modifier.height(16.dp))
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(totalCount) {
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(0.dp),
+                    colors = CardDefaults.cardColors(containerColor = if (it < unlockedCount) Palette.divider else Palette.surface)
+                ) {
+                    Box(
+                        modifier = Modifier.aspectRatio(1f).padding(8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Badge ${it + 1}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (it < unlockedCount) Palette.primary else Palette.textMuted
+                        )
                     }
                 }
-            )
-        }
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(it)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(achievements) { achievement ->
-                AchievementCard(achievement = achievement)
-            }
-        }
-    }
-}
-
-@Composable
-private fun AchievementCard(achievement: Achievement) {
-    val cardColor = if (achievement.isUnlocked) {
-        MaterialTheme.colorScheme.tertiaryContainer
-    } else {
-        MaterialTheme.colorScheme.surfaceVariant
-    }
-
-    val icon = if (achievement.isUnlocked) {
-        Icons.Default.CheckCircle
-    } else {
-        Icons.Default.Lock
-    }
-
-    val iconColor = if (achievement.isUnlocked) {
-        MaterialTheme.colorScheme.onTertiaryContainer
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = cardColor)
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = if (achievement.isUnlocked) "Desbloqueado" else "Bloqueado",
-                tint = iconColor,
-                modifier = Modifier.size(40.dp)
-            )
-            Spacer(modifier = Modifier.size(16.dp))
-            Column {
-                Text(
-                    text = achievement.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = achievement.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = iconColor.copy(alpha = 0.8f)
-                )
             }
         }
     }

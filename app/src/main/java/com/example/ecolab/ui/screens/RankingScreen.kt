@@ -1,108 +1,86 @@
 package com.example.ecolab.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.ecolab.data.model.RankedUser
-import com.example.ecolab.feature.ranking.RankingViewModel
+import com.example.ecolab.ui.theme.Palette
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RankingScreen(viewModel: RankingViewModel = hiltViewModel(), onNavigateBack: () -> Unit) {
-    val uiState by viewModel.uiState.collectAsState()
+fun RankingScreen() {
+    var selectedSegment by remember { mutableStateOf("Semanal") }
+    val users = listOf( // Mock data
+        "Maria S." to 1520,
+        "João P." to 1450,
+        "Você" to 1390,
+        "Carlos A." to 1320,
+        "Ana L." to 1280,
+        "Pedro H." to 1100,
+        "Sofia R." to 980,
+        "Lucas M." to 950,
+        "Beatriz C." to 910,
+        "Gabriel F." to 880
+    )
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Ranking") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Voltar")
-                    }
-                }
-            )
-        }
-    ) {
-        if (uiState.isLoading) {
-            Box(modifier = Modifier.fillMaxSize().padding(it), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(it).padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(uiState.users) { user ->
-                    UserRankingCard(user = user)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun UserRankingCard(user: RankedUser) {
-    val cardColor = if (user.isCurrentUser) {
-        MaterialTheme.colorScheme.primaryContainer
-    } else {
-        MaterialTheme.colorScheme.surfaceVariant
-    }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = cardColor)
-    ) {
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(bottom = 16.dp)
         ) {
-            Text(
-                text = "#${user.position}",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(end = 16.dp)
-            )
-            Column(modifier = Modifier.weight(1f)) {
-                Text(user.name, style = MaterialTheme.typography.titleMedium)
-                Text("${user.score} pts", style = MaterialTheme.typography.bodyMedium)
-            }
-            if (user.position <= 3) {
-                Icon(
-                    imageVector = Icons.Default.EmojiEvents,
-                    contentDescription = "Top 3",
-                    tint = MaterialTheme.colorScheme.tertiary, // A gold-like color
-                    modifier = Modifier.size(32.dp)
+            val isSemanalSelected = selectedSegment == "Semanal"
+            FilterChip(
+                selected = isSemanalSelected,
+                onClick = { selectedSegment = "Semanal" },
+                label = { Text("Semanal") },
+                shape = RoundedCornerShape(20.dp),
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = Palette.divider,
+                    selectedLabelColor = Palette.primary
+                ),
+                border = FilterChipDefaults.filterChipBorder(
+                    enabled = true,
+                    selected = isSemanalSelected,
+                    borderColor = Palette.divider,
+                    selectedBorderColor = Palette.divider
                 )
+            )
+            val isMensalSelected = selectedSegment == "Mensal"
+            FilterChip(
+                selected = isMensalSelected,
+                onClick = { selectedSegment = "Mensal" },
+                label = { Text("Mensal") },
+                shape = RoundedCornerShape(20.dp),
+                 colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = Palette.divider,
+                    selectedLabelColor = Palette.primary
+                ),
+                border = FilterChipDefaults.filterChipBorder(
+                    enabled = true,
+                    selected = isMensalSelected,
+                    borderColor = Palette.divider,
+                    selectedBorderColor = Palette.divider
+                )
+            )
+        }
+
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(0.dp)) {
+            items(users.size) { index ->
+                val user = users[index]
+                val isCurrentUser = user.first == "Você"
+                ListItem(
+                    headlineContent = { Text(user.first, color = if(isCurrentUser) Palette.primary else Palette.text) },
+                    leadingContent = { Text("#${index + 1}", style = MaterialTheme.typography.titleMedium, color = Palette.textMuted) },
+                    trailingContent = { Text("${user.second} pts", color = Palette.textMuted) },
+                    modifier = if (isCurrentUser) Modifier.border(1.dp, Palette.accent, RoundedCornerShape(2.dp)) else Modifier,
+                    colors = ListItemDefaults.colors(containerColor = Palette.background)
+                )
+                HorizontalDivider(color = Palette.divider)
             }
         }
     }

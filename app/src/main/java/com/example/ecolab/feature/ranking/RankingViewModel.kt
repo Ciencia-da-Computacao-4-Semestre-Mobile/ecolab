@@ -5,10 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.ecolab.data.model.RankedUser
 import com.example.ecolab.data.repository.RankingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 data class RankingUiState(
@@ -18,21 +18,14 @@ data class RankingUiState(
 
 @HiltViewModel
 class RankingViewModel @Inject constructor(
-    private val repository: RankingRepository
+    repository: RankingRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(RankingUiState())
-    val uiState = _uiState.asStateFlow()
-
-    init {
-        loadRanking()
-    }
-
-    private fun loadRanking() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            val users = repository.getRanking()
-            _uiState.update { it.copy(users = users, isLoading = false) }
-        }
-    }
+    val uiState: StateFlow<RankingUiState> = repository.ranking
+        .map { users -> RankingUiState(users = users, isLoading = false) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = RankingUiState(isLoading = true)
+        )
 }

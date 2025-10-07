@@ -1,209 +1,139 @@
 package com.example.ecolab.ui.screens
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Leaderboard
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.ecolab.R
-import com.example.ecolab.data.model.CollectionPoint
 import com.example.ecolab.feature.home.HomeViewModel
 import com.example.ecolab.ui.components.PointCard
 import com.example.ecolab.ui.theme.EcoLabTheme
+import com.example.ecolab.ui.theme.Palette
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
-    onOpenRanking: () -> Unit = {},
-    onOpenAchievements: () -> Unit = {},
-    onNavigateToQuickAction: () -> Unit = {}
+    onRankingClick: () -> Unit,
+    onAchievementsClick: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val points by viewModel.points.collectAsState()
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_ecolab_logo),
-                        contentDescription = "EcoLab Logo",
-                        modifier = Modifier.height(32.dp)
-                    )
-                }
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(vertical = 16.dp)
+    ) {
+        item { MissionCard() }
+        item { Shortcuts(onRankingClick = onRankingClick, onAchievementsClick = onAchievementsClick) }
+        item {
+            Text(
+                text = "Pontos próximos",
+                style = MaterialTheme.typography.titleMedium,
+                color = Palette.text,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
         }
-    ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            item { Spacer(Modifier.height(4.dp)) }
-
-            item {
-                MissionOfTheDayCard(
-                    isCompleted = uiState.isPlasticMissionCompleted,
-                    onComplete = onNavigateToQuickAction
-                )
-            }
-
-            item {
-                ShortcutsRow(
-                    onOpenRanking = onOpenRanking,
-                    onOpenAchievements = onOpenAchievements
-                )
-            }
-
-            item {
-                Text(
-                    "Pontos próximos",
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
-
-            items(uiState.points) { point ->
-                PointCard(
-                    point = point,
-                    onClick = { /* TODO: Navigate to point details */ }
-                )
-            }
-
-            item { Spacer(Modifier.height(16.dp)) } // Bottom padding
+        items(points) { point ->
+            PointCard(
+                point = point,
+                onClick = { /* TODO: Navigate to point details */ },
+                onFavorite = { viewModel.toggleFavorite(point.id) }
+            )
         }
     }
 }
 
 @Composable
-private fun MissionOfTheDayCard(
-    isCompleted: Boolean,
-    onComplete: () -> Unit
-) {
+private fun MissionCard() {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(0.dp),
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(
-            containerColor = if (isCompleted) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
+        colors = CardDefaults.cardColors(containerColor = Palette.surface)
     ) {
-        Column(Modifier.padding(16.dp)) {
-            if (isCompleted) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Icon(Icons.Default.CheckCircle, contentDescription = "Missão completa", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
-                    Text("Primeiro descarte de plástico concluído!", style = MaterialTheme.typography.titleLarge)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Missão do Dia",
+                style = MaterialTheme.typography.titleLarge,
+                color = Palette.text
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            LinearProgressIndicator(
+                progress = { 0.7f },
+                modifier = Modifier.fillMaxWidth(),
+                color = Palette.primary,
+                trackColor = Palette.divider
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(onClick = { /* TODO */ }) {
+                    Text("Pular", color = Palette.textMuted)
                 }
-            } else {
-                Text("Missão do Dia: Descarte Plástico", style = MaterialTheme.typography.titleLarge)
-                Spacer(Modifier.height(8.dp))
-                LinearProgressIndicator(
-                    progress = { 0f },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(Modifier.height(12.dp))
-                Row {
-                    Button(onClick = onComplete) {
-                        Text("Concluir agora")
-                    }
-                    Spacer(Modifier.weight(1f))
-                    TextButton(onClick = { /*TODO*/ }) {
-                        Text("Pular")
-                    }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = { /* TODO */ },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Palette.primary),
+                    modifier = Modifier.height(44.dp)
+                ) {
+                    Text("Concluir agora")
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ShortcutsRow(
-    onOpenRanking: () -> Unit,
-    onOpenAchievements: () -> Unit
-) {
+private fun Shortcuts(onRankingClick: () -> Unit, onAchievementsClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         AssistChip(
-            onClick = onOpenRanking,
+            onClick = onRankingClick,
             label = { Text("Ranking") },
-            leadingIcon = {
-                Icon(
-                    Icons.Default.Leaderboard,
-                    contentDescription = "Abrir Ranking"
-                )
-            }
+            leadingIcon = { Icon(Icons.Default.Leaderboard, "Ranking", modifier = Modifier.size(24.dp)) },
+            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier.height(44.dp),
+            border = BorderStroke(1.dp, Palette.divider)
         )
         AssistChip(
-            onClick = onOpenAchievements,
+            onClick = onAchievementsClick,
             label = { Text("Conquistas") },
-            leadingIcon = {
-                Icon(
-                    Icons.Default.EmojiEvents,
-                    contentDescription = "Abrir Conquistas"
-                )
-            }
+            leadingIcon = { Icon(Icons.Default.EmojiEvents, "Conquistas", modifier = Modifier.size(24.dp)) },
+            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier.height(44.dp),
+            border = BorderStroke(1.dp, Palette.divider)
         )
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 private fun HomeScreenPreview() {
     EcoLabTheme {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            MissionOfTheDayCard(isCompleted = false, onComplete = {})
-            ShortcutsRow({}, {})
-            Text("Pontos próximos", style = MaterialTheme.typography.titleMedium)
-            PointCard(
-                point = CollectionPoint(
-                    id = 1,
-                    name = "Ecoponto Preview",
-                    address = "Rua Ficticia, 123",
-                    openingHours = "Seg-Sex: 8h-18h",
-                    wasteType = "Multi",
-                    photoUri = "",
-                    latitude = -23.55,
-                    longitude = -46.63,
-                    userSubmitted = true
-                ),
-                onClick = {}
-            )
-        }
+        HomeScreen(onRankingClick = {}, onAchievementsClick = {})
     }
 }

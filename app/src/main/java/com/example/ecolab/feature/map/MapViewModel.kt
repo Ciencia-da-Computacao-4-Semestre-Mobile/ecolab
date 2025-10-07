@@ -2,30 +2,52 @@ package com.example.ecolab.feature.map
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ecolab.data.model.CollectionPoint
-import com.example.ecolab.data.repository.CollectionPointRepository
+import com.example.ecolab.core.domain.model.CollectionPoint
+import com.example.ecolab.core.domain.repository.PointsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class MapUiState(
-    val points: List<CollectionPoint> = emptyList(),
-    val isLoading: Boolean = true
-)
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    private val repository: CollectionPointRepository
+    private val pointsRepository: PointsRepository
 ) : ViewModel() {
 
-    val uiState: StateFlow<MapUiState> = repository.getAllPoints()
-        .map { points -> MapUiState(points = points, isLoading = false) }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = MapUiState(isLoading = true)
-        )
+    private val _selectedCategory = MutableStateFlow("Todos")
+
+    val uiState: StateFlow<MapUiState> = combine(
+        pointsRepository.observePoints(),
+        _selectedCategory
+    ) { allPoints, selectedCategory ->
+        val filteredPoints = if (selectedCategory == "Todos") {
+            allPoints
+        } else {
+            allPoints.filter { it.category == selectedCategory }
+        }
+        MapUiState(collectionPoints = filteredPoints, selectedCategory = selectedCategory)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = MapUiState()
+    )
+
+    fun onFilterChange(category: String) {
+        _selectedCategory.value = category
+    }
+
+    fun refresh() {
+        viewModelScope.launch {
+            pointsRepository.refresh()
+        }
+    }
 }
+
+data class MapUiState(
+    val collectionPoints: List<CollectionPoint> = emptyList(),
+    val selectedCategory: String = "Todos"
+)

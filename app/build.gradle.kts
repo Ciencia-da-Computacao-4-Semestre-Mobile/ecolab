@@ -1,11 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("kotlin-kapt")
     alias(libs.plugins.hilt)
-    id("kotlin-parcelize")
+    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.mapsplatform.secrets)
-    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -43,8 +42,6 @@ android {
     }
     buildFeatures {
         compose = true
-        viewBinding = false
-        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.8"
@@ -56,30 +53,18 @@ android {
     }
 }
 
+secrets {
+    defaultPropertiesFileName = "local.properties"
+}
+
 dependencies {
-    // Core Android
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
+    // Modules
+    implementation(project(":core:common"))
+    implementation(project(":core:data"))
+    implementation(project(":core:domain"))
+    implementation(project(":core:ui"))
 
-    // Lifecycle
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.lifecycle.livedata.ktx)
-
-    // Hilt
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
-
-    // Room
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    kapt(libs.androidx.room.compiler)
-
-    // Google Maps
-    implementation(libs.play.services.maps)
-    implementation(libs.play.services.location)
-
-    // Compose BOM
+    // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
@@ -88,11 +73,29 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.hilt.navigation.compose)
-    implementation(libs.maps.compose)
-    implementation(libs.accompanist.permissions)
-    implementation("io.coil-kt:coil-compose:2.5.0")
-    // Compose Material Icons (extended set)
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.accompanist.systemuicontroller)
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+
+    // AndroidX
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    kapt(libs.androidx.room.compiler)
+
+    // Maps & Location
+    implementation(libs.maps.compose)
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+
+    // Coil
+    implementation("io.coil-kt:coil-compose:2.5.0")
 
     // DataStore
     implementation(libs.androidx.datastore.preferences)
@@ -100,22 +103,19 @@ dependencies {
     // Splash Screen
     implementation(libs.androidx.core.splashscreen)
 
-    // Serialization
-    implementation(libs.kotlinx.serialization.json)
+    // Google
+    implementation(libs.material)
 
-    // Coroutines
-    implementation(libs.kotlinx.coroutines.android)
+    // Hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
 
-    // Coordinate Conversion (Proj4j)
-    implementation("org.locationtech.proj4j:proj4j:1.1.5")
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.play.services.auth)
 
-    // Networking - Retrofit/Moshi/OkHttp
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.moshi)
-    implementation(libs.moshi.kotlin)
-    implementation(libs.okhttp.logging.interceptor)
-
-    // Testing
+    // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -123,4 +123,8 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+kapt {
+    correctErrorTypes = true
 }

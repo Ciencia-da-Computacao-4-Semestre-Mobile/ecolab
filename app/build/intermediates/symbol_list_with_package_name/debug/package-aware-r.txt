@@ -1341,6 +1341,10 @@ color bright_foreground_inverse_material_dark
 color bright_foreground_inverse_material_light
 color bright_foreground_material_dark
 color bright_foreground_material_light
+color browser_actions_bg_grey
+color browser_actions_divider_color
+color browser_actions_text_color
+color browser_actions_title_color
 color button_material_dark
 color button_material_light
 color call_notification_answer_color
@@ -2238,6 +2242,8 @@ dimen abc_text_size_subtitle_material_toolbar
 dimen abc_text_size_title_material
 dimen abc_text_size_title_material_toolbar
 dimen appcompat_dialog_background_inset
+dimen browser_actions_context_menu_max_width
+dimen browser_actions_context_menu_min_padding
 dimen cardview_compat_inset_shadow
 dimen cardview_default_elevation
 dimen cardview_default_radius
@@ -3120,6 +3126,9 @@ drawable ic_mtrl_chip_checked_circle
 drawable ic_mtrl_chip_close_circle
 drawable ic_navigation
 drawable ic_notifications
+drawable ic_other_sign_in
+drawable ic_passkey
+drawable ic_password
 drawable ic_person
 drawable ic_recycling
 drawable ic_search_black_24
@@ -3295,6 +3304,11 @@ id beginning
 id blocking
 id bottom
 id bounce
+id browser_actions_header_text
+id browser_actions_menu_item_icon
+id browser_actions_menu_item_text
+id browser_actions_menu_items
+id browser_actions_menu_view
 id buttonPanel
 id cancel_button
 id center
@@ -3790,6 +3804,8 @@ layout abc_search_dropdown_item_icons_2line
 layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
+layout browser_actions_context_menu_page
+layout browser_actions_context_menu_row
 layout custom_dialog
 layout design_bottom_navigation_item
 layout design_bottom_sheet_dialog
@@ -3873,6 +3889,7 @@ layout support_simple_spinner_dropdown_item
 mipmap ic_launcher
 mipmap ic_launcher_round
 plurals mtrl_badge_content_description
+raw firebase_common_keep
 string abc_action_bar_home_description
 string abc_action_bar_up_description
 string abc_action_menu_overflow_description
@@ -3911,6 +3928,8 @@ string add_point
 string add_point_title
 string adicionar_ponto
 string adicionar_ponto_coleta
+string android_credentials_TYPE_PASSWORD_CREDENTIAL
+string androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL
 string androidx_startup
 string app_name
 string app_version
@@ -3975,6 +3994,7 @@ string confirmar
 string conquistas
 string conteudo_educativo
 string coordinates_format
+string copy_toast_msg
 string dark_theme
 string dark_theme_description
 string data
@@ -4010,14 +4030,22 @@ string export_data
 string exposed_dropdown_menu_content_description
 string fab_transformation_scrim_behavior
 string fab_transformation_sheet_behavior
+string fallback_menu_item_copy_link
+string fallback_menu_item_open_in_browser
+string fallback_menu_item_share_link
 string favoritar
 string fechar
 string filter_all
 string foto
 string gamificacao
 string gamification_title
+string gcm_defaultSenderId
 string get_current_location
 string go_to_settings
+string google_api_key
+string google_app_id
+string google_crash_reporting_api_key
+string google_storage_bucket
 string green_area
 string green_area_description
 string help
@@ -4254,6 +4282,7 @@ string ponto_adicionado
 string pontos
 string privacy_policy
 string privacy_policy_description
+string project_id
 string push_notifications
 string push_notifications_description
 string range_end
@@ -4869,6 +4898,7 @@ style Theme_Design_Light_NoActionBar
 style Theme_Design_NoActionBar
 style Theme_EcoLab
 style Theme_EcoLab_Splash
+style Theme_Hidden
 style Theme_Material3_Dark
 style Theme_Material3_Dark_BottomSheetDialog
 style Theme_Material3_Dark_Dialog
@@ -5601,3 +5631,4 @@ styleable ViewStubCompat android_id android_layout android_inflatedId
 xml backup_rules
 xml data_extraction_rules
 xml file_paths
+xml image_share_filepaths

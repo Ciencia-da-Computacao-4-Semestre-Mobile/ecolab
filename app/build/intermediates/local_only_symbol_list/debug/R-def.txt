@@ -185,8 +185,13 @@ string filter_all
 string foto
 string gamificacao
 string gamification_title
+string gcm_defaultSenderId
 string get_current_location
 string go_to_settings
+string google_api_key
+string google_app_id
+string google_crash_reporting_api_key
+string google_storage_bucket
 string green_area
 string green_area_description
 string help
@@ -253,6 +258,7 @@ string ponto_adicionado
 string pontos
 string privacy_policy
 string privacy_policy_description
+string project_id
 string push_notifications
 string push_notifications_description
 string ranking

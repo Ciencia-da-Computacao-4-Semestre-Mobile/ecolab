@@ -1,6 +1,6 @@
 package com.example.ecolab.feature.map;
 
-import com.example.ecolab.data.repository.CollectionPointRepository;
+import com.example.ecolab.core.domain.repository.PointsRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
@@ -22,23 +22,22 @@ import javax.inject.Provider;
     "KotlinInternalInJava"
 })
 public final class MapViewModel_Factory implements Factory<MapViewModel> {
-  private final Provider<CollectionPointRepository> repositoryProvider;
+  private final Provider<PointsRepository> pointsRepositoryProvider;
 
-  public MapViewModel_Factory(Provider<CollectionPointRepository> repositoryProvider) {
-    this.repositoryProvider = repositoryProvider;
+  public MapViewModel_Factory(Provider<PointsRepository> pointsRepositoryProvider) {
+    this.pointsRepositoryProvider = pointsRepositoryProvider;
   }
 
   @Override
   public MapViewModel get() {
-    return newInstance(repositoryProvider.get());
+    return newInstance(pointsRepositoryProvider.get());
   }
 
-  public static MapViewModel_Factory create(
-      Provider<CollectionPointRepository> repositoryProvider) {
-    return new MapViewModel_Factory(repositoryProvider);
+  public static MapViewModel_Factory create(Provider<PointsRepository> pointsRepositoryProvider) {
+    return new MapViewModel_Factory(pointsRepositoryProvider);
   }
 
-  public static MapViewModel newInstance(CollectionPointRepository repository) {
-    return new MapViewModel(repository);
+  public static MapViewModel newInstance(PointsRepository pointsRepository) {
+    return new MapViewModel(pointsRepository);
   }
 }

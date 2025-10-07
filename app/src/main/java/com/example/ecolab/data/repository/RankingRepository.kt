@@ -3,7 +3,9 @@ package com.example.ecolab.data.repository
 import com.example.ecolab.data.model.RankedUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,12 +17,12 @@ import javax.inject.Singleton
 class RankingRepository @Inject constructor() {
 
     /**
-     * Fetches a fake list of ranked users.
+     * A flow that emits a fake list of ranked users.
      * Simulates a network delay.
      */
-    suspend fun getRanking(): List<RankedUser> = withContext(Dispatchers.IO) {
+    val ranking: Flow<List<RankedUser>> = flow {
         delay(1000) // Simulate network latency
-        return@withContext listOf(
+        emit(listOf(
             RankedUser(position = 1, name = "Maria S.", score = 1520),
             RankedUser(position = 2, name = "João P.", score = 1450),
             RankedUser(position = 3, name = "Você", score = 1390, isCurrentUser = true),
@@ -31,6 +33,6 @@ class RankingRepository @Inject constructor() {
             RankedUser(position = 8, name = "Lucas M.", score = 950),
             RankedUser(position = 9, name = "Beatriz C.", score = 910),
             RankedUser(position = 10, name = "Gabriel F.", score = 880)
-        )
-    }
+        ))
+    }.flowOn(Dispatchers.IO)
 }

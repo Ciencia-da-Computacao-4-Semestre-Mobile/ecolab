@@ -3,6 +3,7 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+        maven("https://jitpack.io")
     }
 }
 dependencyResolutionManagement {
@@ -16,3 +17,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "EcoLab"
 include(":app")
+include(":core:common")
+include(":core:data")
+include(":core:domain")
+include(":core:ui")

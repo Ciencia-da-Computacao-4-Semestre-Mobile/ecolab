@@ -1,12 +1,14 @@
 package com.example.ecolab.di;
 
-import com.example.ecolab.domain.auth.AuthRepository;
+import com.example.ecolab.core.data.repository.AuthRepositoryImpl;
+import com.example.ecolab.core.domain.repository.AuthRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.Preconditions;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
+import javax.inject.Provider;
 
 @ScopeMetadata("javax.inject.Singleton")
 @QualifierMetadata
@@ -22,20 +24,23 @@ import javax.annotation.processing.Generated;
     "KotlinInternalInJava"
 })
 public final class AppModule_ProvideAuthRepositoryFactory implements Factory<AuthRepository> {
+  private final Provider<AuthRepositoryImpl> implProvider;
+
+  public AppModule_ProvideAuthRepositoryFactory(Provider<AuthRepositoryImpl> implProvider) {
+    this.implProvider = implProvider;
+  }
+
   @Override
   public AuthRepository get() {
-    return provideAuthRepository();
+    return provideAuthRepository(implProvider.get());
   }
 
-  public static AppModule_ProvideAuthRepositoryFactory create() {
-    return InstanceHolder.INSTANCE;
+  public static AppModule_ProvideAuthRepositoryFactory create(
+      Provider<AuthRepositoryImpl> implProvider) {
+    return new AppModule_ProvideAuthRepositoryFactory(implProvider);
   }
 
-  public static AuthRepository provideAuthRepository() {
-    return Preconditions.checkNotNullFromProvides(AppModule.INSTANCE.provideAuthRepository());
-  }
-
-  private static final class InstanceHolder {
-    private static final AppModule_ProvideAuthRepositoryFactory INSTANCE = new AppModule_ProvideAuthRepositoryFactory();
+  public static AuthRepository provideAuthRepository(AuthRepositoryImpl impl) {
+    return Preconditions.checkNotNullFromProvides(AppModule.INSTANCE.provideAuthRepository(impl));
   }
 }
