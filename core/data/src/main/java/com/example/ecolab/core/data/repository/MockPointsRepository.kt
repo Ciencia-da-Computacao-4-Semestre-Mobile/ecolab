@@ -14,9 +14,9 @@ class MockPointsRepository @Inject constructor() : PointsRepository {
 
     private val _points = MutableStateFlow(
         listOf(
-            CollectionPoint(1, "Ecoponto Central", "Multi-materiais", -23.55, -46.63, "Coleta", false),
-            CollectionPoint(2, "Cooperativa Verde", "Plástico e Papel", -23.56, -46.64, "Coleta", true),
-            CollectionPoint(3, "Ponto de Descarte Rápido", "Vidro", -23.54, -46.65, "Descarte", false)
+            CollectionPoint(1, "Ecoponto Central", "Multi-materiais", -23.55, -46.63, "Ecoponto", null, null, false),
+            CollectionPoint(2, "Cooperativa Verde", "Plástico e Papel", -23.56, -46.64, "Cooperativa", null, null, true),
+            CollectionPoint(3, "Ponto de Descarte Rápido", "Vidro", -23.54, -46.65, "Ponto de Entrega", null, null, false)
         )
     )
 

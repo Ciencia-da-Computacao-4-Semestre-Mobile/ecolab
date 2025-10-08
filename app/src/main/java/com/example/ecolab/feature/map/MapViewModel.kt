@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,17 +20,23 @@ class MapViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _selectedCategory = MutableStateFlow("Todos")
+    private val _selectedPoint = MutableStateFlow<CollectionPoint?>(null)
 
     val uiState: StateFlow<MapUiState> = combine(
         pointsRepository.observePoints(),
-        _selectedCategory
-    ) { allPoints, selectedCategory ->
+        _selectedCategory,
+        _selectedPoint
+    ) { allPoints, selectedCategory, selectedPoint ->
         val filteredPoints = if (selectedCategory == "Todos") {
             allPoints
         } else {
             allPoints.filter { it.category == selectedCategory }
         }
-        MapUiState(collectionPoints = filteredPoints, selectedCategory = selectedCategory)
+        MapUiState(
+            collectionPoints = filteredPoints,
+            selectedCategory = selectedCategory,
+            selectedPoint = selectedPoint
+        )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -38,6 +45,14 @@ class MapViewModel @Inject constructor(
 
     fun onFilterChange(category: String) {
         _selectedCategory.value = category
+    }
+
+    fun onMarkerClick(point: CollectionPoint) {
+        _selectedPoint.value = point
+    }
+
+    fun onDismissBottomSheet() {
+        _selectedPoint.value = null
     }
 
     fun refresh() {
@@ -49,5 +64,6 @@ class MapViewModel @Inject constructor(
 
 data class MapUiState(
     val collectionPoints: List<CollectionPoint> = emptyList(),
-    val selectedCategory: String = "Todos"
+    val selectedCategory: String = "Todos",
+    val selectedPoint: CollectionPoint? = null
 )

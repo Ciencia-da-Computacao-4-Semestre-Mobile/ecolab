@@ -7,5 +7,7 @@ data class CollectionPoint(
     val latitude: Double,
     val longitude: Double,
     val category: String,
+    val openingHours: String? = null,
+    val materials: String? = null,
     val isFavorite: Boolean = false
 )

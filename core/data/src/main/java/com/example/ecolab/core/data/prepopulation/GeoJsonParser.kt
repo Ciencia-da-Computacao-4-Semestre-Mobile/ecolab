@@ -27,9 +27,37 @@ class GeoJsonParser(private val context: Context) {
 
             featureCollection.features.mapNotNull { feature ->
                 val properties = feature.properties
-                val name = properties.name ?: properties.compostYardName ?: properties.voluntaryPointName ?: properties.coopName
-                val description = properties.address ?: properties.compostYardAddress ?: properties.voluntaryPointAddress ?: properties.coopAddress
-                val category = getCategoryFromFileName(fileName) // Correctly pass the file name
+
+                // Coalesce name from all possible fields
+                val name = properties.ecopontoName
+                    ?: properties.compostYardName
+                    ?: properties.voluntaryPointName
+                    ?: properties.coopName
+                    ?: properties.localName
+
+                // Coalesce address from all possible fields
+                val description = properties.ecopontoAddress
+                    ?: properties.compostYardAddress
+                    ?: properties.voluntaryPointAddress
+                    ?: properties.coopAddress
+
+                // Determine category based on which name field was non-null
+                val category = when {
+                    properties.ecopontoName != null -> "Ecoponto"
+                    properties.compostYardName != null -> "Pátio de Compostagem"
+                    properties.voluntaryPointName != null || properties.localName != null -> "Ponto de Entrega"
+                    properties.coopName != null -> "Cooperativa"
+                    else -> "Geral" // Fallback
+                }
+
+                // Coalesce materials
+                val materials = properties.ecopontoMaterials
+                    ?: properties.voluntaryPointMaterials
+                    ?: properties.coopSpecialty
+
+                // Coalesce opening hours
+                val openingHours = properties.ecopontoOpeningHours
+                    ?: properties.compostYardOpeningHours
 
                 if (name != null && description != null && feature.geometry.coordinates.size == 2) {
                     val projCoord = ProjCoordinate(feature.geometry.coordinates[0], feature.geometry.coordinates[1])
@@ -42,22 +70,14 @@ class GeoJsonParser(private val context: Context) {
                         description = description,
                         latitude = resultCoord.y,
                         longitude = resultCoord.x,
-                        category = category
+                        category = category,
+                        openingHours = openingHours,
+                        materials = materials
                     )
                 } else {
                     null
                 }
             }
-        }
-    }
-
-    private fun getCategoryFromFileName(fileName: String): String {
-        return when {
-            fileName.contains("ecoponto") -> "Ecoponto"
-            fileName.contains("patio_compostagem") -> "Pátio de Compostagem"
-            fileName.contains("ponto_entrega_voluntaria") -> "Ponto de Entrega"
-            fileName.contains("central_triagem_cooperativa") -> "Cooperativa"
-            else -> "Geral"
         }
     }
 }

@@ -21,22 +21,21 @@ data class Geometry(
 
 @Serializable
 data class Properties(
-    @SerialName("nm_ecoponto") val name: String? = null,
+    // Name fields from different files
+    @SerialName("nm_ecoponto") val ecopontoName: String? = null,
+    @SerialName("nm_patio_compostagem") val compostYardName: String? = null,
+    @SerialName("nm_local") val voluntaryPointName: String? = null,
+    @SerialName("nm_cooperativa") val coopName: String? = null,
+
+    // Address field (consistent across all files)
     @SerialName("nm_endereco") val address: String? = null,
-    @SerialName("tx_atendimento") val openingHours: String? = null,
 
-    // Properties for patio_compostagem
-    @SerialName("Nome") val compostYardName: String? = null,
-    @SerialName("Endereco") val compostYardAddress: String? = null,
-    @SerialName("Obs") val compostYardObs: String? = null,
+    // Opening hours fields
+    @SerialName("tx_atendimento") val ecopontoOpeningHours: String? = null,
+    @SerialName("tx_horario_atendimento") val compostYardOpeningHours: String? = null,
 
-    // Properties for ponto_entrega_voluntaria
-    @SerialName("nome") val voluntaryPointName: String? = null,
-    @SerialName("endereco") val voluntaryPointAddress: String? = null,
-    @SerialName("materiais") val materials: String? = null,
-
-    // Properties for central_triagem_cooperativa
-    @SerialName("Nome_da_Cooperativa") val coopName: String? = null,
-    @SerialName("Endereco_Completo") val coopAddress: String? = null,
-    @SerialName("telefone") val coopPhone: String? = null
+    // Materials fields
+    @SerialName("tx_recebimento_comum") val ecopontoMaterials: String? = null,
+    @SerialName("materiais") val voluntaryPointMaterials: String? = null,
+    @SerialName("tx_especialidade") val coopSpecialty: String? = null
 )
