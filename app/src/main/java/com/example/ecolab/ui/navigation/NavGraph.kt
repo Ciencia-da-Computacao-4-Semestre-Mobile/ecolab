@@ -52,16 +52,6 @@ fun AppNavHost(
     val shouldShowScaffoldElements = currentDestination?.route in bottomNavRoutes
 
     Scaffold(
-        topBar = {
-            if (shouldShowScaffoldElements) {
-                CenterAlignedTopAppBar(
-                    title = { Text("Eco Lab", color = Palette.text) },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Palette.background
-                    )
-                )
-            }
-        },
         bottomBar = {
             if (shouldShowScaffoldElements) {
                 NavigationBar(
@@ -102,14 +92,14 @@ fun AppNavHost(
         ) {
             composable(BottomNavItem.Home.route) {
                 HomeScreen(
-                    onRankingClick = { navController.navigate("ranking") },
+                    onQuizClick = { navController.navigate("quiz") },
                     onAchievementsClick = { navController.navigate("achievements") }
                 )
             }
             composable(BottomNavItem.Map.route) { MapScreen() }
             composable(BottomNavItem.Library.route) { LibraryScreen() }
             composable(BottomNavItem.Profile.route) { ProfileScreen() }
-            composable("ranking") { RankingScreen() }
+            composable("quiz") { QuizScreen() }
             composable("achievements") { AchievementsScreen() }
             composable("login") { LoginScreen(onLogin = { navController.navigate(BottomNavItem.Home.route) }) }
         }

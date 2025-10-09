@@ -1,16 +1,16 @@
 -- Merging decision tree log ---
 meta-data#com.google.android.geo.API_KEY
-INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:21:9-23:47
+INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:19:9-21:47
 	android:value
 		INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml
-		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:23:13-44
+		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:21:13-44
 	android:name
-		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:22:13-58
+		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:20:13-58
 manifest
-ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:2:1-37:12
-INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:2:1-37:12
-INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:2:1-37:12
-INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:2:1-37:12
+ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:2:1-35:12
+INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:2:1-35:12
+INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:2:1-35:12
+INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:2:1-35:12
 MERGED from [:core:common] C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\core\common\build\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-7:12
 MERGED from [:core:data] C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\core\data\build\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-7:12
 MERGED from [:core:domain] C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\core\domain\build\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-7:12
@@ -165,8 +165,8 @@ ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\s
 	android:name
 		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:7:22-78
 application
-ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:9:5-35:19
-INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:9:5-35:19
+ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:9:5-33:19
+INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:9:5-33:19
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\e31f5a71fd7ef8de3d13e2be21c20903\transformed\material-1.11.0\AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\e31f5a71fd7ef8de3d13e2be21c20903\transformed\material-1.11.0\AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\1a6c43dba00293a56d562a4f27bba81d\transformed\constraintlayout-2.0.1\AndroidManifest.xml:9:5-20
@@ -222,45 +222,41 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\NicolasLimaFreitas
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.12.0] C:\Users\NicolasLimaFreitas\.gradle\caches\transforms-4\7b1a3e337a43153ed2b65fe407ccf51c\transformed\core-1.12.0\AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:17:9-35
+		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:15:9-35
 	android:label
-		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:15:9-41
+		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:14:9-41
 	android:fullBackupContent
 		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:13:9-54
-	android:roundIcon
-		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:16:9-54
 	tools:targetApi
-		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:19:9-29
-	android:icon
-		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:14:9-43
+		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:17:9-29
 	android:allowBackup
 		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:11:9-35
 	android:theme
-		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:18:9-51
+		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:16:9-51
 	android:dataExtractionRules
 		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:12:9-65
 	android:name
 		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:10:9-42
 activity#com.example.ecolab.MainActivity
-ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:25:9-34:20
+ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:23:9-32:20
 	android:label
-		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:28:13-45
+		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:26:13-45
 	android:exported
-		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:27:13-36
+		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:25:13-36
 	android:theme
-		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:29:13-55
+		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:27:13-55
 	android:name
-		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:26:13-41
+		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:24:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:30:13-33:29
+ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:28:13-31:29
 action#android.intent.action.MAIN
-ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:31:17-69
+ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:29:17-69
 	android:name
-		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:31:25-66
+		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:29:25-66
 category#android.intent.category.LAUNCHER
-ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:32:17-77
+ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:30:17-77
 	android:name
-		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:32:27-74
+		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml:30:27-74
 uses-sdk
 INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\app\src\main\AndroidManifest.xml

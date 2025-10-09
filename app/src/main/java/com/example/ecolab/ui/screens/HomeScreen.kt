@@ -1,139 +1,147 @@
 package com.example.ecolab.ui.screens
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.Leaderboard
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.Quiz
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.ecolab.feature.home.HomeViewModel
-import com.example.ecolab.ui.components.PointCard
+import androidx.compose.ui.unit.sp
+import com.example.ecolab.R
 import com.example.ecolab.ui.theme.EcoLabTheme
 import com.example.ecolab.ui.theme.Palette
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel(),
-    onRankingClick: () -> Unit,
+    onQuizClick: () -> Unit,
     onAchievementsClick: () -> Unit
 ) {
-    val points by viewModel.points.collectAsState()
-
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(vertical = 16.dp)
+            .background(Palette.background)
+            .padding(16.dp)
     ) {
-        item { MissionCard() }
-        item { Shortcuts(onRankingClick = onRankingClick, onAchievementsClick = onAchievementsClick) }
-        item {
-            Text(
-                text = "Pontos próximos",
-                style = MaterialTheme.typography.titleMedium,
-                color = Palette.text,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-        }
-        items(points) { point ->
-            PointCard(
-                point = point,
-                onClick = { /* TODO: Navigate to point details */ },
-                onFavorite = { viewModel.toggleFavorite(point.id) }
-            )
-        }
+        Header()
+        Spacer(modifier = Modifier.height(24.dp))
+        DailyMissionCard()
+        Spacer(modifier = Modifier.height(24.dp))
+        Shortcuts(onQuizClick = onQuizClick, onAchievementsClick = onAchievementsClick)
     }
 }
 
 @Composable
-private fun MissionCard() {
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(0.dp),
-        colors = CardDefaults.cardColors(containerColor = Palette.surface)
+private fun Header() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Column(
+        Column {
+            Text("Olá, Usuário!", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Palette.text)
+            Text("Bem-vindo de volta!", fontSize = 16.sp, color = Palette.textMuted)
+        }
+        Image(
+            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+            contentDescription = "Avatar",
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+                .size(64.dp)
+                .clip(CircleShape)
+        )
+    }
+}
+
+@Composable
+private fun DailyMissionCard() {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Palette.surface),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Missão do Dia",
-                style = MaterialTheme.typography.titleLarge,
-                color = Palette.text
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            LinearProgressIndicator(
-                progress = { 0.7f },
-                modifier = Modifier.fillMaxWidth(),
-                color = Palette.primary,
-                trackColor = Palette.divider
-            )
+            Icon(Icons.Default.Quiz, contentDescription = "Missão", tint = Palette.primary, modifier = Modifier.size(40.dp))
             Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextButton(onClick = { /* TODO */ }) {
-                    Text("Pular", color = Palette.textMuted)
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = { /* TODO */ },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Palette.primary),
-                    modifier = Modifier.height(44.dp)
-                ) {
-                    Text("Concluir agora")
-                }
+            Column {
+                Text("Missão Diária", fontWeight = FontWeight.Bold, color = Palette.text)
+                Text("Responda a 5 perguntas hoje e ganhe 50 pontos extras.", color = Palette.textMuted)
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Shortcuts(onRankingClick: () -> Unit, onAchievementsClick: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        AssistChip(
-            onClick = onRankingClick,
-            label = { Text("Ranking") },
-            leadingIcon = { Icon(Icons.Default.Leaderboard, "Ranking", modifier = Modifier.size(24.dp)) },
-            shape = RoundedCornerShape(20.dp),
-            modifier = Modifier.height(44.dp),
-            border = BorderStroke(1.dp, Palette.divider)
+private fun Shortcuts(onQuizClick: () -> Unit, onAchievementsClick: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        ShortcutCard(
+            title = "Quiz",
+            icon = Icons.Default.Quiz,
+            color = Palette.quizIcon,
+            onClick = onQuizClick
         )
-        AssistChip(
-            onClick = onAchievementsClick,
-            label = { Text("Conquistas") },
-            leadingIcon = { Icon(Icons.Default.EmojiEvents, "Conquistas", modifier = Modifier.size(24.dp)) },
-            shape = RoundedCornerShape(20.dp),
-            modifier = Modifier.height(44.dp),
-            border = BorderStroke(1.dp, Palette.divider)
+        ShortcutCard(
+            title = "Conquistas",
+            icon = Icons.Default.EmojiEvents,
+            color = Palette.achievementsIcon,
+            onClick = onAchievementsClick
         )
     }
 }
 
-@Preview
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ShortcutCard(title: String, icon: ImageVector, color: Color, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(2.dp),
+        colors = CardDefaults.cardColors(containerColor = Palette.surface),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(24.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Icon(icon, contentDescription = title, tint = color, modifier = Modifier.size(32.dp))
+            Text(title, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Palette.text)
+        }
+    }
+}
+
+@Preview(showBackground = true)
 @Composable
 private fun HomeScreenPreview() {
     EcoLabTheme {
-        HomeScreen(onRankingClick = {}, onAchievementsClick = {})
+        HomeScreen(onQuizClick = {}, onAchievementsClick = {})
     }
 }

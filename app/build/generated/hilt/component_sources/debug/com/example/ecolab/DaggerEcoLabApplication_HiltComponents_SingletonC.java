@@ -2,6 +2,7 @@ package com.example.ecolab;
 
 import android.app.Activity;
 import android.app.Service;
+import android.location.Geocoder;
 import android.view.View;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateHandle;
@@ -10,11 +11,11 @@ import com.example.ecolab.core.data.prepopulation.GeoJsonParser;
 import com.example.ecolab.core.data.repository.AssetPointsRepository;
 import com.example.ecolab.core.data.repository.AuthRepositoryImpl;
 import com.example.ecolab.core.domain.repository.AuthRepository;
-import com.example.ecolab.data.repository.RankingRepository;
 import com.example.ecolab.data.repository.UserProgressRepository;
 import com.example.ecolab.di.AppModule;
 import com.example.ecolab.di.AppModule_ProvideAuthRepositoryFactory;
 import com.example.ecolab.di.AppModule_ProvideFirebaseAuthFactory;
+import com.example.ecolab.di.AppModule_ProvideGeocoderFactory;
 import com.example.ecolab.di.ParserModule;
 import com.example.ecolab.di.ParserModule_ProvideGeoJsonParserFactory;
 import com.example.ecolab.feature.achievements.AchievementsViewModel;
@@ -23,8 +24,6 @@ import com.example.ecolab.feature.home.HomeViewModel;
 import com.example.ecolab.feature.home.HomeViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.example.ecolab.feature.map.MapViewModel;
 import com.example.ecolab.feature.map.MapViewModel_HiltModules_KeyModule_ProvideFactory;
-import com.example.ecolab.feature.ranking.RankingViewModel;
-import com.example.ecolab.feature.ranking.RankingViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.example.ecolab.ui.navigation.MainViewModel;
 import com.example.ecolab.ui.navigation.MainViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.example.ecolab.ui.profile.ProfileViewModel;
@@ -405,7 +404,7 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
 
     @Override
     public Set<String> getViewModelKeys() {
-      return SetBuilder.<String>newSetBuilder(6).add(AchievementsViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(HomeViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(MainViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(MapViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(ProfileViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(RankingViewModel_HiltModules_KeyModule_ProvideFactory.provide()).build();
+      return SetBuilder.<String>newSetBuilder(5).add(AchievementsViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(HomeViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(MainViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(MapViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(ProfileViewModel_HiltModules_KeyModule_ProvideFactory.provide()).build();
     }
 
     @Override
@@ -441,8 +440,6 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
 
     private Provider<ProfileViewModel> profileViewModelProvider;
 
-    private Provider<RankingViewModel> rankingViewModelProvider;
-
     private ViewModelCImpl(SingletonCImpl singletonCImpl,
         ActivityRetainedCImpl activityRetainedCImpl, SavedStateHandle savedStateHandleParam,
         ViewModelLifecycle viewModelLifecycleParam) {
@@ -461,12 +458,11 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
       this.mainViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
       this.mapViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
       this.profileViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 4);
-      this.rankingViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 5);
     }
 
     @Override
     public Map<String, Provider<ViewModel>> getHiltViewModelMap() {
-      return MapBuilder.<String, Provider<ViewModel>>newMapBuilder(6).put("com.example.ecolab.feature.achievements.AchievementsViewModel", ((Provider) achievementsViewModelProvider)).put("com.example.ecolab.feature.home.HomeViewModel", ((Provider) homeViewModelProvider)).put("com.example.ecolab.ui.navigation.MainViewModel", ((Provider) mainViewModelProvider)).put("com.example.ecolab.feature.map.MapViewModel", ((Provider) mapViewModelProvider)).put("com.example.ecolab.ui.profile.ProfileViewModel", ((Provider) profileViewModelProvider)).put("com.example.ecolab.feature.ranking.RankingViewModel", ((Provider) rankingViewModelProvider)).build();
+      return MapBuilder.<String, Provider<ViewModel>>newMapBuilder(5).put("com.example.ecolab.feature.achievements.AchievementsViewModel", ((Provider) achievementsViewModelProvider)).put("com.example.ecolab.feature.home.HomeViewModel", ((Provider) homeViewModelProvider)).put("com.example.ecolab.ui.navigation.MainViewModel", ((Provider) mainViewModelProvider)).put("com.example.ecolab.feature.map.MapViewModel", ((Provider) mapViewModelProvider)).put("com.example.ecolab.ui.profile.ProfileViewModel", ((Provider) profileViewModelProvider)).build();
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -500,13 +496,10 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
           return (T) new MainViewModel(singletonCImpl.provideAuthRepositoryProvider.get());
 
           case 3: // com.example.ecolab.feature.map.MapViewModel 
-          return (T) new MapViewModel(singletonCImpl.assetPointsRepositoryProvider.get());
+          return (T) new MapViewModel(singletonCImpl.assetPointsRepositoryProvider.get(), singletonCImpl.provideGeocoderProvider.get());
 
           case 4: // com.example.ecolab.ui.profile.ProfileViewModel 
           return (T) new ProfileViewModel(singletonCImpl.provideAuthRepositoryProvider.get());
-
-          case 5: // com.example.ecolab.feature.ranking.RankingViewModel 
-          return (T) new RankingViewModel(singletonCImpl.rankingRepositoryProvider.get());
 
           default: throw new AssertionError(id);
         }
@@ -597,7 +590,7 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
 
     private Provider<AuthRepository> provideAuthRepositoryProvider;
 
-    private Provider<RankingRepository> rankingRepositoryProvider;
+    private Provider<Geocoder> provideGeocoderProvider;
 
     private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
       this.applicationContextModule = applicationContextModuleParam;
@@ -616,7 +609,7 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
       this.assetPointsRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<AssetPointsRepository>(singletonCImpl, 1));
       this.provideFirebaseAuthProvider = DoubleCheck.provider(new SwitchingProvider<FirebaseAuth>(singletonCImpl, 4));
       this.provideAuthRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<AuthRepository>(singletonCImpl, 3));
-      this.rankingRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<RankingRepository>(singletonCImpl, 5));
+      this.provideGeocoderProvider = DoubleCheck.provider(new SwitchingProvider<Geocoder>(singletonCImpl, 5));
     }
 
     @Override
@@ -667,8 +660,8 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
           case 4: // com.google.firebase.auth.FirebaseAuth 
           return (T) AppModule_ProvideFirebaseAuthFactory.provideFirebaseAuth();
 
-          case 5: // com.example.ecolab.data.repository.RankingRepository 
-          return (T) new RankingRepository();
+          case 5: // android.location.Geocoder 
+          return (T) AppModule_ProvideGeocoderFactory.provideGeocoder(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
           default: throw new AssertionError(id);
         }

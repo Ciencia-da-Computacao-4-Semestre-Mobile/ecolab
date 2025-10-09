@@ -1,41 +1,71 @@
 package com.example.ecolab.feature.map
 
+import android.location.Geocoder
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecolab.core.domain.model.CollectionPoint
 import com.example.ecolab.core.domain.repository.PointsRepository
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    private val pointsRepository: PointsRepository
+    private val pointsRepository: PointsRepository,
+    private val geocoder: Geocoder
 ) : ViewModel() {
 
     private val _selectedCategory = MutableStateFlow("Todos")
     private val _selectedPoint = MutableStateFlow<CollectionPoint?>(null)
+    private val _searchQuery = MutableStateFlow("")
+    private val _showFavorites = MutableStateFlow(false)
+    private val _searchedLocation = MutableStateFlow<LatLng?>(null)
 
-    val uiState: StateFlow<MapUiState> = combine(
+    private val _filteredPoints = combine(
         pointsRepository.observePoints(),
         _selectedCategory,
-        _selectedPoint
-    ) { allPoints, selectedCategory, selectedPoint ->
-        val filteredPoints = if (selectedCategory == "Todos") {
+        _searchQuery,
+        _showFavorites
+    ) { allPoints, selectedCategory, searchQuery, showFavorites ->
+        val filteredPointsByCategory = if (selectedCategory == "Todos") {
             allPoints
         } else {
             allPoints.filter { it.category == selectedCategory }
         }
+
+        val filteredPointsBySearch = if (searchQuery.isBlank()) {
+            filteredPointsByCategory
+        } else {
+            filteredPointsByCategory.filter { it.name.contains(searchQuery, ignoreCase = true) }
+        }
+
+        if (showFavorites) {
+            filteredPointsBySearch.filter { it.isFavorite }
+        } else {
+            filteredPointsBySearch
+        }
+    }
+
+    val uiState: StateFlow<MapUiState> = combine(
+        _filteredPoints,
+        _selectedPoint,
+        _searchQuery,
+        _showFavorites,
+        _searchedLocation
+    ) { filteredPoints, selectedPoint, searchQuery, showFavorites, searchedLocation ->
         MapUiState(
             collectionPoints = filteredPoints,
-            selectedCategory = selectedCategory,
-            selectedPoint = selectedPoint
+            selectedCategory = _selectedCategory.value,
+            selectedPoint = selectedPoint,
+            searchQuery = searchQuery,
+            showFavorites = showFavorites,
+            searchedLocation = searchedLocation
         )
     }.stateIn(
         scope = viewModelScope,
@@ -55,6 +85,36 @@ class MapViewModel @Inject constructor(
         _selectedPoint.value = null
     }
 
+    fun onSearchQueryChange(query: String) {
+        _searchQuery.value = query
+    }
+
+    fun onSearch() {
+        viewModelScope.launch {
+            try {
+                val addresses = geocoder.getFromLocationName(_searchQuery.value, 1)
+                if (addresses!!.isNotEmpty()) {
+                    val address = addresses[0]
+                    _searchedLocation.value = LatLng(address.latitude, address.longitude)
+                }
+            } catch (e: Exception) {
+                // Handle exception
+            }
+        }
+    }
+
+    fun onToggleFavorites(isFavorite: Boolean) {
+        _showFavorites.value = isFavorite
+    }
+
+    fun toggleFavorite() {
+        viewModelScope.launch {
+            _selectedPoint.value?.let { point ->
+                pointsRepository.toggleFavorite(point.id)
+            }
+        }
+    }
+
     fun refresh() {
         viewModelScope.launch {
             pointsRepository.refresh()
@@ -65,5 +125,8 @@ class MapViewModel @Inject constructor(
 data class MapUiState(
     val collectionPoints: List<CollectionPoint> = emptyList(),
     val selectedCategory: String = "Todos",
-    val selectedPoint: CollectionPoint? = null
+    val selectedPoint: CollectionPoint? = null,
+    val searchQuery: String = "",
+    val showFavorites: Boolean = false,
+    val searchedLocation: LatLng? = null
 )

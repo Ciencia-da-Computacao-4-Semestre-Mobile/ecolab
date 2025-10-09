@@ -114,8 +114,6 @@ drawable ic_star
 drawable ic_time
 drawable ic_trophy
 drawable splash_icon
-mipmap ic_launcher
-mipmap ic_launcher_round
 string about
 string achievements_title
 string acoes_principais

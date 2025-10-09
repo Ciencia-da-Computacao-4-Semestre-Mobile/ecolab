@@ -1,10 +1,11 @@
 package com.example.ecolab.ui.screens;
 
-import androidx.compose.foundation.layout.*;
+import androidx.compose.foundation.layout.Arrangement;
 import androidx.compose.material3.ButtonDefaults;
 import androidx.compose.runtime.Composable;
 import androidx.compose.ui.Alignment;
 import androidx.compose.ui.Modifier;
+import androidx.compose.ui.text.input.PasswordVisualTransformation;
 import androidx.compose.ui.text.style.TextAlign;
 import com.example.ecolab.ui.theme.Palette;
 

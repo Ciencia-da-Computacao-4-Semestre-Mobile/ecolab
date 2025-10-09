@@ -33,19 +33,15 @@ class GeoJsonParser(private val context: Context) {
                     ?: properties.compostYardName
                     ?: properties.voluntaryPointName
                     ?: properties.coopName
-                    ?: properties.localName
 
                 // Coalesce address from all possible fields
-                val description = properties.ecopontoAddress
-                    ?: properties.compostYardAddress
-                    ?: properties.voluntaryPointAddress
-                    ?: properties.coopAddress
+                val description = properties.address
 
                 // Determine category based on which name field was non-null
                 val category = when {
                     properties.ecopontoName != null -> "Ecoponto"
                     properties.compostYardName != null -> "Pátio de Compostagem"
-                    properties.voluntaryPointName != null || properties.localName != null -> "Ponto de Entrega"
+                    properties.voluntaryPointName != null -> "Ponto de Entrega"
                     properties.coopName != null -> "Cooperativa"
                     else -> "Geral" // Fallback
                 }

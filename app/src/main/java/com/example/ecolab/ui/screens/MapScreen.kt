@@ -3,9 +3,12 @@ package com.example.ecolab.ui.screens
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
+import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,17 +21,29 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Recycling
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -82,7 +97,16 @@ fun MapScreen(
 
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
-    val filterCategories = listOf("Todos", "Ecoponto", "Cooperativa", "Ponto de Entrega", "Pátio de Compostagem")
+    val filterCategories = listOf("Todos", "Ecoponto", "Cooperativa", "Ponto de Entrega", "Pátio de Compostagem", "Favoritos")
+
+    LaunchedEffect(uiState.searchedLocation) {
+        uiState.searchedLocation?.let {
+            cameraPositionState.animate(
+                update = CameraUpdateFactory.newLatLngZoom(it, 15f),
+                durationMs = 1000
+            )
+        }
+    }
 
     LaunchedEffect(Unit) {
         locationPermissions.launchMultiplePermissionRequest()
@@ -101,25 +125,57 @@ fun MapScreen(
                     state = MarkerState(position = LatLng(point.latitude, point.longitude)),
                     title = point.name,
                     snippet = point.description,
-                    icon = getMarkerIconBitmap(context, point.category, categoryColor),
+                    icon = getMarkerIconBitmap(context, categoryColor),
                     onClick = { viewModel.onMarkerClick(point); true }
                 )
             }
         }
 
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
+            Card(
+                shape = RoundedCornerShape(24.dp),
+                elevation = CardDefaults.cardElevation(8.dp)
+            ) {
+                TextField(
+                    value = uiState.searchQuery,
+                    onValueChange = { viewModel.onSearchQueryChange(it) },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Pesquisar...") },
+                    trailingIcon = {
+                        IconButton(onClick = { viewModel.onSearch() }) {
+                            Icon(Icons.Default.Search, contentDescription = "Pesquisar")
+                        }
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        disabledContainerColor = Color.White,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    )
+                )
+            }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState())
-                    .padding(16.dp)
+                    .padding(top = 16.dp)
             ) {
                 filterCategories.forEach { category ->
                     FilterChip(
-                        selected = uiState.selectedCategory == category,
-                        onClick = { viewModel.onFilterChange(category) },
+                        selected = if (category == "Favoritos") uiState.showFavorites else uiState.selectedCategory == category,
+                        onClick = {
+                            if (category == "Favoritos") {
+                                viewModel.onToggleFavorites(!uiState.showFavorites)
+                            } else {
+                                viewModel.onFilterChange(category)
+                            }
+                        },
                         label = { Text(category) },
                         modifier = Modifier.padding(end = 8.dp)
                     )
@@ -138,7 +194,15 @@ fun MapScreen(
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(uiState.selectedPoint!!.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(uiState.selectedPoint!!.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        IconButton(onClick = { viewModel.toggleFavorite() }) {
+                            Icon(
+                                imageVector = if (uiState.selectedPoint!!.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = "Favoritar"
+                            )
+                        }
+                    }
                     Text(uiState.selectedPoint!!.category, style = MaterialTheme.typography.labelMedium)
                     Text(uiState.selectedPoint!!.description, style = MaterialTheme.typography.bodyLarge)
                     uiState.selectedPoint!!.openingHours?.let {
@@ -165,38 +229,75 @@ fun MapScreen(
                             Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
+
+                    Button(onClick = {
+                        val point = uiState.selectedPoint!!
+                        val gmmIntentUri = Uri.parse("geo:${point.latitude},${point.longitude}?q=${point.name}")
+                        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                        mapIntent.setPackage("com.google.android.apps.maps")
+                        context.startActivity(mapIntent)
+                    }) {
+                        Text("Traçar rota")
+                    }
                 }
             }
         }
 
-        FloatingActionButton(
-            onClick = {
-                scope.launch {
-                    if (locationPermissions.allPermissionsGranted) {
-                        try {
-                            @SuppressLint("MissingPermission")
-                            val location = fusedLocationClient.lastLocation.await()
-                            location?.let {
-                                val userLatLng = LatLng(it.latitude, it.longitude)
-                                cameraPositionState.animate(
-                                    update = CameraUpdateFactory.newLatLngZoom(userLatLng, 15f),
-                                    durationMs = 1000
-                                )
-                            }
-                        } catch (e: Exception) {
-                            // Handle exception
-                        }
-                    } else {
-                        locationPermissions.launchMultiplePermissionRequest()
-                    }
-                }
-            },
+        Column(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
-            containerColor = MaterialTheme.colorScheme.surface
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(imageVector = Icons.Default.MyLocation, contentDescription = "Minha Localização")
+            FloatingActionButton(
+                onClick = {
+                    scope.launch {
+                        val currentZoom = cameraPositionState.position.zoom
+                        cameraPositionState.animate(CameraUpdateFactory.zoomTo(currentZoom + 1f))
+                    }
+                },
+                containerColor = MaterialTheme.colorScheme.surface
+            ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Zoom In")
+            }
+            FloatingActionButton(
+                onClick = {
+                    scope.launch {
+                        val currentZoom = cameraPositionState.position.zoom
+                        cameraPositionState.animate(CameraUpdateFactory.zoomTo(currentZoom - 1f))
+                    }
+                },
+                containerColor = MaterialTheme.colorScheme.surface
+            ) {
+                Icon(imageVector = Icons.Default.Remove, contentDescription = "Zoom Out")
+            }
+            FloatingActionButton(
+                onClick = {
+                    scope.launch {
+                        if (locationPermissions.allPermissionsGranted) {
+                            try {
+                                @SuppressLint("MissingPermission")
+                                val location = fusedLocationClient.lastLocation.await()
+                                location?.let {
+                                    val userLatLng = LatLng(it.latitude, it.longitude)
+                                    cameraPositionState.animate(
+                                        update = CameraUpdateFactory.newLatLngZoom(userLatLng, 15f),
+                                        durationMs = 1000
+                                    )
+                                }
+                            } catch (e: Exception) {
+                                // Handle exception
+                            }
+                        } else {
+                            locationPermissions.launchMultiplePermissionRequest()
+                        }
+                    }
+                },
+                containerColor = MaterialTheme.colorScheme.surface
+            ) {
+                Icon(imageVector = Icons.Default.MyLocation, contentDescription = "Minha Localização")
+            }
         }
     }
 }
@@ -204,20 +305,16 @@ fun MapScreen(
 @Composable
 private fun getCategoryColor(category: String): Color {
     return when (category) {
-        "Cooperativa" -> MaterialTheme.colorScheme.secondary
-        "Ecoponto" -> MaterialTheme.colorScheme.tertiary
-        "Ponto de Entrega" -> Color(0xFF00C853) // A custom green color
-        else -> MaterialTheme.colorScheme.primary
+        "Ecoponto" -> Color(0x993369E8) // Azul fosco
+        "Cooperativa" -> Color(0x99D50F25) // Vermelho fosco
+        "Ponto de Entrega" -> Color(0x990F9D58) // Verde fosco
+        "Pátio de Compostagem" -> Color(0x99F4B400) // Amarelo fosco
+        else -> Color.Gray
     }
 }
 
-private fun getMarkerIconBitmap(context: Context, category: String, color: Color): BitmapDescriptor {
-    val drawableId = when (category) {
-        "Cooperativa" -> R.drawable.ic_recycling
-        "Ecoponto" -> R.drawable.ic_add_location
-        else -> R.drawable.ic_location
-    }
-    val drawable = ContextCompat.getDrawable(context, drawableId)!!
+private fun getMarkerIconBitmap(context: Context, color: Color): BitmapDescriptor {
+    val drawable = ContextCompat.getDrawable(context, R.drawable.ic_location)!!
     drawable.colorFilter = PorterDuffColorFilter(color.toArgb(), PorterDuff.Mode.SRC_IN)
     drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
     val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)

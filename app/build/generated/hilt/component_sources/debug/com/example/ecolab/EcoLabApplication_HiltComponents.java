@@ -6,7 +6,6 @@ import com.example.ecolab.di.RepositoryModule;
 import com.example.ecolab.feature.achievements.AchievementsViewModel_HiltModules;
 import com.example.ecolab.feature.home.HomeViewModel_HiltModules;
 import com.example.ecolab.feature.map.MapViewModel_HiltModules;
-import com.example.ecolab.feature.ranking.RankingViewModel_HiltModules;
 import com.example.ecolab.ui.navigation.MainViewModel_HiltModules;
 import com.example.ecolab.ui.profile.ProfileViewModel_HiltModules;
 import dagger.Binds;
@@ -168,8 +167,7 @@ public final class EcoLabApplication_HiltComponents {
           HomeViewModel_HiltModules.KeyModule.class,
           MainViewModel_HiltModules.KeyModule.class,
           MapViewModel_HiltModules.KeyModule.class,
-          ProfileViewModel_HiltModules.KeyModule.class,
-          RankingViewModel_HiltModules.KeyModule.class
+          ProfileViewModel_HiltModules.KeyModule.class
       }
   )
   @ActivityRetainedScoped
@@ -210,8 +208,7 @@ public final class EcoLabApplication_HiltComponents {
           HomeViewModel_HiltModules.BindsModule.class,
           MainViewModel_HiltModules.BindsModule.class,
           MapViewModel_HiltModules.BindsModule.class,
-          ProfileViewModel_HiltModules.BindsModule.class,
-          RankingViewModel_HiltModules.BindsModule.class
+          ProfileViewModel_HiltModules.BindsModule.class
       }
   )
   @ViewModelScoped
