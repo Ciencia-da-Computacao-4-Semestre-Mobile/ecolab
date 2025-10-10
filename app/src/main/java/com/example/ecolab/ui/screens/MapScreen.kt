@@ -69,6 +69,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -116,8 +117,15 @@ fun MapScreen(
         GoogleMap(
             modifier = Modifier.matchParentSize(),
             cameraPositionState = cameraPositionState,
-            properties = MapProperties(isMyLocationEnabled = locationPermissions.allPermissionsGranted),
-            uiSettings = MapUiSettings(mapToolbarEnabled = false, myLocationButtonEnabled = false)
+            properties = MapProperties(
+                isMyLocationEnabled = locationPermissions.allPermissionsGranted,
+                mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style)
+            ),
+            uiSettings = MapUiSettings(
+                mapToolbarEnabled = false, 
+                myLocationButtonEnabled = false,
+                zoomControlsEnabled = false
+            )
         ) {
             uiState.collectionPoints.forEach { point ->
                 val categoryColor = getCategoryColor(category = point.category)

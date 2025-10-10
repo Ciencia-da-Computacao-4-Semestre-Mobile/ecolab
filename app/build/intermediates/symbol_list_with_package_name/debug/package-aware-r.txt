@@ -3888,6 +3888,7 @@ layout splash_screen_view
 layout support_simple_spinner_dropdown_item
 plurals mtrl_badge_content_description
 raw firebase_common_keep
+raw map_style
 string abc_action_bar_home_description
 string abc_action_bar_up_description
 string abc_action_menu_overflow_description

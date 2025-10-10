@@ -4,17 +4,7 @@
             "outputFile": "com.example.ecolab.app-mergeDebugResources-84:/values-v16/values-v16.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\NicolasLimaFreitas\\.gradle\\caches\\transforms-4\\7b1a3e337a43153ed2b65fe407ccf51c\\transformed\\core-1.12.0\\res\\values-v16\\values-v16.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endColumns": "65",
-                        "endOffsets": "116"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\NicolasLimaFreitas\\.gradle\\caches\\transforms-4\\7681e5f2c729c13df285edb04f8a4811\\transformed\\appcompat-1.6.1\\res\\values-v16\\values-v16.xml",
+                    "source": "C:\\Users\\NicolasLimaFreitas\\.gradle\\caches\\transforms-4\\59ddcc817ebcfa0832827abb3ffc2e91\\transformed\\appcompat-1.6.1\\res\\values-v16\\values-v16.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -30,6 +20,16 @@
                         "endLines": "6",
                         "endColumns": "12",
                         "endOffsets": "289"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\NicolasLimaFreitas\\.gradle\\caches\\transforms-4\\5fb131d21eb4e786c9cc956294978ceb\\transformed\\core-1.12.0\\res\\values-v16\\values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "65",
+                        "endOffsets": "116"
                     }
                 }
             ]

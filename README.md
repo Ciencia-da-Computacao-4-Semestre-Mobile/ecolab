@@ -1,115 +1,102 @@
-# EcoLab: Um Guia Completo para Iniciantes (Nível: Cabaço)
+# EcoLab
 
 ## Introdução
 
-Bem-vindo ao manual de sobrevivência do EcoLab!
+Bem-vindo ao repositório oficial do EcoLab! Este documento fornece uma visão geral completa da estrutura do projeto, arquitetura e convenções de código. O objetivo é servir como um guia central para desenvolvedores que estão começando a contribuir com o projeto.
 
-Este documento foi escrito pensando em você, que talvez nunca tenha visto uma linha de código na vida. O objetivo é que, ao final da leitura, você consiga entender a estrutura do nosso projeto como se fosse a planta da sua própria casa. Vamos explicar para que serve cada pasta e cada arquivo importante, sem "economês" de programador.
+## Arquitetura do Projeto
 
-## Arquitetura Geral: Como o App Pensa?
+O projeto adota os princípios da **Clean Architecture**, que promove a separação de responsabilidades e a criação de um software mais testável, manutenível e escalável. A arquitetura é dividida em três camadas principais:
 
-Imagine que nosso aplicativo é um restaurante. A forma como organizamos a cozinha, o salão e o estoque é a nossa "arquitetura". Nós usamos uma abordagem chamada **Clean Architecture** (Arquitetura Limpa), que divide o trabalho em camadas bem definidas. Pense nisso como construir com blocos de LEGO: cada peça tem seu lugar e sua função, tornando a construção (e futuras reformas) muito mais fácil.
+*   **Camada de Apresentação (`app`)**: Responsável pela interface do usuário (UI) e pela interação com o usuário. Esta camada inclui as telas (construídas com Jetpack Compose), ViewModels e toda a lógica de navegação. Ela depende da camada de Domínio para executar as ações do usuário.
 
-As camadas do nosso "restaurante" são:
+*   **Camada de Domínio (`core/domain`)**: O coração do aplicativo. Contém a lógica de negócio principal (casos de uso) e as entidades do domínio. Esta camada é totalmente independente de frameworks de UI ou de detalhes de implementação de persistência de dados.
 
-*   **Apresentação (`app`) - O Salão:** É a parte que o cliente (usuário) vê e com a qual interage. O garçom anota os pedidos, serve as mesas e mostra o cardápio (as telas). É a "cara" do nosso aplicativo.
+*   **Camada de Dados (`core/data`)**: Responsável por fornecer os dados para a aplicação. Inclui as implementações dos repositórios, fontes de dados (locais e remotas) e modelos de dados. Ela define como os dados são obtidos, seja de um banco de dados local (Room) ou de uma API de rede.
 
-*   **Domínio (`core/domain`) - O Chef de Cozinha:** É o cérebro da operação. O Chef sabe todas as receitas (as regras de negócio) e como o prato deve ser. Ele não fala com o cliente nem vai ao estoque; ele apenas segue as regras para criar o prato perfeito. Esta camada é o coração da lógica do EcoLab.
+## Estrutura de Módulos
 
-*   **Dados (`core/data`) - O Estoque e os Entregadores:** É onde os ingredientes (dados) são armazenados e buscados. Temos um estoque interno (banco de dados do celular) e entregadores que buscam ingredientes frescos fora (na internet). O Chef não precisa saber de onde vêm os ingredientes, apenas que eles estão disponíveis.
+O projeto é modularizado para reforçar a separação de responsabilidades e melhorar os tempos de compilação.
 
-## Estrutura de Pastas e Arquivos: O Mapa do Tesouro
+*   `:app`: Módulo principal da aplicação Android. Contém a camada de Apresentação e coordena a inicialização da aplicação.
+*   `:core:ui`: Componentes de UI reutilizáveis e temas do Jetpack Compose.
+*   `:core:domain`: Contém a lógica de negócio e os modelos de domínio. Não possui dependências do Android Framework.
+*   `:core:data`: Implementação da camada de dados, incluindo repositórios e fontes de dados.
+*   `:core:common`: Utilitários e código auxiliar que podem ser compartilhados entre todos os outros módulos.
 
-A seguir, vamos explorar cada canto do nosso projeto.
+## Estrutura de Diretórios
 
----
-
-### Diretório Raiz (A Planta Baixa do Terreno)
-
-Aqui ficam as pastas e arquivos mais importantes que definem todo o projeto.
-
-*   `.idea/`: Pasta de configuração do Android Studio (a ferramenta que usamos para construir o app). Pense nela como a "caixa de bagunça" do Android Studio. **NUNCA MEXA AQUI.**
-
-*   `app/`: É o módulo principal, o "prédio" do nosso aplicativo. A maior parte do que o usuário vê e toca está aqui.
-
-*   `core/`: Uma pasta que guarda nossas "caixas de ferramentas" (outros módulos) que o `app` utiliza. Manter as ferramentas organizadas aqui facilita o trabalho.
-
-*   `build/`: Pasta gerada automaticamente quando o código é transformado em um aplicativo funcional. É a "área de construção" do projeto. **NÃO TOQUE.**
-
-*   `gradle/` e `.gradle/`: O Gradle é o nosso "mestre de obras". Ele pega todo o nosso código e recursos e constrói o aplicativo. Essas pastas guardam as ferramentas e os arquivos temporários dele.
-
-*   `.gitignore`: Uma "lista de ignorados" para o Git (nosso sistema de backup e versionamento). Diz a ele para não salvar arquivos desnecessários, como a pasta `build`.
-
-*   `build.gradle.kts`: A "planta mestra" do projeto. Diz ao "mestre de obras" (Gradle) quais são as peças do projeto e como montá-las.
-
-*   `local.properties`: Um arquivo para "segredos locais" do seu computador, como onde você guardou o martelo (o SDK do Android). Este arquivo não é compartilhado.
-
-*   `gradle.properties`: Configurações e ajustes para o "mestre de obras" (Gradle).
-
-*   `settings.gradle.kts`: Define quais "prédios" (módulos, como `app` e os do `core`) fazem parte do nosso "condomínio" (projeto).
+A seguir, uma descrição detalhada dos arquivos e diretórios mais importantes.
 
 ---
 
-### Módulo `app` (O Prédio Principal)
+### Diretório Raiz
 
-*   `src/`: Abreviatura de "source" (fonte). É aqui que fica todo o código e os recursos deste módulo.
+*   `.idea/`: Arquivos de configuração específicos do Android Studio. Não deve ser versionado em projetos colaborativos.
+*   `app/`: O módulo principal da aplicação.
+*   `core/`: Módulos que contêm a lógica de negócio, acesso a dados e componentes de UI compartilhados.
+*   `build/`: Diretório com os artefatos de compilação gerados. Não deve ser modificado manualmente.
+*   `gradle/` e `.gradle/`: Ferramentas e arquivos de cache do Gradle.
+*   `.gitignore`: Especifica os arquivos e diretórios que o Git deve ignorar.
+*   `build.gradle.kts`: Script de build do Gradle para o projeto raiz.
+*   `local.properties`: Arquivo para propriedades locais do desenvolvedor, como o caminho do SDK do Android. Não é versionado.
+*   `gradle.properties`: Configurações globais para o sistema de build Gradle.
+*   `settings.gradle.kts`: Declara os módulos que compõem o projeto.
 
-*   `build.gradle.kts`: A "planta" específica deste "prédio". Lista todos os "materiais de construção" (bibliotecas e outras dependências) que só o módulo `app` precisa.
+---
 
-*   `google-services.json`: A "chave de acesso" para os serviços do Google (Firebase) que usamos, como o sistema de login.
+### Módulo `app`
 
-#### `app/src/main` (O Andar Principal do Prédio)
+*   `src/`: Contém o código-fonte e os recursos do módulo.
+*   `build.gradle.kts`: Script de build do módulo `app`. Declara suas dependências e configurações específicas.
+*   `google-services.json`: Arquivo de configuração para os serviços do Google, como o Firebase.
 
-*   `res/`: A "caixa de decoração". Guarda tudo que não é código:
+#### `app/src/main`
+
+*   `res/`: Recursos do aplicativo que não são código:
     *   `drawable`: Imagens e ícones.
-    *   `values`: Textos (`strings.xml`), cores (`colors.xml`), temas (`themes.xml`).
-    *   `mipmap`: Ícones do aplicativo em diferentes tamanhos.
-    *   `font`: Fontes personalizadas.
+    *   `values`: Arquivos XML para strings, cores e temas.
+    *   `mipmap`: Ícones do launcher em diferentes densidades.
+    *   `font`: Arquivos de fontes personalizadas.
+*   `java/com/example/ecolab/`: Código-fonte em Kotlin.
+*   `assets/`: Arquivos brutos, como os arquivos GeoJSON com os dados dos pontos de coleta.
+*   `AndroidManifest.xml`: O "manifesto" do aplicativo. Descreve os componentes da aplicação para o sistema Android.
 
-*   `java/`: Apesar do nome, é aqui que fica nosso código-fonte em Kotlin. É o "cérebro" do módulo.
+#### Pacotes Principais em `app`
 
-*   `assets/`: Uma "dispensa" para arquivos brutos. Usamos para guardar os arquivos `GeoJSON`, que são como mapas do tesouro com a localização dos pontos de coleta.
-
-*   `AndroidManifest.xml`: A "carteira de identidade" do app para o sistema Android. Descreve o que o app é, o que ele precisa (permissões como acesso à internet e localização) e quais telas (Activities) ele tem.
-
-#### `app/src/main/java/com/example/ecolab/` (Os Cômodos do Andar)
-
-*   `di/` (Injeção de Dependência): A "caixa de ferramentas mágica" do Hilt. Em vez de construirmos nossas próprias ferramentas a todo momento, nós pedimos ao Hilt e ele nos entrega uma pronta. Isso deixa o código mais limpo e organizado.
-    *   `AppModule.kt`, `RepositoryModule.kt`: "Manuais de instruções" que ensinam o Hilt a criar as ferramentas que precisamos, como o `Geocoder` (que transforma um endereço em coordenadas de mapa) ou os Repositórios.
-
-*   `ui/` (Interface do Usuário): Tudo relacionado ao que o usuário vê.
-    *   `theme/`: O "guarda-roupa" do app. Define o esquema de cores (`Palette.kt`), as fontes (`Type.kt`) e os formatos (`Shape.kt`).
-    *   `screens/`: Cada arquivo aqui é uma tela do aplicativo (`HomeScreen.kt`, `MapScreen.kt`, etc.).
-    *   `components/`: "Peças de LEGO" reutilizáveis para montar as telas, como um botão personalizado (`PointCard.kt`).
-    *   `navigation/`: O "GPS" do app. Define todas as rotas possíveis e como navegar de uma tela para outra (`NavGraph.kt`).
-    *   `profile/`: A tela de perfil do usuário.
-
-*   `auth/`: O "segurança" do aplicativo. Contém a lógica para saber se o usuário está logado ou não.
-    *   `FakeAuthRepository.kt`: Uma "versão de mentira" do sistema de login, usada para testes.
-
-*   `data/`: A parte do `app` que lida diretamente com os dados.
-    *   `model/`: Os "moldes" que definem a estrutura dos nossos dados. Por exemplo, `RankedUser.kt` diz quais informações um usuário no ranking deve ter.
-    *   `geojson/`: Moldes específicos para ler os dados dos mapas.
-    *   `repository/`: O "gerente do estoque". Implementa as regras de como buscar e salvar dados. Por exemplo, `RankingRepository.kt` busca a lista de usuários para o ranking.
-
-*   `feature/`: A "sala de controle" de cada tela. Cada tela tem um "cérebro" aqui, chamado **ViewModel**. O ViewModel prepara os dados para a tela exibir e processa as ações do usuário (como cliques em botões).
-    *   `map/`, `home/`, etc.: A sala de controle de cada tela específica.
-
-*   `MainActivity.kt`: A "porta de entrada" principal do app. É a primeira tela que o Android carrega, e ela é responsável por exibir todas as outras telas que construímos.
-
-*   `EcoLabApplication.kt`: Um "ritual de inicialização". Código que roda uma única vez quando o app abre, usado para preparar bibliotecas ou outras configurações importantes.
+*   `di/` (Injeção de Dependência): Módulos do Hilt que ensinam o framework a fornecer as dependências necessárias, como repositórios e outras classes.
+*   `ui/`: Contém toda a lógica de interface do usuário, construída com Jetpack Compose.
+    *   `theme/`: Definição do tema do aplicativo (cores, tipografia, formas).
+    *   `screens/`: Composables que representam as telas completas do aplicativo.
+    *   `components/`: Pequenos componentes de UI reutilizáveis.
+    *   `navigation/`: Lógica de navegação entre as telas usando o Navigation Compose.
+*   `feature/`: Contém os ViewModels para cada tela ou funcionalidade, que preparam e gerenciam os dados para a UI.
+*   `MainActivity.kt`: A única Activity do aplicativo, que serve como ponto de entrada e hospeda o conteúdo do Jetpack Compose.
+*   `EcoLabApplication.kt`: Classe `Application` customizada, usada para inicializar o Hilt e outras bibliotecas.
 
 ---
 
-### Módulo `core` (Nossas Caixas de Ferramentas)
+## Tecnologias e Bibliotecas Utilizadas
 
-Esta pasta contém módulos independentes que podem ser reutilizados em qualquer parte do projeto.
+*   **Linguagem**: [Kotlin](https://kotlinlang.org/)
+*   **UI**: [Jetpack Compose](https://developer.android.com/jetpack/compose) para uma UI declarativa e moderna.
+*   **Arquitetura**: Clean Architecture, MVVM (Model-View-ViewModel).
+*   **Injeção de Dependência**: [Hilt](https://dagger.dev/hilt/) para gerenciar dependências.
+*   **Assincronia**: [Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) para um código assíncrono mais limpo.
+*   **Persistência Local**: [Room](https://developer.android.com/jetpack/androidx/releases/room) para o banco de dados local.
+*   **Navegação**: [Navigation Compose](https://developer.android.com/jetpack/compose/navigation).
+*   **Rede**: (Se aplicável, adicione Retrofit/Ktor aqui).
+*   **Mapas**: [Google Maps Compose Library](https://developers.google.com/maps/documentation/android-sdk/maps-compose).
+*   **Autenticação**: Firebase Authentication.
 
-*   `ui/`: Ferramentas de interface, como componentes visuais genéricos.
-*   `data/`: A parte mais "profunda" do nosso sistema de dados. Define as "interfaces" (contratos) que os repositórios devem seguir e como o app conversa com a internet ou o banco de dados.
-*   `common/`: Ferramentas e utilitários genéricos que podem ser úteis em qualquer lugar do código.
-*   `domain/`: O "livro de regras" do EcoLab. Contém a lógica de negócio mais pura, que não depende de nenhuma tela ou tecnologia específica. Define o que é um `CollectionPoint` ou um `AuthUser` para o *negócio*, independentemente de como eles são mostrados na tela.
+## Como Compilar e Executar
 
----
-
-Espero que este guia super detalhado ajude a "criança" (ou qualquer pessoa) a navegar pelo projeto EcoLab sem medo! Se algo ainda não estiver claro, a culpa é minha, não sua. :)
+1.  Clone este repositório.
+2.  Abra o projeto no Android Studio.
+3.  Crie um arquivo `local.properties` na raiz do projeto.
+4.  Adicione sua chave da API do Google Maps a este arquivo da seguinte forma:
+    ```properties
+    MAPS_API_KEY=SUA_CHAVE_API_AQUI
+    ```
+5.  Sincronize o projeto com os arquivos Gradle.
+6.  Compile e execute no emulador ou em um dispositivo físico.

@@ -4,7 +4,7 @@
             "outputFile": "com.example.ecolab.app-mergeDebugResources-84:/values-v26/values-v26.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\NicolasLimaFreitas\\.gradle\\caches\\transforms-4\\7681e5f2c729c13df285edb04f8a4811\\transformed\\appcompat-1.6.1\\res\\values-v26\\values-v26.xml",
+                    "source": "C:\\Users\\NicolasLimaFreitas\\.gradle\\caches\\transforms-4\\59ddcc817ebcfa0832827abb3ffc2e91\\transformed\\appcompat-1.6.1\\res\\values-v26\\values-v26.xml",
                     "from": {
                         "startLines": "2,3,4,8,12,16",
                         "startColumns": "4,4,4,4,4,4",
