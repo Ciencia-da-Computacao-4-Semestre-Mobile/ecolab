@@ -1,10 +1,14 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.ecolab.app-mergeDebugResources-84:/values-watch-v20/values-watch-v20.xml",
+            "outputFile": "com.example.ecolab.app-mergeDebugResources-87:/values-watch-v20/values-watch-v20.xml",
             "map": [
                 {
+<<<<<<< HEAD
                     "source": "C:\\Users\\Adm\\.gradle\\caches\\transforms-4\\bbd210d4675f2498e7c82887411fa612\\transformed\\jetified-core-splashscreen-1.0.1\\res\\values-watch-v20\\values-watch-v20.xml",
+=======
+                    "source": "C:\\Users\\guigu\\.gradle\\caches\\transforms-4\\bbd210d4675f2498e7c82887411fa612\\transformed\\jetified-core-splashscreen-1.0.1\\res\\values-watch-v20\\values-watch-v20.xml",
+>>>>>>> 95405949d654868007eeb99979adafa496cf0b4a
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",
@@ -21,7 +25,11 @@
                     }
                 },
                 {
+<<<<<<< HEAD
                     "source": "C:\\Users\\Adm\\.gradle\\caches\\transforms-4\\812a2e1f7b941523aaea43cae9b61bca\\transformed\\jetified-play-services-auth-21.2.0\\res\\values-watch-v20\\values.xml",
+=======
+                    "source": "C:\\Users\\guigu\\.gradle\\caches\\transforms-4\\812a2e1f7b941523aaea43cae9b61bca\\transformed\\jetified-play-services-auth-21.2.0\\res\\values-watch-v20\\values.xml",
+>>>>>>> 95405949d654868007eeb99979adafa496cf0b4a
                     "from": {
                         "startLines": "4,5,6,7,8,9,10,11",
                         "startColumns": "0,0,0,0,0,0,0,0",
@@ -38,7 +46,11 @@
                     }
                 },
                 {
+<<<<<<< HEAD
                     "source": "C:\\Users\\Adm\\.gradle\\caches\\transforms-4\\59ddcc817ebcfa0832827abb3ffc2e91\\transformed\\appcompat-1.6.1\\res\\values-watch-v20\\values-watch-v20.xml",
+=======
+                    "source": "C:\\Users\\guigu\\.gradle\\caches\\transforms-4\\59ddcc817ebcfa0832827abb3ffc2e91\\transformed\\appcompat-1.6.1\\res\\values-watch-v20\\values-watch-v20.xml",
+>>>>>>> 95405949d654868007eeb99979adafa496cf0b4a
                     "from": {
                         "startLines": "2,5,8",
                         "startColumns": "4,4,4",

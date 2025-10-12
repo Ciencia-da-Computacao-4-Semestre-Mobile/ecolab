@@ -1,10 +1,14 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.ecolab.app-mergeDebugResources-84:/values-ldrtl-v17/values-ldrtl-v17.xml",
+            "outputFile": "com.example.ecolab.app-mergeDebugResources-87:/values-ldrtl-v17/values-ldrtl-v17.xml",
             "map": [
                 {
+<<<<<<< HEAD
                     "source": "C:\\Users\\Adm\\.gradle\\caches\\transforms-4\\6da7acfb049ccf3dbb4475fe7d400bfd\\transformed\\material-1.11.0\\res\\values-ldrtl-v17\\values-ldrtl-v17.xml",
+=======
+                    "source": "C:\\Users\\guigu\\.gradle\\caches\\transforms-4\\6da7acfb049ccf3dbb4475fe7d400bfd\\transformed\\material-1.11.0\\res\\values-ldrtl-v17\\values-ldrtl-v17.xml",
+>>>>>>> 95405949d654868007eeb99979adafa496cf0b4a
                     "from": {
                         "startLines": "2,3",
                         "startColumns": "4,4",

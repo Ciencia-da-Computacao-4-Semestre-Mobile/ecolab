@@ -28,6 +28,10 @@ import com.example.ecolab.ui.navigation.MainViewModel;
 import com.example.ecolab.ui.navigation.MainViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.example.ecolab.ui.profile.ProfileViewModel;
 import com.example.ecolab.ui.profile.ProfileViewModel_HiltModules_KeyModule_ProvideFactory;
+import com.example.ecolab.ui.screens.LoginViewModel;
+import com.example.ecolab.ui.screens.LoginViewModel_HiltModules_KeyModule_ProvideFactory;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.firebase.auth.FirebaseAuth;
 import dagger.hilt.android.ActivityRetainedLifecycle;
 import dagger.hilt.android.ViewModelLifecycle;
@@ -46,10 +50,7 @@ import dagger.hilt.android.internal.modules.ApplicationContextModule;
 import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideContextFactory;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.DoubleCheck;
-import dagger.internal.MapBuilder;
 import dagger.internal.Preconditions;
-import dagger.internal.SetBuilder;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.Generated;
@@ -404,7 +405,7 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
 
     @Override
     public Set<String> getViewModelKeys() {
-      return SetBuilder.<String>newSetBuilder(5).add(AchievementsViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(HomeViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(MainViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(MapViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(ProfileViewModel_HiltModules_KeyModule_ProvideFactory.provide()).build();
+      return ImmutableSet.<String>of(AchievementsViewModel_HiltModules_KeyModule_ProvideFactory.provide(), HomeViewModel_HiltModules_KeyModule_ProvideFactory.provide(), LoginViewModel_HiltModules_KeyModule_ProvideFactory.provide(), MainViewModel_HiltModules_KeyModule_ProvideFactory.provide(), MapViewModel_HiltModules_KeyModule_ProvideFactory.provide(), ProfileViewModel_HiltModules_KeyModule_ProvideFactory.provide());
     }
 
     @Override
@@ -434,6 +435,8 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
 
     private Provider<HomeViewModel> homeViewModelProvider;
 
+    private Provider<LoginViewModel> loginViewModelProvider;
+
     private Provider<MainViewModel> mainViewModelProvider;
 
     private Provider<MapViewModel> mapViewModelProvider;
@@ -455,14 +458,15 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
         final ViewModelLifecycle viewModelLifecycleParam) {
       this.achievementsViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
       this.homeViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
-      this.mainViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
-      this.mapViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
-      this.profileViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 4);
+      this.loginViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
+      this.mainViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
+      this.mapViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 4);
+      this.profileViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 5);
     }
 
     @Override
     public Map<String, Provider<ViewModel>> getHiltViewModelMap() {
-      return MapBuilder.<String, Provider<ViewModel>>newMapBuilder(5).put("com.example.ecolab.feature.achievements.AchievementsViewModel", ((Provider) achievementsViewModelProvider)).put("com.example.ecolab.feature.home.HomeViewModel", ((Provider) homeViewModelProvider)).put("com.example.ecolab.ui.navigation.MainViewModel", ((Provider) mainViewModelProvider)).put("com.example.ecolab.feature.map.MapViewModel", ((Provider) mapViewModelProvider)).put("com.example.ecolab.ui.profile.ProfileViewModel", ((Provider) profileViewModelProvider)).build();
+      return ImmutableMap.<String, Provider<ViewModel>>builderWithExpectedSize(6).put("com.example.ecolab.feature.achievements.AchievementsViewModel", ((Provider) achievementsViewModelProvider)).put("com.example.ecolab.feature.home.HomeViewModel", ((Provider) homeViewModelProvider)).put("com.example.ecolab.ui.screens.LoginViewModel", ((Provider) loginViewModelProvider)).put("com.example.ecolab.ui.navigation.MainViewModel", ((Provider) mainViewModelProvider)).put("com.example.ecolab.feature.map.MapViewModel", ((Provider) mapViewModelProvider)).put("com.example.ecolab.ui.profile.ProfileViewModel", ((Provider) profileViewModelProvider)).build();
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -492,13 +496,16 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
           case 1: // com.example.ecolab.feature.home.HomeViewModel 
           return (T) new HomeViewModel(singletonCImpl.assetPointsRepositoryProvider.get());
 
-          case 2: // com.example.ecolab.ui.navigation.MainViewModel 
+          case 2: // com.example.ecolab.ui.screens.LoginViewModel 
+          return (T) new LoginViewModel(singletonCImpl.provideAuthRepositoryProvider.get());
+
+          case 3: // com.example.ecolab.ui.navigation.MainViewModel 
           return (T) new MainViewModel(singletonCImpl.provideAuthRepositoryProvider.get());
 
-          case 3: // com.example.ecolab.feature.map.MapViewModel 
+          case 4: // com.example.ecolab.feature.map.MapViewModel 
           return (T) new MapViewModel(singletonCImpl.assetPointsRepositoryProvider.get(), singletonCImpl.provideGeocoderProvider.get());
 
-          case 4: // com.example.ecolab.ui.profile.ProfileViewModel 
+          case 5: // com.example.ecolab.ui.profile.ProfileViewModel 
           return (T) new ProfileViewModel(singletonCImpl.provideAuthRepositoryProvider.get());
 
           default: throw new AssertionError(id);
@@ -618,7 +625,7 @@ public final class DaggerEcoLabApplication_HiltComponents_SingletonC {
 
     @Override
     public Set<Boolean> getDisableFragmentGetContextFix() {
-      return Collections.<Boolean>emptySet();
+      return ImmutableSet.<Boolean>of();
     }
 
     @Override

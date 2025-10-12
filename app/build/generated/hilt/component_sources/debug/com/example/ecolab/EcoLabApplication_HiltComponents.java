@@ -8,6 +8,7 @@ import com.example.ecolab.feature.home.HomeViewModel_HiltModules;
 import com.example.ecolab.feature.map.MapViewModel_HiltModules;
 import com.example.ecolab.ui.navigation.MainViewModel_HiltModules;
 import com.example.ecolab.ui.profile.ProfileViewModel_HiltModules;
+import com.example.ecolab.ui.screens.LoginViewModel_HiltModules;
 import dagger.Binds;
 import dagger.Component;
 import dagger.Module;
@@ -165,6 +166,7 @@ public final class EcoLabApplication_HiltComponents {
           ViewModelCBuilderModule.class,
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
           HomeViewModel_HiltModules.KeyModule.class,
+          LoginViewModel_HiltModules.KeyModule.class,
           MainViewModel_HiltModules.KeyModule.class,
           MapViewModel_HiltModules.KeyModule.class,
           ProfileViewModel_HiltModules.KeyModule.class
@@ -206,6 +208,7 @@ public final class EcoLabApplication_HiltComponents {
           AchievementsViewModel_HiltModules.BindsModule.class,
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
           HomeViewModel_HiltModules.BindsModule.class,
+          LoginViewModel_HiltModules.BindsModule.class,
           MainViewModel_HiltModules.BindsModule.class,
           MapViewModel_HiltModules.BindsModule.class,
           ProfileViewModel_HiltModules.BindsModule.class

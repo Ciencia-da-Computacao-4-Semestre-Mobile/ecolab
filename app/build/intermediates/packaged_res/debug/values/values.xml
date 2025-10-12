@@ -118,6 +118,7 @@
     <string name="dark_theme_description">Ativar tema escuro</string>
     <string name="data">Dados</string>
     <string name="data_management">Gerenciamento de dados</string>
+    <string name="default_web_client_id">733860067111-n13ce5o85qe94jqs8phlb4mq6bl6qrlb.apps.googleusercontent.com</string>
     <string name="delete_account">Excluir conta</string>
     <string name="desafios">Desafios</string>
     <string name="descricao">Descrição</string>
@@ -147,13 +148,13 @@
     <string name="foto">Foto</string>
     <string name="gamificacao">Gamificação</string>
     <string name="gamification_title">Gamificação</string>
-    <string name="gcm_defaultSenderId" translatable="false">251862797287</string>
+    <string name="gcm_defaultSenderId" translatable="false">733860067111</string>
     <string name="get_current_location">Obter localização atual</string>
     <string name="go_to_settings">Ir para Configurações</string>
-    <string name="google_api_key" translatable="false">AIzaSyD19HDh3td0Slyywel80FsCzSU8jv_p-3c</string>
-    <string name="google_app_id" translatable="false">1:251862797287:android:6ab5e2acbdb8c2425e0b42</string>
-    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyD19HDh3td0Slyywel80FsCzSU8jv_p-3c</string>
-    <string name="google_storage_bucket" translatable="false">eco-lab-76a01.firebasestorage.app</string>
+    <string name="google_api_key" translatable="false">AIzaSyCGO16XDamYjC58HEmVMndBhSbFoSUAmbk</string>
+    <string name="google_app_id" translatable="false">1:733860067111:android:f396431c533c9b9288db02</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyCGO16XDamYjC58HEmVMndBhSbFoSUAmbk</string>
+    <string name="google_storage_bucket" translatable="false">eco-lab-c5d03.firebasestorage.app</string>
     <string name="green_area">Área Verde</string>
     <string name="green_area_description">Espaço verde urbano ou natural</string>
     <string name="help">Ajuda</string>
@@ -220,7 +221,7 @@
     <string name="pontos">Pontos</string>
     <string name="privacy_policy">Política de privacidade</string>
     <string name="privacy_policy_description">Leia nossa política de privacidade</string>
-    <string name="project_id" translatable="false">eco-lab-76a01</string>
+    <string name="project_id" translatable="false">eco-lab-c5d03</string>
     <string name="push_notifications">Notificações push</string>
     <string name="push_notifications_description">Receber notificações do aplicativo</string>
     <string name="ranking">Ranking</string>

@@ -1,10 +1,14 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.ecolab.app-mergeDebugResources-84:/values-v17/values-v17.xml",
+            "outputFile": "com.example.ecolab.app-mergeDebugResources-87:/values-v17/values-v17.xml",
             "map": [
                 {
+<<<<<<< HEAD
                     "source": "C:\\Users\\Adm\\.gradle\\caches\\transforms-4\\59ddcc817ebcfa0832827abb3ffc2e91\\transformed\\appcompat-1.6.1\\res\\values-v17\\values-v17.xml",
+=======
+                    "source": "C:\\Users\\guigu\\.gradle\\caches\\transforms-4\\59ddcc817ebcfa0832827abb3ffc2e91\\transformed\\appcompat-1.6.1\\res\\values-v17\\values-v17.xml",
+>>>>>>> 95405949d654868007eeb99979adafa496cf0b4a
                     "from": {
                         "startLines": "2,5,9,12,15,18,22,25,29,33,37,40,43,46,50,53,57",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
