@@ -4,7 +4,7 @@
             "outputFile": "com.example.ecolab.app-mergeDebugResources-84:/values-large-v4/values-large-v4.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\NicolasLimaFreitas\\.gradle\\caches\\transforms-4\\59ddcc817ebcfa0832827abb3ffc2e91\\transformed\\appcompat-1.6.1\\res\\values-large-v4\\values-large-v4.xml",
+                    "source": "C:\\Users\\Adm\\.gradle\\caches\\transforms-4\\59ddcc817ebcfa0832827abb3ffc2e91\\transformed\\appcompat-1.6.1\\res\\values-large-v4\\values-large-v4.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10",
                         "startColumns": "4,4,4,4,4,4,4,4,4",
@@ -14,7 +14,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\NicolasLimaFreitas\\.gradle\\caches\\transforms-4\\6da7acfb049ccf3dbb4475fe7d400bfd\\transformed\\material-1.11.0\\res\\values-large-v4\\values-large-v4.xml",
+                    "source": "C:\\Users\\Adm\\.gradle\\caches\\transforms-4\\6da7acfb049ccf3dbb4475fe7d400bfd\\transformed\\material-1.11.0\\res\\values-large-v4\\values-large-v4.xml",
                     "from": {
                         "startLines": "2,3,4,5",
                         "startColumns": "4,4,4,4",

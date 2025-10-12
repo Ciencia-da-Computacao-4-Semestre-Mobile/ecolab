@@ -1,16 +1,16 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest4025410785938591734.xml:2:13-83
-INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest4025410785938591734.xml:2:13-83
+ADDED from C:\Users\Adm\StudioProjects\ecolab\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6140233330044602036.xml:2:13-83
+INJECTED from C:\Users\Adm\StudioProjects\ecolab\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6140233330044602036.xml:2:13-83
 	package
-		INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest4025410785938591734.xml
+		INJECTED from C:\Users\Adm\StudioProjects\ecolab\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6140233330044602036.xml
 	xmlns:android
-		ADDED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest4025410785938591734.xml:2:23-81
+		ADDED from C:\Users\Adm\StudioProjects\ecolab\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6140233330044602036.xml:2:23-81
 uses-sdk
-INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest4025410785938591734.xml reason: use-sdk injection requested
-INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest4025410785938591734.xml
-INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest4025410785938591734.xml
+INJECTED from C:\Users\Adm\StudioProjects\ecolab\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6140233330044602036.xml reason: use-sdk injection requested
+INJECTED from C:\Users\Adm\StudioProjects\ecolab\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6140233330044602036.xml
+INJECTED from C:\Users\Adm\StudioProjects\ecolab\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6140233330044602036.xml
 	android:targetSdkVersion
-		INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest4025410785938591734.xml
+		INJECTED from C:\Users\Adm\StudioProjects\ecolab\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6140233330044602036.xml
 	android:minSdkVersion
-		INJECTED from C:\Users\NicolasLimaFreitas\Downloads\androiapp\android\android\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest4025410785938591734.xml
+		INJECTED from C:\Users\Adm\StudioProjects\ecolab\core\domain\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6140233330044602036.xml
