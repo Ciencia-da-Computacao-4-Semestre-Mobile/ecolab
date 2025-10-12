@@ -3999,6 +3999,7 @@ int string data 0x7f0f006b
 int string data_management 0x7f0f006c
 int string default_error_message 0x7f0f006d
 int string default_popup_window_title 0x7f0f006e
+int string default_web_client_id 0x7f0f01bd
 int string delete_account 0x7f0f006f
 int string desafios 0x7f0f0070
 int string descricao 0x7f0f0071
@@ -7344,4 +7345,5 @@ int styleable ViewStubCompat_android_inflatedId 2
 int xml backup_rules 0x7f120000
 int xml data_extraction_rules 0x7f120001
 int xml file_paths 0x7f120002
-int xml image_share_filepaths 0x7f120003
+int xml ga_ad_services_config 0x7f120003
+int xml image_share_filepaths 0x7f120004

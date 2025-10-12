@@ -155,6 +155,7 @@ string dark_theme
 string dark_theme_description
 string data
 string data_management
+string default_web_client_id
 string delete_account
 string desafios
 string descricao

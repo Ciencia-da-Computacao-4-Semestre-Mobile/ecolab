@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "251862797287",
-    "project_id": "eco-lab-76a01",
-    "storage_bucket": "eco-lab-76a01.firebasestorage.app"
+    "project_number": "733860067111",
+    "project_id": "eco-lab-c5d03",
+    "storage_bucket": "eco-lab-c5d03.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:251862797287:android:6ab5e2acbdb8c2425e0b42",
+        "mobilesdk_app_id": "1:733860067111:android:f396431c533c9b9288db02",
         "android_client_info": {
           "package_name": "com.example.ecolab"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyD19HDh3td0Slyywel80FsCzSU8jv_p-3c"
+          "current_key": "AIzaSyCGO16XDamYjC58HEmVMndBhSbFoSUAmbk"
         }
       ],
       "services": {
