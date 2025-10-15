@@ -1,10 +1,20 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.kapt)
-    alias(libs.plugins.mapsplatform.secrets)
+    // com.google.android.libraries.mapsplatform.secrets-gradle-plugin has been removed
     alias(libs.plugins.google.services)
+}
+
+// Load local.properties
+val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        load(localPropertiesFile.inputStream())
+    }
 }
 
 android {
@@ -22,6 +32,15 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        // Expose Google Maps Key to AndroidManifest.xml
+        val mapsApiKey = localProperties.getProperty("maps.api_key") ?: ""
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
+
+        // Expose both keys to BuildConfig
+        buildConfigField("String", "MAPS_API_KEY", "\"$mapsApiKey\"")
+        val googleAiStudioApiKey = localProperties.getProperty("google_ia_studio.api_key") ?: ""
+        buildConfigField("String", "GOOGLE_IA_STUDIO_API_KEY", "\"$googleAiStudioApiKey\"")
     }
 
     buildTypes {
@@ -42,6 +61,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.8"
@@ -53,9 +73,7 @@ android {
     }
 }
 
-secrets {
-    defaultPropertiesFileName = "local.properties"
-}
+// The secrets block is no longer needed
 
 dependencies {
     // Modules
