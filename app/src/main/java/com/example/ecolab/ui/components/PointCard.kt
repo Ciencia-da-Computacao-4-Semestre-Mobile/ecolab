@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -29,22 +31,22 @@ fun PointCard(
     onFavorite: () -> Unit
 ) {
     Card(
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(0.dp),
         colors = CardDefaults.cardColors(containerColor = Palette.surface),
         modifier = Modifier.clickable(onClick = onClick)
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = Icons.Default.Place,
                 contentDescription = "Ícone de local",
                 tint = Palette.textMuted,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(40.dp)
             )
-            Spacer(modifier = Modifier.size(12.dp))
+            Spacer(modifier = Modifier.size(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = point.name,
@@ -57,12 +59,13 @@ fun PointCard(
                     color = Palette.textMuted
                 )
             }
-            Spacer(modifier = Modifier.size(12.dp))
+            Spacer(modifier = Modifier.size(16.dp))
             IconButton(onClick = onFavorite) {
-                Text(
-                    text = if (point.isFavorite) "★" else "☆",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = if (point.isFavorite) Palette.accent else Palette.textMuted
+                Icon(
+                    imageVector = if (point.isFavorite) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                    contentDescription = if (point.isFavorite) "Remover dos favoritos" else "Adicionar aos favoritos",
+                    tint = if (point.isFavorite) Palette.accent else Palette.textMuted,
+                    modifier = Modifier.size(28.dp)
                 )
             }
         }

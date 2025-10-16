@@ -110,6 +110,8 @@ class MapViewModel @Inject constructor(
     fun toggleFavorite() {
         viewModelScope.launch {
             _selectedPoint.value?.let { point ->
+                val updatedPoint = point.copy(isFavorite = !point.isFavorite)
+                _selectedPoint.value = updatedPoint
                 pointsRepository.toggleFavorite(point.id)
             }
         }
