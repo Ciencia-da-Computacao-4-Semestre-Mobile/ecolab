@@ -123,7 +123,7 @@ fun MapScreen(
                 mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style)
             ),
             uiSettings = MapUiSettings(
-                mapToolbarEnabled = false, 
+                mapToolbarEnabled = false,
                 myLocationButtonEnabled = false,
                 zoomControlsEnabled = false
             )
@@ -158,14 +158,15 @@ fun MapScreen(
                     }
                 },
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    disabledContainerColor = Color.Transparent,
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    disabledContainerColor = Color.White,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     focusedTextColor = Palette.text,
                     unfocusedTextColor = Palette.text
-                )
+                ),
+                shape = RoundedCornerShape(24.dp)
             )
 
             Row(
@@ -189,10 +190,10 @@ fun MapScreen(
                         label = { Text(category) },
                         modifier = Modifier.padding(end = 8.dp),
                         colors = FilterChipDefaults.filterChipColors(
-                            containerColor = Color.Transparent,
-                            selectedContainerColor = Color.Transparent,
+                            containerColor = Color.White,
+                            selectedContainerColor = categoryColor,
                             labelColor = Palette.textMuted,
-                            selectedLabelColor = categoryColor
+                            selectedLabelColor = Color.White
                         ),
                         border = BorderStroke(
                             width = if (isSelected) 2.dp else 1.dp,
@@ -349,7 +350,7 @@ private fun MapControls(
                     }
                 }
             },
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = Color.White
         ) {
             Icon(imageVector = Icons.Default.MyLocation, contentDescription = "Minha Localização")
         }
@@ -364,7 +365,7 @@ private fun MapControls(
                         cameraPositionState.animate(CameraUpdateFactory.zoomTo(currentZoom + 1f))
                     }
                 },
-                containerColor = MaterialTheme.colorScheme.surface
+                containerColor = Color.White
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Zoom In")
             }
@@ -375,7 +376,7 @@ private fun MapControls(
                         cameraPositionState.animate(CameraUpdateFactory.zoomTo(currentZoom - 1f))
                     }
                 },
-                containerColor = MaterialTheme.colorScheme.surface
+                containerColor = Color.White
             ) {
                 Icon(imageVector = Icons.Default.Remove, contentDescription = "Zoom Out")
             }

@@ -39,7 +39,7 @@ fun EcoLabTheme(content: @Composable () -> Unit) {
             darkIcons = true
         )
     }
-
+    
     MaterialTheme(
         colorScheme = colorScheme,
         typography = MaterialTheme.typography,

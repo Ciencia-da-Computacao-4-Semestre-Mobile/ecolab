@@ -33,7 +33,6 @@ fun AppNavHost(
     LaunchedEffect(isLoggedIn) {
         if (!isLoggedIn) {
             navController.navigate("login") {
-                // Clear the entire back stack
                 popUpTo(navController.graph.findStartDestination().id) {
                     inclusive = true
                 }
@@ -47,13 +46,41 @@ fun AppNavHost(
         BottomNavItem.Library,
         BottomNavItem.Profile
     )
+
     val bottomNavRoutes = bottomNavItems.map { it.route }
+    val shouldShowScaffold = currentDestination?.route in bottomNavRoutes
 
-    val shouldShowScaffoldElements = currentDestination?.route in bottomNavRoutes
+    val navHost = @Composable { modifier: Modifier ->
+        NavHost(
+            navController = navController,
+            startDestination = "login",
+            modifier = modifier
+        ) {
+            composable(BottomNavItem.Home.route) {
+                HomeScreen(
+                    onQuizClick = { navController.navigate("quiz_setup") },
+                    onAchievementsClick = { navController.navigate("achievements") }
+                )
+            }
+            composable(BottomNavItem.Map.route) { MapScreen() }
+            composable(BottomNavItem.Library.route) { LibraryScreen() }
+            composable(BottomNavItem.Profile.route) { ProfileScreen() }
+            composable("quiz") { QuizScreen() }
+            composable("quiz_setup") {
+                QuizSetupScreen(onStartQuiz = { navController.navigate("quiz") })
+            }
+            composable("achievements") { AchievementsScreen() }
+            composable("login") {
+                LoginScreen(onLogin = {
+                    navController.navigate(BottomNavItem.Home.route)
+                })
+            }
+        }
+    }
 
-    Scaffold(
-        bottomBar = {
-            if (shouldShowScaffoldElements) {
+    if (shouldShowScaffold) {
+        Scaffold(
+            bottomBar = {
                 NavigationBar(
                     containerColor = Palette.surface,
                     tonalElevation = 0.dp
@@ -61,7 +88,6 @@ fun AppNavHost(
                     bottomNavItems.forEach { screen ->
                         NavigationBarItem(
                             icon = { Icon(screen.icon, contentDescription = screen.title) },
-                            label = { Text(screen.title) },
                             selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                             onClick = {
                                 navController.navigate(screen.route) {
@@ -72,36 +98,20 @@ fun AppNavHost(
                                     restoreState = true
                                 }
                             },
+                            alwaysShowLabel = false,
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = Palette.primary,
-                                selectedTextColor = Palette.primary,
                                 unselectedIconColor = Palette.textMuted,
-                                unselectedTextColor = Palette.textMuted,
                                 indicatorColor = Palette.surface
                             )
                         )
                     }
                 }
             }
+        ) { innerPadding ->
+            navHost(Modifier.padding(innerPadding))
         }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = "login", // Start with login
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable(BottomNavItem.Home.route) {
-                HomeScreen(
-                    onQuizClick = { navController.navigate("quiz") },
-                    onAchievementsClick = { navController.navigate("achievements") }
-                )
-            }
-            composable(BottomNavItem.Map.route) { MapScreen() }
-            composable(BottomNavItem.Library.route) { LibraryScreen() }
-            composable(BottomNavItem.Profile.route) { ProfileScreen() }
-            composable("quiz") { QuizScreen() }
-            composable("achievements") { AchievementsScreen() }
-            composable("login") { LoginScreen(onLogin = { navController.navigate(BottomNavItem.Home.route) }) }
-        }
+    } else {
+        navHost(Modifier)
     }
 }
