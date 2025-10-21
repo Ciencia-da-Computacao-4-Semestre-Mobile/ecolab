@@ -11,12 +11,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.ecolab.ui.screens.AchievementsScreen
 import com.example.ecolab.ui.screens.EditProfileScreen
+import com.example.ecolab.ui.screens.GameMode
 import com.example.ecolab.ui.screens.HomeScreen
 import com.example.ecolab.ui.screens.LibraryScreen
 import com.example.ecolab.ui.screens.LoginScreen
@@ -56,7 +59,10 @@ fun AppNavHost(
     )
 
     val bottomNavRoutes = bottomNavItems.map { it.route }
-    val shouldShowScaffold = currentDestination?.route in bottomNavRoutes
+    val shouldShowScaffold = currentDestination?.route?.let { currentRoute ->
+        bottomNavRoutes.any { it == currentRoute }
+    } ?: false
+
 
     val navHost = @Composable { modifier: Modifier ->
         NavHost(
@@ -88,9 +94,30 @@ fun AppNavHost(
             composable("edit_profile") {
                 EditProfileScreen(onNavigateUp = { navController.navigateUp() })
             }
-            composable("quiz") { QuizScreen() }
+            composable(
+                route = "quiz/{theme}/{gameMode}",
+                arguments = listOf(
+                    navArgument("theme") { type = NavType.StringType },
+                    navArgument("gameMode") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val theme = backStackEntry.arguments?.getString("theme") ?: "Default"
+                val gameModeString = backStackEntry.arguments?.getString("gameMode") ?: "NORMAL"
+                val gameMode = try { GameMode.valueOf(gameModeString.uppercase()) } catch (e: IllegalArgumentException) { GameMode.NORMAL }
+
+                QuizScreen(
+                    onClose = { navController.popBackStack() },
+                    theme = theme,
+                    gameMode = gameMode
+                )
+            }
             composable("quiz_setup") {
-                QuizSetupScreen(onStartQuiz = { navController.navigate("quiz") })
+                QuizSetupScreen(
+                    onStartQuiz = { theme, gameMode ->
+                        navController.navigate("quiz/$theme/${gameMode.name}")
+                    },
+                    onBack = { navController.popBackStack() }
+                )
             }
             composable("achievements") { AchievementsScreen() }
             composable("login") {

@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Forest
@@ -33,8 +34,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,7 +65,7 @@ data class SelectionItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun QuizSetupScreen(onStartQuiz: () -> Unit) {
+fun QuizSetupScreen(onStartQuiz: (theme: String, gameMode: GameMode) -> Unit, onBack: () -> Unit) {
     var selectedGameMode by remember { mutableStateOf<SelectionItem?>(null) }
     var selectedTheme by remember { mutableStateOf<SelectionItem?>(null) }
 
@@ -72,94 +77,101 @@ fun QuizSetupScreen(onStartQuiz: () -> Unit) {
     val themes = listOf(
         SelectionItem("Água", icon = Icons.Filled.WaterDrop, color = Color(0xFF2196F3)),
         SelectionItem("Energia", icon = Icons.Filled.Bolt, color = Color(0xFFFFC107)),
-        SelectionItem("Fauna e Flora", icon = Icons.Filled.Forest, color = Color(0xFF009688)),
+        SelectionItem("Fauna e Flora", icon = Icons.Filled.Forest, color = Color(0xFFF57C00)), // Laranja
         SelectionItem("Poluição", icon = Icons.Filled.Public, color = Color(0xFF795548)),
         SelectionItem("Reciclagem", icon = Icons.Filled.Recycling, color = Color(0xFF2E7D32)),
-        SelectionItem("Sustentabilidade", icon = Icons.Filled.Eco, color = Color(0xFF66BB6A))
+        SelectionItem("Sustentabilidade", icon = Icons.Filled.Eco, color = Color(0xFF7B1FA2)) // Roxo
     ).sortedBy { it.name }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(24.dp))
-        Image(
-            painter = painterResource(id = R.drawable.ic_ecolab_logo),
-            contentDescription = "EcoLab Logo",
-            modifier = Modifier.size(80.dp)
-        )
-        Text(
-            text = "Quiz Ecológico",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            color = Palette.text,
-            modifier = Modifier.padding(vertical = 16.dp)
-        )
-        Text(
-            text = "Modo de Jogo",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            gameModes.forEach { item ->
-                GameModeCard(
-                    item = item,
-                    isSelected = selectedGameMode == item,
-                    onClick = { selectedGameMode = item },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = "Escolha um Tema",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-        )
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(vertical = 8.dp)
-        ) {
-            items(themes) {
-                ThemeCard(
-                    item = it,
-                    isSelected = selectedTheme == it,
-                    onClick = { selectedTheme = it }
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = onStartQuiz,
-            enabled = selectedGameMode != null && selectedTheme != null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp),
-            shape = RoundedCornerShape(20.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = selectedTheme?.color ?: Palette.primary,
-                disabledContainerColor = Palette.surface,
-                contentColor = Color.White,
-                disabledContentColor = Palette.textMuted
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Novo Quiz", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
-        ) {
-            Text("Começar o Quiz", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         }
-        Spacer(modifier = Modifier.height(16.dp))
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Text(
+                text = "Modo de Jogo",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                gameModes.forEach { item ->
+                    GameModeCard(
+                        item = item,
+                        isSelected = selectedGameMode == item,
+                        onClick = { selectedGameMode = item },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Escolha um Tema",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+            )
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(vertical = 8.dp)
+            ) {
+                items(themes) {
+                    ThemeCard(
+                        item = it,
+                        isSelected = selectedTheme == it,
+                        onClick = { selectedTheme = it }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    val theme = selectedTheme?.name ?: "Default"
+                    val gameMode = if (selectedGameMode?.name == "Speed Run") GameMode.SPEEDRUN else GameMode.NORMAL
+                    onStartQuiz(theme, gameMode)
+                },
+                enabled = selectedGameMode != null && selectedTheme != null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                shape = RoundedCornerShape(20.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = selectedTheme?.color ?: Palette.primary,
+                    disabledContainerColor = Palette.surface,
+                    contentColor = Color.White,
+                    disabledContentColor = Palette.textMuted
+                )
+            ) {
+                Text("Começar o Quiz", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
     }
 }
 
