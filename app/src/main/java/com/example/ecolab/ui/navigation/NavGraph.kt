@@ -77,7 +77,7 @@ fun AppNavHost(
                 )
             }
             composable(BottomNavItem.Map.route) { MapScreen() }
-            composable(BottomNavItem.Library.route) { LibraryScreen() }
+            composable(BottomNavItem.Library.route) { LibraryScreen(onGuideClick = {}) }
             composable(BottomNavItem.Profile.route) {
                 ProfileScreen(
                     onEditProfileClick = { navController.navigate("edit_profile") },

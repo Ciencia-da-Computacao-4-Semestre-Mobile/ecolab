@@ -1,5 +1,6 @@
 package com.example.ecolab.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,111 +11,162 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.ecolab.feature.library.Article
+import com.example.ecolab.feature.library.GuideItem
 import com.example.ecolab.feature.library.LibraryViewModel
-import com.example.ecolab.ui.theme.Palette
+// Remova o import desnecessário de Palette se não estiver a usar mais
+// import com.example.ecolab.ui.theme.Palette
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LibraryScreen(viewModel: LibraryViewModel = viewModel()) {
+fun LibraryScreen(
+    // Recebe a ação de navegação para a URL (que abrirá o WebView)
+    onGuideClick: (url: String) -> Unit,
+    viewModel: LibraryViewModel = viewModel()
+) {
+    // Coleta o estado do ViewModel
     val uiState by viewModel.uiState.collectAsState()
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedTabIndex by remember { mutableStateOf(0) }
-    val tabs = listOf("Artigos", "Documentos", "Guias")
 
-    val filteredArticles = uiState.articles.filter {
-        it.title.contains(searchQuery, ignoreCase = true)
+    // Filtra a lista com base no termo de pesquisa
+    val filteredGuides = uiState.guides.filter {
+        it.title.contains(uiState.searchQuery, ignoreCase = true) ||
+                it.description.contains(uiState.searchQuery, ignoreCase = true)
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            placeholder = { Text("Busque por tema ou palavra-chave") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Busca") },
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedBorderColor = Palette.divider,
-                focusedBorderColor = Palette.primary
-            )
-        )
-
-        TabRow(
-            selectedTabIndex = selectedTabIndex,
-            containerColor = Palette.surface,
-            contentColor = Palette.primary,
-            divider = { HorizontalDivider(color = Palette.divider) }
-        ) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
-                    selected = selectedTabIndex == index,
-                    onClick = { selectedTabIndex = index },
-                    text = { Text(title) },
-                    selectedContentColor = Palette.primary,
-                    unselectedContentColor = Palette.textMuted
+    Scaffold(
+        topBar = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+            ) {
+                Text(
+                    text = "Bem Vindo a Biblioteca ",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                // Campo de pesquisa
+                TextField(
+                    value = uiState.searchQuery,
+                    onValueChange = { viewModel.updateSearchQuery(it) }, // Atualiza o estado da busca no ViewModel
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Pesquisar...") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Pesquisar") },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFFE0E0E0),
+                        unfocusedContainerColor = Color(0xFFE0E0E0),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                    )
                 )
             }
-        }
-
-        if (selectedTabIndex == 0) { // Only show content for "Artigos"
-            ChipGroup()
-            if (filteredArticles.isEmpty()) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Nenhum artigo encontrado.", color = Palette.textMuted)
+        },
+        content = { paddingValues ->
+            when {
+                uiState.isLoading -> {
+                    Box(Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
                 }
-            } else {
-                LazyColumn(
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(filteredArticles) { article ->
-                        ArticleCard(article)
+                filteredGuides.isEmpty() -> {
+                    Box(Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
+                        Text("Nenhum guia encontrado para \"${uiState.searchQuery}\".")
+                    }
+                }
+                else -> {
+                    LazyColumn(
+                        contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.padding(paddingValues)
+                    ) {
+                        items(filteredGuides, key = { it.id }) { guide ->
+                            // Passa o guide, a função para obter cor/ícone e a ação de clique.
+                            val (color, icon) = viewModel.getGuideVisuals(guide)
+                            GuideCard(
+                                guide = guide,
+                                cardColor = color,
+                                cardIcon = icon,
+                                onClick = { onGuideClick(guide.url) } // Passa a URL para a função de navegação
+                            )
+                        }
                     }
                 }
             }
-        } else {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("${tabs[selectedTabIndex]} em breve.", color = Palette.textMuted)
-            }
-        }
-    }
+        },
+    )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+// 3. Componente GuideCard Atualizado
 @Composable
-private fun ChipGroup() {
-    Row(
+fun GuideCard(
+    guide: GuideItem,
+    cardColor: Color,
+    cardIcon: ImageVector,
+    onClick: () -> Unit // Ação de clique do botão
+) {
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        AssistChip(onClick = { /* TODO */ }, label = { Text("Reciclagem") })
-        AssistChip(onClick = { /* TODO */ }, label = { Text("Compostagem") })
-        AssistChip(onClick = { /* TODO */ }, label = { Text("Água") })
-    }
-}
-
-@Composable
-private fun ArticleCard(article: Article) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(0.dp),
+            .height(90.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Palette.surface)
+        colors = CardDefaults.cardColors(containerColor = cardColor),
+        onClick = onClick // Você pode querer que o cartão inteiro seja clicável
     ) {
-        Column(Modifier.padding(16.dp)) {
-            Text(article.title, style = MaterialTheme.typography.titleMedium, color = Palette.text)
-            Spacer(Modifier.height(4.dp))
-            Text(article.summary, style = MaterialTheme.typography.bodyMedium, color = Palette.textMuted)
-            Spacer(Modifier.height(8.dp))
-            AssistChip(onClick = { /*TODO*/ }, label = { Text("Salvar") })
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Seção de Ícone e Texto
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                // Ícone
+                Icon(
+                    imageVector = cardIcon, // Ícone dinâmico
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(Color.Black.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+                        .padding(8.dp)
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                // Título
+                Text(
+                    text = guide.title, // Título dinâmico
+                    color = Color.White,
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
+                )
+            }
+
+            // Botão "Ver Conteúdo"
+            Button(
+                onClick = onClick, // Usa a função passada, que abrirá o WebView
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black
+                ),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                modifier = Modifier.wrapContentWidth()
+            ) {
+                Text("Ver Conteúdo", fontSize = 12.sp)
+            }
         }
     }
 }
