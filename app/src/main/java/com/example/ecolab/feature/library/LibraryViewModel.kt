@@ -45,48 +45,48 @@ class LibraryViewModel : ViewModel() {
             // Em uma aplicação real, você faria uma chamada de API ou acesso ao DB aqui.
             val loadedGuides = listOf(
                 GuideItem(
-                    title = "Guia de reciclagem de papel", author = "EcoTeam", description = "Tudo sobre como reciclar papel.",
-                    url = "https://pt.wikipedia.org/wiki/Reciclagem_de_papel", category = "papel"
+                    title = "Guia de reciclagem de papel", author = "Eureciclo", description = "Tudo sobre como reciclar papel.",
+                    url = "https://blog.eureciclo.com.br/reciclagem-de-papel/", category = "papel"
                 ),
                 GuideItem(
-                    title = "Guia de reciclagem de plástico", author = "GreenCorp", description = "Evite o descarte incorreto de plásticos.",
-                    url = "https://pt.wikipedia.org/wiki/Reciclagem_de_pl%C3%A1stico", category = "plastico"
+                    title = "Guia de reciclagem de plástico", author = "Trevoreciclagem", description = "Evite o descarte incorreto de plásticos.",
+                    url = "https://trevoreciclagem.com.br/reciclagem-do-plastico/", category = "plastico"
                 ),
                 GuideItem(
-                    title = "Guia de reciclagem de vidro", author = "Recicla Brasil", description = "Dicas e cuidados com o vidro.",
-                    url = "https://pt.wikipedia.org/wiki/Reciclagem_de_vidro", category = "vidro"
+                    title = "Guia de reciclagem de vidro", author = "circulavidro", description = "Dicas e cuidados com o vidro.",
+                    url = "https://circulavidro.com/wp-content/uploads/2024/05/Guia-Tecnico-de-Reciclagem-do-Vidro.pdf", category = "vidro"
                 ),
                 GuideItem(
-                    title = "Guia de reciclagem de metal", author = "EcoTeam", description = "Metal: um recurso valioso.",
-                    url = "https://pt.wikipedia.org/wiki/Reciclagem_de_metal", category = "metal"
+                    title = "Guia de reciclagem de metal", author = "mrsucatas", description = "Metal: um recurso valioso.",
+                    url = "https://mrsucatas.com.br/sucata-mista-um-guia-completo-para-reciclagem/", category = "metal"
                 ),
                 GuideItem(
-                    title = "Guia de reciclagem de madeira", author = "WoodSave", description = "O ciclo de vida da madeira.",
-                    url = "https://pt.wikipedia.org/wiki/Reciclagem_de_madeira", category = "madeira"
+                    title = "Guia de reciclagem de madeira", author = "tomra", description = "O ciclo de vida da madeira.",
+                    url = "https://www.tomra.com/pt-br/waste-metal-recycling/media-center/download/waste-wood-recycling", category = "madeira"
                 ),
                 GuideItem(
-                    title = "Guia de reciclagem de lixo contaminado", author = "WoodSave", description = "O ciclo de vida da madeira.",
-                    url = "https://pt.wikipedia.org/wiki/Reciclagem_de_madeira", category = "perigoso"
+                    title = "Guia de reciclagem de lixo contaminado", author = "ufsc", description = "lixo perigoso",
+                    url = "https://gestaoderesiduos.ufsc.br/files/2016/02/Butantan_guia_pratico.pdf", category = "perigoso"
                 ),
                 GuideItem(
-                    title = "Guia de reciclagem de lixo hospitalar", author = "WoodSave", description = "O ciclo de vida da madeira.",
-                    url = "https://pt.wikipedia.org/wiki/Reciclagem_de_madeira", category = "hospitalar"
+                    title = "Guia de reciclagem de lixo hospitalar", author = "ecourbis", description = "lixo hospitalar",
+                    url = "https://drive.prefeitura.sp.gov.br/cidade/secretarias/upload/servicos/Manual_de_Residuos%20(ECOURBIS).pdf", category = "hospitalar"
                 ),
                 GuideItem(
-                    title = "Guia de reciclagem de lixo radioativo", author = "WoodSave", description = "O ciclo de vida da madeira.",
-                    url = "https://pt.wikipedia.org/wiki/Reciclagem_de_madeira", category = "radioativo"
+                    title = "Guia de reciclagem de lixo radioativo", author = "govbr", description = "lixo radioativo",
+                    url = "https://www.gov.br/pt-br/servicos/receber-tratar-acondicionar-e-armazenar-rejeitos-radiotativos", category = "radioativo"
                 ),
                 GuideItem(
-                    title = "Guia de reciclagem de lixo organico", author = "WoodSave", description = "O ciclo de vida da madeira.",
-                    url = "https://pt.wikipedia.org/wiki/Reciclagem_de_madeira", category = "organico"
+                    title = "Guia de reciclagem de lixo organico", author = "trevoreciclagem", description = "lixo organico",
+                    url = "https://trevoreciclagem.com.br/residuos-organicos/", category = "organico"
                 ),
                 GuideItem(
-                    title = "Guia de reciclagem de lixo não reciclavel", author = "WoodSave", description = "O ciclo de vida da madeira.",
-                    url = "https://pt.wikipedia.org/wiki/Reciclagem_de_madeira", category = "naoreciclavel"
+                    title = "Guia de reciclagem de lixo não reciclavel", author = "naturallimp", description = "lixo não reciclavel",
+                    url = "https://www.naturallimp.com.br/blog/quais-sao-os-materiais-reciclaveis-e-nao-reciclaveis", category = "naoreciclavel"
                 ),
                 GuideItem(
-                    title = "Artigo de reciclagem de lixo não reciclavel", author = "WoodSave", description = "O ciclo de vida da madeira.",
-                    url = "https://pt.wikipedia.org/wiki/Reciclagem_de_madeira", category = "artigo"
+                    title = "Artigo de reciclagem de lixo não reciclavel", author = "unila", description = "artigo",
+                    url = "https://portal.unila.edu.br/semana-unilera/lista-de-lixo-reciclavel-e-nao-reciclavel.pdf", category = "artigo"
                 ),
             )
             _uiState.value = _uiState.value.copy(guides = loadedGuides, isLoading = false)
