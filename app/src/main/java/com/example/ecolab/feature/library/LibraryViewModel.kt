@@ -1,17 +1,15 @@
-package com.example.ecolab.feature.library // Adapte o nome do pacote
+package com.example.ecolab.feature.library
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
+import com.example.ecolab.R
 
-// 1. Novo Modelo de Dados para os Guias
+
 data class GuideItem(
     val id: String = UUID.randomUUID().toString(),
     val title: String,
@@ -38,11 +36,9 @@ class LibraryViewModel : ViewModel() {
         loadGuides()
     }
 
-    // Simulação do carregamento de dados do banco de dados/servidor
     private fun loadGuides() {
 
         viewModelScope.launch {
-            // Em uma aplicação real, você faria uma chamada de API ou acesso ao DB aqui.
             val loadedGuides = listOf(
                 GuideItem(
                     title = "Guia de reciclagem de papel", author = "Eureciclo", description = "Tudo sobre como reciclar papel.",
@@ -98,19 +94,19 @@ class LibraryViewModel : ViewModel() {
     }
 
     // Função que aplica a cor e ícone baseados na categoria (para consistência do UI)
-    fun getGuideVisuals(guide: GuideItem): Pair<Color, ImageVector> {
+    fun getGuideVisuals(guide: GuideItem): Pair<Color, Int> {
         return when (guide.category.lowercase()) {
-            "papel" -> Pair(Color(0xFF1E88E5), Icons.Default.Inventory2) // Azul
-            "plastico" -> Pair(Color(0xFFE53935), Icons.Default.SportsBasketball) // Vermelho
-            "vidro" -> Pair(Color(0xFF43A047), Icons.Default.WineBar) // Verde
-            "metal" -> Pair(Color(0xFFFDD835), Icons.Default.Extension) // Amarelo
-            "madeira" -> Pair(Color(0xFF424242), Icons.Default.Texture)// Preto/Cinza
-            "perigoso" -> Pair(Color(0xFFFF5722), Icons.Default.Texture)
-            "hospitalar" -> Pair(Color(0xFFBDBDBD), Icons.Default.Texture)
-            "radioativo" -> Pair(Color(0xFF673AB7), Icons.Default.Texture)
-            "organico" -> Pair(Color(0xFF964B00), Icons.Default.Texture)
-            "naoreciclavel" -> Pair(Color(0xFF575757), Icons.Default.Texture)
-            else -> Pair(Color(0xFF00BCD4), Icons.Default.MenuBook) // artigo
+            "papel" -> Pair(Color(0xFF1E88E5), R.drawable.icone_papel) // Azul
+            "plastico" -> Pair(Color(0xFFE53935), R.drawable.icone_plastico) // Vermelho
+            "vidro" -> Pair(Color(0xFF43A047), R.drawable.icone_vidro) // Verde
+            "metal" -> Pair(Color(0xFFFDD835), R.drawable.icone_metal) // Amarelo
+            "madeira" -> Pair(Color(0xFF424242), R.drawable.icone_madeira)// Preto/Cinza
+            "perigoso" -> Pair(Color(0xFFFF5722), R.drawable.icone_reciclavel)
+            "hospitalar" -> Pair(Color(0xFFBDBDBD), R.drawable.icone_medicamento)
+            "radioativo" -> Pair(Color(0xFF673AB7), R.drawable.icone_radioativo)
+            "organico" -> Pair(Color(0xFF964B00), R.drawable.icone_organico)
+            "naoreciclavel" -> Pair(Color(0xFF575757), R.drawable.icone_naoreciclavel)
+            else -> Pair(Color(0xFF00BCD4), R.drawable.icone_artigo) // artigo
         }
     }
 }

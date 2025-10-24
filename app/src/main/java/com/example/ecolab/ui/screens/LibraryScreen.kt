@@ -1,5 +1,6 @@
 package com.example.ecolab.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,27 +13,23 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ecolab.feature.library.GuideItem
 import com.example.ecolab.feature.library.LibraryViewModel
-// Remova o import desnecessário de Palette se não estiver a usar mais
-// import com.example.ecolab.ui.theme.Palette
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryScreen(
-    // Recebe a ação de navegação para a URL (que abrirá o WebView)
     onGuideClick: (url: String) -> Unit,
     viewModel: LibraryViewModel = viewModel()
 ) {
-    // Coleta o estado do ViewModel
     val uiState by viewModel.uiState.collectAsState()
 
-    // Filtra a lista com base no termo de pesquisa
     val filteredGuides = uiState.guides.filter {
         it.title.contains(uiState.searchQuery, ignoreCase = true) ||
                 it.description.contains(uiState.searchQuery, ignoreCase = true)
@@ -54,9 +51,10 @@ fun LibraryScreen(
                 // Campo de pesquisa
                 TextField(
                     value = uiState.searchQuery,
-                    onValueChange = { viewModel.updateSearchQuery(it) }, // Atualiza o estado da busca no ViewModel
+                    onValueChange = { viewModel.updateSearchQuery(it) },
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = { Text("Pesquisar...") },
+                    // Usamos Icon aqui, pois o ícone de busca é um ImageVector padrão do Compose
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Pesquisar") },
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
@@ -89,13 +87,14 @@ fun LibraryScreen(
                         modifier = Modifier.padding(paddingValues)
                     ) {
                         items(filteredGuides, key = { it.id }) { guide ->
-                            // Passa o guide, a função para obter cor/ícone e a ação de clique.
-                            val (color, icon) = viewModel.getGuideVisuals(guide)
+                            // MUDANÇA: 'icon' agora é 'imageResId' e é um Int.
+                            val (color, imageResId) = viewModel.getGuideVisuals(guide)
                             GuideCard(
                                 guide = guide,
                                 cardColor = color,
-                                cardIcon = icon,
-                                onClick = { onGuideClick(guide.url) } // Passa a URL para a função de navegação
+                                // MUDANÇA: Passamos o Int (Resource ID)
+                                cardImageResId = imageResId,
+                                onClick = { onGuideClick(guide.url) }
                             )
                         }
                     }
@@ -105,13 +104,13 @@ fun LibraryScreen(
     )
 }
 
-// 3. Componente GuideCard Atualizado
+
 @Composable
 fun GuideCard(
     guide: GuideItem,
     cardColor: Color,
-    cardIcon: ImageVector,
-    onClick: () -> Unit // Ação de clique do botão
+    cardImageResId: Int,
+    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -119,7 +118,7 @@ fun GuideCard(
             .height(90.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = cardColor),
-        onClick = onClick // Você pode querer que o cartão inteiro seja clicável
+        onClick = onClick
     ) {
         Row(
             modifier = Modifier
@@ -128,16 +127,18 @@ fun GuideCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Seção de Ícone e Texto
+            // Seção de Imagem e Texto
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
             ) {
-                // Ícone
-                Icon(
-                    imageVector = cardIcon, // Ícone dinâmico
+
+                Image(
+                    painter = painterResource(id = cardImageResId), // Carrega a imagem usando o ID (Int)
                     contentDescription = null,
-                    tint = Color.White,
+                    // Aplicamos a cor de destaque (Color) na imagem.
+                    // Remova ColorFilter.tint se a sua imagem já for colorida.
+                    colorFilter = ColorFilter.tint(Color.White),
                     modifier = Modifier
                         .size(40.dp)
                         .background(Color.Black.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
@@ -148,7 +149,7 @@ fun GuideCard(
 
                 // Título
                 Text(
-                    text = guide.title, // Título dinâmico
+                    text = guide.title,
                     color = Color.White,
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
                 )
@@ -156,7 +157,7 @@ fun GuideCard(
 
             // Botão "Ver Conteúdo"
             Button(
-                onClick = onClick, // Usa a função passada, que abrirá o WebView
+                onClick = onClick,
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
