@@ -29,6 +29,9 @@ import com.example.ecolab.ui.screens.QuizScreen
 import com.example.ecolab.ui.screens.QuizSetupScreen
 import com.example.ecolab.ui.screens.RegisterScreen
 import com.example.ecolab.ui.theme.Palette
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,6 +52,17 @@ fun AppNavHost(
                 }
             }
         }
+    }
+
+    // NOVO: Obter o Context e definir a função de abertura de URL
+    val context = LocalContext.current // 1. Obter o Context
+
+    // 2. Definir a função que abre o link
+    val openUrl: (String) -> Unit = { url ->
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        // Boa prática ao chamar uma atividade externa:
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
     }
 
     val bottomNavItems = listOf(
@@ -77,7 +91,7 @@ fun AppNavHost(
                 )
             }
             composable(BottomNavItem.Map.route) { MapScreen() }
-            composable(BottomNavItem.Library.route) { LibraryScreen(onGuideClick = {}) }
+            composable(BottomNavItem.Library.route) { LibraryScreen(onGuideClick = openUrl) }
             composable(BottomNavItem.Profile.route) {
                 ProfileScreen(
                     onEditProfileClick = { navController.navigate("edit_profile") },

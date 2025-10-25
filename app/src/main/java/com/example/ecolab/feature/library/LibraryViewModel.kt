@@ -96,11 +96,11 @@ class LibraryViewModel : ViewModel() {
     // Função que aplica a cor e ícone baseados na categoria (para consistência do UI)
     fun getGuideVisuals(guide: GuideItem): Pair<Color, Int> {
         return when (guide.category.lowercase()) {
-            "papel" -> Pair(Color(0xFF1E88E5), R.drawable.icone_papel) // Azul
-            "plastico" -> Pair(Color(0xFFE53935), R.drawable.icone_plastico) // Vermelho
-            "vidro" -> Pair(Color(0xFF43A047), R.drawable.icone_vidro) // Verde
-            "metal" -> Pair(Color(0xFFFDD835), R.drawable.icone_metal) // Amarelo
-            "madeira" -> Pair(Color(0xFF424242), R.drawable.icone_madeira)// Preto/Cinza
+            "papel" -> Pair(Color(0xFF1E88E5), R.drawable.icone_papel)
+            "plastico" -> Pair(Color(0xFFE53935), R.drawable.icone_plastico)
+            "vidro" -> Pair(Color(0xFF43A047), R.drawable.icone_vidro)
+            "metal" -> Pair(Color(0xFFFDD835), R.drawable.icone_metal)
+            "madeira" -> Pair(Color(0xFF424242), R.drawable.icone_madeira)
             "perigoso" -> Pair(Color(0xFFFF5722), R.drawable.icone_reciclavel)
             "hospitalar" -> Pair(Color(0xFFBDBDBD), R.drawable.icone_medicamento)
             "radioativo" -> Pair(Color(0xFF673AB7), R.drawable.icone_radioativo)
