@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ecolab.feature.library.GuideItem
 import com.example.ecolab.feature.library.LibraryViewModel
+import androidx.compose.ui.text.style.TextAlign
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,9 +44,11 @@ fun LibraryScreen(
                     .padding(top = 16.dp, start = 16.dp, end = 16.dp)
             ) {
                 Text(
-                    text = "Bem Vindo a Biblioteca ",
+                    text = "Bem Vindo a Biblioteca",
                     style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.fillMaxWidth(), // 1. Ocupa toda a largura
+                    textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 // Campo de pesquisa
@@ -82,21 +85,22 @@ fun LibraryScreen(
                 }
                 else -> {
                     LazyColumn(
-                        contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier = Modifier.padding(paddingValues)
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier
+                            .padding(paddingValues)
+                            .padding(horizontal = 12.dp)
                     ) {
+                        item { Spacer(modifier = Modifier.height(12.dp)) }
                         items(filteredGuides, key = { it.id }) { guide ->
-                            // MUDANÇA: 'icon' agora é 'imageResId' e é um Int.
                             val (color, imageResId) = viewModel.getGuideVisuals(guide)
                             GuideCard(
                                 guide = guide,
                                 cardColor = color,
-                                // MUDANÇA: Passamos o Int (Resource ID)
                                 cardImageResId = imageResId,
                                 onClick = { onGuideClick(guide.url) }
                             )
                         }
+                        item { Spacer(modifier = Modifier.height(12.dp)) }
                     }
                 }
             }
@@ -115,7 +119,7 @@ fun GuideCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(90.dp),
+            .height(100.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = cardColor),
         onClick = onClick
@@ -140,12 +144,12 @@ fun GuideCard(
                     // Remova ColorFilter.tint se a sua imagem já for colorida.
                     colorFilter = ColorFilter.tint(Color.White),
                     modifier = Modifier
-                        .size(40.dp)
-                        .background(Color.Black.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+                        .size(65.dp)
+                        .background(Color.Black.copy(alpha = 0.0f))
                         .padding(8.dp)
                 )
 
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(20.dp))
 
                 // Título
                 Text(
@@ -163,7 +167,7 @@ fun GuideCard(
                     containerColor = Color.White,
                     contentColor = Color.Black
                 ),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                contentPadding = PaddingValues(horizontal = 9.dp, vertical = 8.dp),
                 modifier = Modifier.wrapContentWidth()
             ) {
                 Text("Ver Conteúdo", fontSize = 12.sp)

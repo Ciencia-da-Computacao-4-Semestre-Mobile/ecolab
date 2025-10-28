@@ -15,7 +15,7 @@ data class GuideItem(
     val title: String,
     val author: String,
     val description: String,
-    val url: String, // A URL que será carregada no WebView
+    val url: String,
     val category: String // Ajuda a determinar cor/ícone
 )
 
