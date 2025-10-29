@@ -31,6 +31,8 @@ import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -64,7 +66,6 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -98,7 +99,14 @@ fun MapScreen(
 
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
-    val filterCategories = listOf("Todos", "Ecoponto", "Cooperativa", "Ponto de Entrega", "Pátio de Compostagem", "Favoritos")
+    val filterCategories = listOf(
+        "Todos",
+        "Ecoponto",
+        "Cooperativa",
+        "Ponto de Entrega",
+        "Pátio de Compostagem",
+        "Favoritos"
+    )
 
     LaunchedEffect(uiState.searchedLocation) {
         uiState.searchedLocation?.let {
@@ -132,8 +140,11 @@ fun MapScreen(
                     state = MarkerState(position = LatLng(point.latitude, point.longitude)),
                     title = point.name,
                     snippet = point.description,
-                    icon = getMarkerIcon(point.category),
-                    onClick = { viewModel.onMarkerClick(point); true }
+                    icon = BitmapDescriptorFactory.defaultMarker(getMarkerHue(point.category)),
+                    onClick = {
+                        viewModel.onMarkerClick(point)
+                        true
+                    }
                 )
             }
         }
@@ -152,7 +163,11 @@ fun MapScreen(
                 placeholder = { Text("Pesquisar...", color = Palette.textMuted) },
                 trailingIcon = {
                     IconButton(onClick = { viewModel.onSearch() }) {
-                        Icon(Icons.Default.Search, contentDescription = "Pesquisar", tint = Palette.textMuted)
+                        Icon(
+                            Icons.Default.Search,
+                            contentDescription = "Pesquisar",
+                            tint = Palette.textMuted
+                        )
                     }
                 },
                 colors = TextFieldDefaults.colors(
@@ -175,7 +190,12 @@ fun MapScreen(
             ) {
                 filterCategories.forEach { category ->
                     val categoryColor = getCategoryColor(category)
-                    val isSelected = if (category == "Favoritos") uiState.showFavorites else uiState.selectedCategory == category
+                    val isSelected = if (category == "Favoritos") {
+                        uiState.showFavorites
+                    } else {
+                        uiState.selectedCategory == category
+                    }
+
                     FilterChip(
                         selected = isSelected,
                         onClick = {
@@ -205,6 +225,7 @@ fun MapScreen(
         if (uiState.selectedPoint != null) {
             val point = uiState.selectedPoint!!
             val categoryColor = getCategoryColor(point.category)
+
             ModalBottomSheet(
                 onDismissRequest = { viewModel.onDismissBottomSheet() },
                 sheetState = sheetState
@@ -215,6 +236,7 @@ fun MapScreen(
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    // Header com nome e botão de favorito
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -228,23 +250,37 @@ fun MapScreen(
                         )
                         IconButton(onClick = { viewModel.toggleFavorite() }) {
                             Icon(
-                                imageVector = if (point.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                imageVector = if (point.isFavorite) {
+                                    Icons.Default.Favorite
+                                } else {
+                                    Icons.Default.FavoriteBorder
+                                },
                                 contentDescription = "Favoritar",
-                                tint = if (point.isFavorite) Color.Red else MaterialTheme.colorScheme.onSurface,
+                                tint = if (point.isFavorite) {
+                                    Color.Red
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                },
                                 modifier = Modifier.size(32.dp)
                             )
                         }
                     }
+
+                    // Categoria
                     Text(
                         text = point.category,
                         style = MaterialTheme.typography.titleSmall,
                         color = categoryColor,
                         fontWeight = FontWeight.Bold
                     )
+
+                    // Descrição
                     Text(
                         text = point.description,
                         style = MaterialTheme.typography.bodyLarge
                     )
+
+                    // Horário de funcionamento
                     point.openingHours?.let {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
@@ -261,26 +297,73 @@ fun MapScreen(
                             )
                         }
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Recycling,
-                            contentDescription = "Materiais aceitos",
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = getMockMaterials(point.category),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+
+                    // Materiais aceitos
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Recycling,
+                                contentDescription = "Materiais aceitos",
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Materiais aceitos",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        val materials = getMockMaterials(point.category)
+                        if (materials.isNotEmpty()) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .horizontalScroll(rememberScrollState())
+                            ) {
+                                materials.forEach { material ->
+                                    Card(
+                                        modifier = Modifier.padding(end = 8.dp),
+                                        shape = RoundedCornerShape(8.dp),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = categoryColor.copy(alpha = 0.1f)
+                                        ),
+                                        border = BorderStroke(1.dp, categoryColor)
+                                    ) {
+                                        Text(
+                                            text = material,
+                                            modifier = Modifier.padding(
+                                                horizontal = 12.dp,
+                                                vertical = 6.dp
+                                            ),
+                                            color = categoryColor,
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    }
+                                }
+                            }
+                        } else {
+                            Text(
+                                text = "Não há informações sobre os materiais aceitos.",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(start = 28.dp)
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    // Botão de rota
                     Button(
                         onClick = {
-                            val gmmIntentUri = Uri.parse("geo:${point.latitude},${point.longitude}?q=${point.name}")
+                            val gmmIntentUri = Uri.parse(
+                                "geo:${point.latitude},${point.longitude}?q=${point.name}"
+                            )
                             val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
                             mapIntent.setPackage("com.google.android.apps.maps")
                             context.startActivity(mapIntent)
@@ -311,18 +394,6 @@ fun MapScreen(
             fusedLocationClient = fusedLocationClient
         )
     }
-}
-
-
-private fun getMarkerIcon(category: String): BitmapDescriptor {
-    val hue = when (category) {
-        "Ponto de Entrega" -> BitmapDescriptorFactory.HUE_AZURE
-        "Ecoponto" -> BitmapDescriptorFactory.HUE_GREEN
-        "Cooperativa" -> BitmapDescriptorFactory.HUE_YELLOW
-        "Pátio de Compostagem" -> BitmapDescriptorFactory.HUE_ORANGE
-        else -> BitmapDescriptorFactory.HUE_RED
-    }
-    return BitmapDescriptorFactory.defaultMarker(hue)
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -362,7 +433,10 @@ private fun MapControls(
             },
             containerColor = Color.White
         ) {
-            Icon(imageVector = Icons.Default.MyLocation, contentDescription = "Minha Localização")
+            Icon(
+                imageVector = Icons.Default.MyLocation,
+                contentDescription = "Minha Localização"
+            )
         }
 
         Spacer(Modifier.height(16.dp))
@@ -372,18 +446,23 @@ private fun MapControls(
                 onClick = {
                     scope.launch {
                         val currentZoom = cameraPositionState.position.zoom
-                        cameraPositionState.animate(CameraUpdateFactory.zoomTo(currentZoom + 1f))
+                        cameraPositionState.animate(
+                            CameraUpdateFactory.zoomTo(currentZoom + 1f)
+                        )
                     }
                 },
                 containerColor = Color.White
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Zoom In")
             }
+
             FloatingActionButton(
                 onClick = {
                     scope.launch {
                         val currentZoom = cameraPositionState.position.zoom
-                        cameraPositionState.animate(CameraUpdateFactory.zoomTo(currentZoom - 1f))
+                        cameraPositionState.animate(
+                            CameraUpdateFactory.zoomTo(currentZoom - 1f)
+                        )
                     }
                 },
                 containerColor = Color.White
@@ -394,12 +473,53 @@ private fun MapControls(
     }
 }
 
-private fun getMockMaterials(category: String): String {
+@Composable
+private fun getCategoryColor(category: String): Color {
     return when (category) {
-        "Ecoponto" -> "Entulho, pneus, móveis velhos, óleo de cozinha, eletrônicos."
-        "Cooperativa" -> "Papel, plástico, metal, vidro (recicláveis em geral)."
-        "Ponto de Entrega" -> "Pilhas, baterias, lâmpadas, eletrônicos de pequeno porte."
-        "Pátio de Compostagem" -> "Restos de alimentos (frutas, verduras, legumes), podas de jardim."
-        else -> "Não há informações sobre os materiais aceitos."
+        "Ecoponto" -> Color(0xFF0F9D58) // Verde
+        "Cooperativa" -> Color(0xFFD50F25) // Vermelho
+        "Ponto de Entrega" -> Color(0xFF3369E8) // Azul
+        "Pátio de Compostagem" -> Color(0xFFF4B400) // Amarelo
+        else -> Color.Gray
+    }
+}
+
+private fun getMarkerHue(category: String): Float {
+    return when (category) {
+        "Ecoponto" -> BitmapDescriptorFactory.HUE_GREEN
+        "Cooperativa" -> BitmapDescriptorFactory.HUE_RED
+        "Ponto de Entrega" -> BitmapDescriptorFactory.HUE_AZURE
+        "Pátio de Compostagem" -> BitmapDescriptorFactory.HUE_ORANGE
+        else -> BitmapDescriptorFactory.HUE_VIOLET
+    }
+}
+
+private fun getMockMaterials(category: String): List<String> {
+    return when (category) {
+        "Ecoponto" -> listOf(
+            "Entulho",
+            "Pneus",
+            "Móveis Velhos",
+            "Óleo de Cozinha",
+            "Eletrônicos"
+        )
+        "Cooperativa" -> listOf(
+            "Papel",
+            "Plástico",
+            "Metal",
+            "Vidro",
+            "Recicláveis em geral"
+        )
+        "Ponto de Entrega" -> listOf(
+            "Pilhas",
+            "Baterias",
+            "Lâmpadas",
+            "Eletrônicos de Pequeno Porte"
+        )
+        "Pátio de Compostagem" -> listOf(
+            "Restos de Alimentos",
+            "Podas de Jardim"
+        )
+        else -> emptyList()
     }
 }

@@ -109,6 +109,7 @@ dependencies {
 
     // Maps & Location
     implementation(libs.maps.compose)
+    implementation("com.google.maps.android:maps-compose-utils:4.3.0")
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
