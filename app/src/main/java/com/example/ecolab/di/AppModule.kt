@@ -32,9 +32,11 @@ object AppModule {
     @Singleton
     fun provideAuthRepository(impl: AuthRepositoryImpl): AuthRepository = impl
 
+    /*
     @Provides
     @Singleton
     fun providePointsRepository(impl: FirebasePointsRepository): PointsRepository = impl
+    */
 
     @Provides
     @Singleton

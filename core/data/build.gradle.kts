@@ -33,7 +33,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // Coordinate Conversion
-    implementation(libs.proj4j)
+    api("org.locationtech.proj4j:proj4j:1.1.5")
 
     // Firebase
     implementation(platform(libs.firebase.bom))

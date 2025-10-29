@@ -2,7 +2,6 @@ package com.example.ecolab.ui.screens
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke
@@ -32,8 +31,6 @@ import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -67,6 +64,8 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -129,12 +128,11 @@ fun MapScreen(
             )
         ) {
             uiState.collectionPoints.forEach { point ->
-                val categoryColor = getCategoryColor(category = point.category)
                 Marker(
                     state = MarkerState(position = LatLng(point.latitude, point.longitude)),
                     title = point.name,
                     snippet = point.description,
-                    icon = getMarkerIconBitmap(context, categoryColor),
+                    icon = getMarkerIcon(point.category),
                     onClick = { viewModel.onMarkerClick(point); true }
                 )
             }
@@ -313,6 +311,18 @@ fun MapScreen(
             fusedLocationClient = fusedLocationClient
         )
     }
+}
+
+
+private fun getMarkerIcon(category: String): BitmapDescriptor {
+    val hue = when (category) {
+        "Ponto de Entrega" -> BitmapDescriptorFactory.HUE_AZURE
+        "Ecoponto" -> BitmapDescriptorFactory.HUE_GREEN
+        "Cooperativa" -> BitmapDescriptorFactory.HUE_YELLOW
+        "Pátio de Compostagem" -> BitmapDescriptorFactory.HUE_ORANGE
+        else -> BitmapDescriptorFactory.HUE_RED
+    }
+    return BitmapDescriptorFactory.defaultMarker(hue)
 }
 
 @OptIn(ExperimentalPermissionsApi::class)

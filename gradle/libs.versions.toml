@@ -1,6 +1,6 @@
 [versions]
 # Plugins
-androidGradlePlugin = "8.12.3"
+androidGradlePlugin = "8.13.0"
 kotlin = "1.9.22"
 hilt = "2.48"
 mapsSecrets = "2.0.1"
