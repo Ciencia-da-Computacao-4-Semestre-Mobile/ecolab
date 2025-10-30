@@ -5,10 +5,8 @@ import com.example.ecolab.core.data.prepopulation.GeoJsonParser
 import com.example.ecolab.core.domain.model.CollectionPoint
 import com.example.ecolab.core.domain.repository.PointsRepository
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -19,10 +17,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FirebasePointsRepository @Inject constructor(
+class FirestorePointsRepository @Inject constructor(
     private val geoJsonParser: GeoJsonParser,
     private val auth: FirebaseAuth,
-    private val database: FirebaseDatabase
+    private val firestore: FirebaseFirestore
 ) : PointsRepository {
 
     private val allPoints: Flow<List<CollectionPoint>> by lazy {
@@ -34,24 +32,31 @@ class FirebasePointsRepository @Inject constructor(
     override fun observePoints(): Flow<List<CollectionPoint>> {
         val userId = auth.currentUser?.uid
         if (userId == null) {
+            Log.w("FirestorePointsRepo", "Usuário não autenticado, retornando pontos sem favoritos.")
             return allPoints
         }
 
         val favoritesFlow: Flow<Set<Long>> = callbackFlow {
-            val favoritesRef = database.getReference("users").child(userId).child("favorites")
-            val listener = object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val favoriteIds = snapshot.children.mapNotNull { it.key?.toLong() }.toSet()
-                    trySend(favoriteIds)
+            val userDocRef = firestore.collection("users").document(userId)
+
+            val listenerRegistration = userDocRef.addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.w("FirestorePointsRepo", "Falha ao escutar favoritos.", error)
+                    close(error)
+                    return@addSnapshotListener
                 }
 
-                override fun onCancelled(error: DatabaseError) {
-                    Log.w("FirebasePointsRepo", "Listen for favorites failed.", error.toException())
-                    close(error.toException())
+                if (snapshot != null && snapshot.exists()) {
+                    val favoriteIds = (snapshot.get("favoritePoints") as? List<*>)
+                        ?.mapNotNull { it.toString().toLongOrNull() }
+                        ?.toSet() ?: emptySet()
+                    trySend(favoriteIds)
+                } else {
+                    trySend(emptySet())
                 }
             }
-            favoritesRef.addValueEventListener(listener)
-            awaitClose { favoritesRef.removeEventListener(listener) }
+
+            awaitClose { listenerRegistration.remove() }
         }
 
         return allPoints.combine(favoritesFlow) { points, favoriteIds ->
@@ -62,23 +67,89 @@ class FirebasePointsRepository @Inject constructor(
     }
 
     override suspend fun toggleFavorite(id: Long) {
-        val userId = auth.currentUser?.uid ?: return
-        val favoriteRef = database.getReference("users").child(userId).child("favorites").child(id.toString())
+        val userId = auth.currentUser?.uid ?: run {
+            Log.w("FirestorePointsRepo", "Tentativa de favoritar sem usuário logado.")
+            return
+        }
+
+        val userDocRef = firestore.collection("users").document(userId)
 
         try {
-            val snapshot = favoriteRef.get().await()
-            if (snapshot.exists()) {
-                favoriteRef.removeValue().await()
-            } else {
-                favoriteRef.setValue(true).await()
-            }
+            firestore.runTransaction { transaction ->
+                val snapshot = transaction.get(userDocRef)
+
+                // Verifica se o documento do usuário existe
+                if (!snapshot.exists()) {
+                    // Cria o documento com o primeiro favorito
+                    val newUserProfile = mapOf(
+                        "favoritePoints" to listOf(id)
+                    )
+                    transaction.set(userDocRef, newUserProfile)
+                    Log.d("FirestorePointsRepo", "Documento criado e ponto $id adicionado aos favoritos.")
+                    return@runTransaction null
+                }
+
+                // Documento já existe, procede normalmente
+                val favorites = (snapshot.get("favoritePoints") as? List<*>)
+                    ?.mapNotNull { it.toString().toLongOrNull() } ?: emptyList()
+
+                if (id in favorites) {
+                    // Remove dos favoritos
+                    transaction.update(
+                        userDocRef,
+                        "favoritePoints",
+                        FieldValue.arrayRemove(id)
+                    )
+                    Log.d("FirestorePointsRepo", "Ponto $id removido dos favoritos.")
+                } else {
+                    // Adiciona aos favoritos
+                    transaction.update(
+                        userDocRef,
+                        "favoritePoints",
+                        FieldValue.arrayUnion(id)
+                    )
+                    Log.d("FirestorePointsRepo", "Ponto $id adicionado aos favoritos.")
+                }
+                null
+            }.await()
+
         } catch (e: Exception) {
-            Log.e("FirebasePointsRepo", "Failed to toggle favorite", e)
-            // O app não vai mais crashar, mas o erro será impresso no Logcat.
+            Log.e("FirestorePointsRepo", "Erro ao alternar favorito para ponto $id", e)
         }
     }
 
     override suspend fun refresh() {
-        // No-op for now. Could be implemented to re-fetch points from a remote source.
+        Log.d("FirestorePointsRepo", "Refresh chamado (no-op por enquanto).")
+    }
+
+    // ATENÇÃO: ISTO É UM CÓDIGO DE MIGRAÇÃO TEMPORÁRIO.
+    // DEVE SER REMOVIDO APÓS O USO.
+    suspend fun migratePointsToFirestore() {
+        val collectionRef = firestore.collection("collectionPoints")
+
+        // Verifica se a coleção já tem dados para não duplicar
+        val existingDocs = collectionRef.limit(1).get().await()
+        if (!existingDocs.isEmpty) {
+            Log.d("MIGRATION", "A coleção 'collectionPoints' já contém dados. Migração cancelada.")
+            return
+        }
+
+        Log.d("MIGRATION", "Iniciando a migração dos pontos do GeoJSON para o Firestore...")
+
+        // 1. Lê todos os pontos do seu arquivo local
+        val pointsFromGeoJson = this.geoJsonParser.parse()
+
+        // 2. Itera sobre cada ponto e o envia para o Firestore
+        pointsFromGeoJson.forEach { point ->
+            try {
+                // Cria um novo documento com um ID gerado automaticamente
+                collectionRef.add(point).await()
+                Log.d("MIGRATION", "Ponto '${point.name}' migrado com sucesso.")
+            } catch (e: Exception) {
+                Log.e("MIGRATION", "Falha ao migrar o ponto '${point.name}'", e)
+            }
+        }
+
+        Log.d("MIGRATION", "Migração concluída!")
     }
 }

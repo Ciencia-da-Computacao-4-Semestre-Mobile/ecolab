@@ -4,10 +4,15 @@ import android.content.Context
 import android.util.Log
 import com.example.ecolab.core.domain.model.CollectionPoint
 import com.example.ecolab.core.domain.repository.PointsRepository
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.tasks.await
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.locationtech.proj4j.CRSFactory
@@ -20,13 +25,38 @@ import javax.inject.Singleton
 class PointsRepositoryImpl @Inject constructor(
     private val context: Context,
     private val json: Json,
+    private val firestore: FirebaseFirestore,
+    private val firebaseAuth: FirebaseAuth
 ) : PointsRepository {
 
     private val _points = MutableStateFlow<List<CollectionPoint>>(emptyList())
+    private val favoritePointIds = MutableStateFlow<Set<String>>(emptySet())
+
 
     init {
         loadPointsFromAssets()
+        loadFavoritePoints()
     }
+
+    private fun loadFavoritePoints() {
+        firebaseAuth.currentUser?.uid?.let { userId ->
+            firestore.collection("users").document(userId)
+                .addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        Log.w("PointsRepositoryImpl", "Listen failed.", e)
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null && snapshot.exists()) {
+                        val favoriteIds = snapshot.get("favoritePoints") as? List<String>
+                        favoritePointIds.value = favoriteIds?.toSet() ?: emptySet()
+                    } else {
+                        Log.d("PointsRepositoryImpl", "Current data: null")
+                    }
+                }
+        }
+    }
+
 
     private fun loadPointsFromAssets() {
         val assets = context.assets
@@ -60,15 +90,44 @@ class PointsRepositoryImpl @Inject constructor(
     }
 
 
-    override fun observePoints(): Flow<List<CollectionPoint>> = _points.asStateFlow()
+    override fun observePoints(): Flow<List<CollectionPoint>> {
+        return combine(_points, favoritePointIds) { points, favoriteIds ->
+            points.map { point ->
+                point.copy(isFavorite = favoriteIds.contains(point.id.toString()))
+            }
+        }
+    }
+
 
     override suspend fun toggleFavorite(id: Long) {
+        val userId = firebaseAuth.currentUser?.uid ?: return
+        val userDocRef = firestore.collection("users").document(userId)
+
+        val isCurrentlyFavorite = favoritePointIds.value.contains(id.toString())
+
         _points.update { currentPoints ->
             currentPoints.map {
                 if (it.id == id) it.copy(isFavorite = !it.isFavorite) else it
             }
         }
+
+        try {
+            if (isCurrentlyFavorite) {
+                userDocRef.update("favoritePoints", FieldValue.arrayRemove(id.toString())).await()
+            } else {
+                userDocRef.update("favoritePoints", FieldValue.arrayUnion(id.toString())).await()
+            }
+        } catch (e: Exception) {
+            // Revert the local state if the firestore update fails
+            _points.update { currentPoints ->
+                currentPoints.map {
+                    if (it.id == id) it.copy(isFavorite = isCurrentlyFavorite) else it
+                }
+            }
+            Log.e("PointsRepositoryImpl", "Error toggling favorite status in Firestore", e)
+        }
     }
+
 
     override suspend fun refresh() {
         // No-op for now, could be used to re-load from assets if they can change

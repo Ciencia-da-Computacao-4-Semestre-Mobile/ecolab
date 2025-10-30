@@ -5,6 +5,7 @@ import android.location.Geocoder
 import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ecolab.core.data.repository.FirestorePointsRepository
 import com.example.ecolab.core.domain.model.CollectionPoint
 import com.example.ecolab.core.domain.repository.PointsRepository
 import com.google.android.gms.maps.model.LatLng
@@ -22,6 +23,12 @@ class MapViewModel @Inject constructor(
     private val pointsRepository: PointsRepository,
     private val geocoder: Geocoder
 ) : ViewModel() {
+
+    init {
+        viewModelScope.launch {
+            (pointsRepository as? FirestorePointsRepository)?.migratePointsToFirestore()
+        }
+    }
 
     private val _selectedCategory = MutableStateFlow("Todos")
     private val _selectedPoint = MutableStateFlow<CollectionPoint?>(null)

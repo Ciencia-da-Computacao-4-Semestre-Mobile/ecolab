@@ -1,12 +1,13 @@
 package com.example.ecolab.core.data.repository
 
+import android.util.Log
 import com.example.ecolab.core.domain.model.AuthUser
 import com.example.ecolab.core.domain.repository.AuthRepository
 import com.example.ecolab.core.util.Result
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -15,7 +16,7 @@ import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val database: FirebaseDatabase
+    private val firestore: FirebaseFirestore
 ) : AuthRepository {
 
     override fun getAuthState(): Flow<Boolean> = callbackFlow {
@@ -47,6 +48,7 @@ class AuthRepositoryImpl @Inject constructor(
             saveUserProfileToDatabase(user)
             Result.Success(user.toAuthUser())
         } catch (e: Exception) {
+            Log.e("AuthRepositoryImpl", "Error creating user with email and password", e)
             Result.Error(e.message ?: "An unknown error occurred")
         }
     }
@@ -56,10 +58,12 @@ class AuthRepositoryImpl @Inject constructor(
             val credential = GoogleAuthProvider.getCredential(idToken, null)
             val result = firebaseAuth.signInWithCredential(credential).await()
             val user = result.user!!
-            // Decide if you want to save profile for Google Sign-In as well
-            // saveUserProfileToDatabase(user)
+            if (result.additionalUserInfo?.isNewUser == true) {
+                saveUserProfileToDatabase(user)
+            }
             Result.Success(user.toAuthUser())
         } catch (e: Exception) {
+            Log.e("AuthRepositoryImpl", "Error signing in with Google", e)
             Result.Error(e.message ?: "An unknown error occurred")
         }
     }
@@ -84,17 +88,17 @@ class AuthRepositoryImpl @Inject constructor(
             "name" to (user.displayName ?: "Novo Usuário"),
             "email" to user.email,
             "created_at" to System.currentTimeMillis(),
-            "is_active" to true
+            "is_active" to true,
+            "favoritePoints" to emptyList<String>()
         )
 
-        val userRef = database.getReference("users").child(userUID).child("profile")
+        val userDocRef = firestore.collection("users").document(userUID)
 
         try {
-            userRef.setValue(profileData).await()
-            println("Sucesso: Perfil do usuário gravado no RTDB.")
+            userDocRef.set(profileData).await()
+            Log.d("AuthRepositoryImpl", "Sucesso: Perfil do usuário gravado no Firestore.")
         } catch (e: Exception) {
-            // Consider more robust error handling
-            println("Erro ao gravar perfil: ${e.message}")
+            Log.e("AuthRepositoryImpl", "Erro ao gravar perfil no Firestore:", e)
         }
     }
 }

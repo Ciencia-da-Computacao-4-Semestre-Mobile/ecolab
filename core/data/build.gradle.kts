@@ -2,6 +2,8 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 android {
@@ -23,7 +25,7 @@ android {
 
 dependencies {
     // Module
-    implementation(project(":core:domain"))
+    api(project(":core:domain"))
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)
@@ -35,8 +37,16 @@ dependencies {
     // Coordinate Conversion
     api("org.locationtech.proj4j:proj4j:1.1.5")
 
+    // Hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
-    implementation("com.google.firebase:firebase-database-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+}
+
+kapt {
+    correctErrorTypes = true
 }

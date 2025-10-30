@@ -75,8 +75,7 @@ android {
 dependencies {
     // Modules
     implementation(project(":core:common"))
-    implementation(project(":core:data"))
-    implementation(project(":core:domain"))
+    api(project(":core:data"))
     implementation(project(":core:ui"))
 
     // Compose
@@ -104,7 +103,6 @@ dependencies {
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    implementation(libs.firebase.database)
     kapt(libs.androidx.room.compiler)
 
     // Maps & Location
@@ -135,6 +133,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.play.services.auth)
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-firestore-ktx")
 
     // Test
     testImplementation(libs.junit)
