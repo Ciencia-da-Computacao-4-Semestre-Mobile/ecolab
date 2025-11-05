@@ -33,7 +33,7 @@ android {
         }
 
         // Expose Google Maps Key to AndroidManifest.xml
-        val mapsApiKey = localProperties.getProperty("maps.api_key") ?: ""
+        val mapsApiKey = localProperties.getProperty("MAPS_API_KEY") ?: ""
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
 
         // Expose both keys to BuildConfig
