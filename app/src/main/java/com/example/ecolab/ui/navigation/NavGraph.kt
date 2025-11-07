@@ -27,6 +27,7 @@ import com.example.ecolab.ui.screens.MapScreen
 import com.example.ecolab.ui.screens.ProfileScreen
 import com.example.ecolab.ui.screens.QuizScreen
 import com.example.ecolab.ui.screens.QuizSetupScreen
+import com.example.ecolab.ui.screens.QuizSetupScreenV2
 import com.example.ecolab.ui.screens.RegisterScreen
 import com.example.ecolab.ui.theme.Palette
 import android.content.Intent
@@ -126,7 +127,7 @@ fun AppNavHost(
                 )
             }
             composable("quiz_setup") {
-                QuizSetupScreen(
+                QuizSetupScreenV2(
                     onStartQuiz = { theme, gameMode ->
                         navController.navigate("quiz/$theme/${gameMode.name}")
                     },

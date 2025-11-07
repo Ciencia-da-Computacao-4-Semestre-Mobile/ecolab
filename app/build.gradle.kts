@@ -90,6 +90,7 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.accompanist.systemuicontroller)
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+    implementation("androidx.compose.foundation:foundation-layout:1.6.7")
 
     // AndroidX
     implementation(libs.androidx.core.ktx)
