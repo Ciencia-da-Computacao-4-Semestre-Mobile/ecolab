@@ -1,4 +1,4 @@
-package com.example.ecolab.ui.screens
+﻿package com.example.ecolab.ui.screens
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -32,7 +32,7 @@ class QuizSetupViewModel @Inject constructor() : ViewModel() {
     private fun loadQuizOptions() {
         val gameModes = listOf(
             SelectionItem("Normal", "Responda no seu tempo.", Icons.Default.PlayArrow, Color(0xFF1E88E5)),
-            SelectionItem("Speed Run", "Corra contra o relógio!", Icons.Default.Schedule, Color(0xFFE53935))
+            SelectionItem("Speed Run", "Corra contra o relogio!", Icons.Default.Schedule, Color(0xFFE53935))
         )
 
         val themes = listOf(
@@ -41,8 +41,7 @@ class QuizSetupViewModel @Inject constructor() : ViewModel() {
             SelectionItem("Fauna e Flora", "Descubra a importância da biodiversidade, os biomas brasileiros e os animais em extinção.", Icons.Filled.Forest, Color(0xFFF57C00)),
             SelectionItem("Poluição", "Entenda os tipos de poluição, suas causas e consequências para o meio ambiente e a saúde.", Icons.Filled.Public, Color(0xFF795548)),
             SelectionItem("Reciclagem", "Saiba como separar o lixo, os tipos de materiais recicláveis e a importância da coleta seletiva.", Icons.Filled.Recycling, Color(0xFF2E7D32)),
-            SelectionItem("Sustentabilidade", "Explore os conceitos de desenvolvimento sustentável, consumo consciente e pegada ecológica.", Icons.Filled.Eco, Color(0xFF7B1FA2)),
-            SelectionItem("Aleatório", "Um mix de todos os temas para testar seus conhecimentos gerais sobre sustentabilidade.", Icons.Filled.Shuffle, Palette.primary)
+            SelectionItem("Sustentabilidade", "Explore os conceitos de desenvolvimento sustentável, consumo consciente e pegada ecológica.", Icons.Filled.Eco, Color(0xFF7B1FA2))
         ).sortedBy { it.name }
 
         _uiState.value = QuizSetupState(gameModes = gameModes, themes = themes)

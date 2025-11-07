@@ -26,7 +26,6 @@ import com.example.ecolab.ui.screens.LoginScreen
 import com.example.ecolab.ui.screens.MapScreen
 import com.example.ecolab.ui.screens.ProfileScreen
 import com.example.ecolab.ui.screens.QuizScreen
-import com.example.ecolab.ui.screens.QuizSetupScreen
 import com.example.ecolab.ui.screens.QuizSetupScreenV2
 import com.example.ecolab.ui.screens.RegisterScreen
 import com.example.ecolab.ui.theme.Palette

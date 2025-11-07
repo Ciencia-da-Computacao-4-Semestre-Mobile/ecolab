@@ -91,6 +91,11 @@ dependencies {
     implementation(libs.accompanist.systemuicontroller)
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
     implementation("androidx.compose.foundation:foundation-layout:1.6.7")
+    
+    // Animações e gestos (adicionados para resolver erros de animação)
+    implementation("androidx.compose.animation:animation:1.6.7")
+    implementation("androidx.compose.foundation:foundation:1.6.7")
+    implementation("androidx.compose.animation:animation-core:1.6.7")
 
     // AndroidX
     implementation(libs.androidx.core.ktx)

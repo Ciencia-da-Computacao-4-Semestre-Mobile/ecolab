@@ -14,6 +14,7 @@ object Palette {
     val text = Color(0xFF102112)
     val textMuted = Color(0xFF46614D)
     val error = Color(0xFFD32F2F)
+    val success = Color(0xFF10B981) // Mesma cor do secondary
     val quizIcon = Color(0xFF4CAF50)
     val achievementsIcon = Color(0xFFFFC107)
 }

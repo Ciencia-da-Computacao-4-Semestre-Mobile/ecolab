@@ -1,4 +1,4 @@
-package com.example.ecolab.ui.screens
+﻿package com.example.ecolab.ui.screens
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -33,14 +33,14 @@ fun QuizSetupScreenV2(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
-    // Animações de entrada
+    // AnimaÃ§Ãµes de entrada
     var isVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         delay(100)
         isVisible = true
     }
 
-    // Gradientes dinâmicos com base no tema selecionado
+    // Gradientes dinÃ¢micos com base no tema selecionado
     val backgroundGradient = remember(uiState.selectedTheme?.color) {
         Brush.verticalGradient(
             colors = listOf(
@@ -51,15 +51,10 @@ fun QuizSetupScreenV2(
         )
     }
 
-    // Animação de brilho suave
-    val infiniteTransition = rememberInfiniteTransition(label = "shine")
-    val shineAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.7f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
+    // Animação de brilho suave (simplificada)
+    val shineAlpha by animateFloatAsState(
+        targetValue = 0.5f,
+        animationSpec = tween(1000, easing = FastOutSlowInEasing),
         label = "shine"
     )
 
@@ -72,27 +67,27 @@ fun QuizSetupScreenV2(
                 TopAppBar(
                     title = { 
                         Text(
-                            "Prepare seu Desafio",
-                            color = Palette.text,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 28.sp,
-                            style = MaterialTheme.typography.headlineLarge
-                        )
+                                "Prepare seu Desafio",
+                                color = Palette.text,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 24.sp,
+                                style = MaterialTheme.typography.titleLarge
+                            )
                     },
                     navigationIcon = {
                         Surface(
                             onClick = onBack,
                             shape = CircleShape,
                             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-                            modifier = Modifier.size(48.dp),
-                            shadowElevation = 4.dp
+                            modifier = Modifier.size(40.dp),
+                            shadowElevation = 2.dp
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = "Voltar",
                                     tint = Palette.text,
-                                    modifier = Modifier.size(24.dp)
+                                    modifier = Modifier.size(20.dp)
                                 )
                             }
                         }
@@ -109,7 +104,7 @@ fun QuizSetupScreenV2(
                 .background(backgroundGradient)
                 .padding(paddingValues)
         ) {
-            // Partículas animadas de fundo
+            // PartÃ­culas animadas de fundo
             AnimatedParticles()
             
             Column(
@@ -119,7 +114,7 @@ fun QuizSetupScreenV2(
                     .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Seção Modo de Jogo com animação
                 AnimatedVisibility(
@@ -129,7 +124,7 @@ fun QuizSetupScreenV2(
                     GameModeSection(uiState, viewModel)
                 }
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 // Seção Temas com animação
                 AnimatedVisibility(
@@ -139,13 +134,13 @@ fun QuizSetupScreenV2(
                     ThemeSection(uiState, viewModel)
                 }
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-                // Botão Start com animação épica
+                // Botão Start com animação
                 AnimatedVisibility(
                     visible = isVisible && uiState.selectedGameMode != null && uiState.selectedTheme != null,
-                    enter = scaleIn() + fadeIn(),
-                    exit = scaleOut() + fadeOut()
+                    enter = fadeIn() + scaleIn(initialScale = 0.8f),
+                    exit = fadeOut() + scaleOut(targetScale = 0.8f)
                 ) {
                     StartQuizButton(
                         theme = uiState.selectedTheme,
@@ -157,7 +152,7 @@ fun QuizSetupScreenV2(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }
@@ -170,11 +165,11 @@ private fun GameModeSection(
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = "🎮 Escolha o Modo de Jogo",
-            style = MaterialTheme.typography.headlineMedium,
+            text = " Escolha o Modo de Jogo",
+            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = Palette.text,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 12.dp)
         )
         
         uiState.gameModes.forEachIndexed { index, gameMode ->
@@ -191,7 +186,7 @@ private fun GameModeSection(
                     onClick = { viewModel.selectGameMode(gameMode) }
                 )
             }
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
@@ -204,17 +199,18 @@ private fun ThemeSection(
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = "🌿 Navegue pelos Temas",
-            style = MaterialTheme.typography.headlineMedium,
+            text = " Navegue pelos Temas",
+            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = Palette.text,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 12.dp)
         )
         
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            maxItemsInEachRow = 3
         ) {
             uiState.themes.forEachIndexed { index, theme ->
                 AnimatedVisibility(
@@ -242,53 +238,49 @@ private fun GameModeCard(
     onClick: () -> Unit
 ) {
     val scale by animateFloatAsState(
-        targetValue = if (isSelected) 1.05f else 1f,
+        targetValue = if (isSelected) 1.02f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
+            stiffness = Spring.StiffnessMedium
         ),
         label = "scale"
-    )
-    
-    val elevation by animateDpAsState(
-        targetValue = if (isSelected) 16.dp else 8.dp,
-        animationSpec = tween(300),
-        label = "elevation"
     )
 
     Card(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .scale(scale)
-            .animateContentSize(),
-        shape = RoundedCornerShape(24.dp),
+            .scale(scale),
+        shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) item.color.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surface,
+            containerColor = if (isSelected) item.color.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surface,
             contentColor = item.color
         ),
-        border = if (isSelected) BorderStroke(3.dp, item.color) else BorderStroke(1.dp, item.color.copy(alpha = 0.3f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = elevation)
+        border = if (isSelected) BorderStroke(2.dp, item.color) else BorderStroke(1.dp, item.color.copy(alpha = 0.2f)),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (isSelected) 10.dp else 5.dp,
+            pressedElevation = 14.dp
+        )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 20.dp),
+                .padding(horizontal = 22.dp, vertical = 18.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // Ícone com animação de pulsação
+            // Ícone simples
             Box(
                 modifier = Modifier
-                    .size(56.dp)
-                    .background(item.color.copy(alpha = 0.2f), CircleShape)
-                    .border(2.dp, item.color.copy(alpha = 0.5f), CircleShape),
+                    .size(46.dp)
+                    .background(item.color.copy(alpha = 0.15f), CircleShape)
+                    .border(1.dp, item.color.copy(alpha = 0.4f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = item.icon,
                     contentDescription = null,
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier.size(28.dp),
                     tint = item.color
                 )
             }
@@ -296,35 +288,31 @@ private fun GameModeCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.name,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = item.color
                 )
                 Text(
                     text = item.description.orEmpty(),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                    modifier = Modifier.padding(top = 4.dp)
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(top = 2.dp)
                 )
             }
             
-            // Indicador de seleção animado
-            AnimatedVisibility(
-                visible = isSelected,
-                enter = scaleIn() + fadeIn(),
-                exit = scaleOut() + fadeOut()
-            ) {
+            // Indicador de seleção simples
+            if (isSelected) {
                 Surface(
                     shape = CircleShape,
                     color = item.color,
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(22.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             Icons.Default.Check,
                             contentDescription = "Selecionado",
                             tint = Color.White,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 }
@@ -341,39 +329,28 @@ private fun ThemeCard(
     onClick: () -> Unit
 ) {
     val scale by animateFloatAsState(
-        targetValue = if (isSelected) 1.08f else 1f,
+        targetValue = if (isSelected) 1.05f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
+            stiffness = Spring.StiffnessMedium
         ),
         label = "scale"
-    )
-    
-    val rotation by animateFloatAsState(
-        targetValue = if (isSelected) 5f else 0f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioLowBouncy,
-            stiffness = Spring.StiffnessVeryLow
-        ),
-        label = "rotation"
     )
 
     Card(
         onClick = onClick,
         modifier = Modifier
             .width(160.dp)
-            .scale(scale)
-            .rotate(rotation)
-            .animateContentSize(),
-        shape = RoundedCornerShape(20.dp),
+            .scale(scale),
+        shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) item.color.copy(alpha = 0.25f) else MaterialTheme.colorScheme.surface,
+            containerColor = if (isSelected) item.color.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surface,
             contentColor = item.color
         ),
         border = if (isSelected) BorderStroke(2.dp, item.color) else BorderStroke(1.dp, item.color.copy(alpha = 0.2f)),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isSelected) 12.dp else 6.dp,
-            pressedElevation = 16.dp
+            defaultElevation = if (isSelected) 8.dp else 4.dp,
+            pressedElevation = 12.dp
         )
     ) {
         Column(
@@ -383,13 +360,12 @@ private fun ThemeCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Ícone com efeito de brilho
+            // Ícone simples
             Box(
                 modifier = Modifier
-                    .size(48.dp)
-                    .background(item.color.copy(alpha = 0.3f), CircleShape)
-                    .border(2.dp, item.color.copy(alpha = 0.6f), CircleShape)
-                    .blur(if (isSelected) 2.dp else 0.dp),
+                    .size(46.dp)
+                    .background(item.color.copy(alpha = 0.15f), CircleShape)
+                    .border(1.dp, item.color.copy(alpha = 0.3f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -399,7 +375,7 @@ private fun ThemeCard(
                     tint = item.color
                 )
             }
-            
+
             Text(
                 text = item.name,
                 style = MaterialTheme.typography.titleMedium,
@@ -408,24 +384,20 @@ private fun ThemeCard(
                 textAlign = TextAlign.Center,
                 maxLines = 1
             )
-            
-            // Indicador de seleção
-            AnimatedVisibility(
-                visible = isSelected,
-                enter = scaleIn() + fadeIn(),
-                exit = scaleOut() + fadeOut()
-            ) {
+
+            // Indicador de seleção simples
+            if (isSelected) {
                 Surface(
                     shape = CircleShape,
                     color = item.color,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(20.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             Icons.Default.Check,
                             contentDescription = "Selecionado",
                             tint = Color.White,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(14.dp)
                         )
                     }
                 }
@@ -440,76 +412,34 @@ private fun StartQuizButton(
     onClick: () -> Unit
 ) {
     val buttonColor = theme?.color ?: Palette.primary
-    
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.05f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulse"
-    )
-    
-    val borderAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.5f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "border"
-    )
 
     Surface(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .scale(pulseScale)
-            .height(64.dp),
-        shape = RoundedCornerShape(32.dp),
+            .height(60.dp),
+        shape = RoundedCornerShape(30.dp),
         color = buttonColor,
-        shadowElevation = 16.dp,
-        border = BorderStroke(3.dp, buttonColor.copy(alpha = borderAlpha))
+        shadowElevation = 8.dp,
+        border = BorderStroke(2.dp, buttonColor.copy(alpha = 0.9f))
     ) {
         Box(contentAlignment = Alignment.Center) {
-            // Efeito de brilho
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.radialGradient(
-                            colors = listOf(
-                                Color.White.copy(alpha = 0.3f),
-                                Color.Transparent
-                            )
-                        )
-                    )
-            )
-            
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Icon(
                     Icons.Default.PlayArrow,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(28.dp)
+                    modifier = Modifier.size(26.dp)
                 )
                 Text(
-                    "INICIAR DESAFIO",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.ExtraBold,
+                    "INICIAR QUIZ",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
                     color = Color.White,
-                    letterSpacing = 2.sp
-                )
-                Icon(
-                    Icons.Default.RocketLaunch,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(28.dp)
+                    letterSpacing = 0.8.sp
                 )
             }
         }
@@ -518,62 +448,30 @@ private fun StartQuizButton(
 
 @Composable
 private fun AnimatedParticles() {
-    val infiniteTransition = rememberInfiniteTransition(label = "particles")
-    
-    // Animação de partículas flutuantes
-    val particle1Y by infiniteTransition.animateFloat(
-        initialValue = -100f,
-        targetValue = 1000f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(8000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "particle1"
-    )
-    
-    val particle2Y by infiniteTransition.animateFloat(
-        initialValue = -150f,
-        targetValue = 1050f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(10000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "particle2"
-    )
-    
-    val particle3Y by infiniteTransition.animateFloat(
-        initialValue = -80f,
-        targetValue = 1020f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(12000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "particle3"
-    )
-
+    // Partículas estáticas (sem animação infinita para evitar crash)
     Box(modifier = Modifier.fillMaxSize()) {
         // Partícula 1
         Box(
             modifier = Modifier
-                .offset(x = 50.dp, y = particle1Y.dp)
+                .offset(x = 50.dp, y = 200.dp)
                 .size(8.dp)
                 .background(Palette.primary.copy(alpha = 0.3f), CircleShape)
                 .blur(2.dp)
         )
-        
+
         // Partícula 2
         Box(
             modifier = Modifier
-                .offset(x = 250.dp, y = particle2Y.dp)
+                .offset(x = 250.dp, y = 400.dp)
                 .size(6.dp)
                 .background(Palette.secondary.copy(alpha = 0.4f), CircleShape)
                 .blur(1.5.dp)
         )
-        
+
         // Partícula 3
         Box(
             modifier = Modifier
-                .offset(x = 150.dp, y = particle3Y.dp)
+                .offset(x = 150.dp, y = 600.dp)
                 .size(10.dp)
                 .background(Palette.accent.copy(alpha = 0.2f), CircleShape)
                 .blur(3.dp)

@@ -157,9 +157,9 @@ fun QuizScreen(
         "Reciclagem" -> Color(0xFF2E7D32)
         "Energia" -> Color(0xFFFFC107)
         "Água" -> Color(0xFF2196F3)
-        "Fauna e Flora" -> Color(0xFFF57C00) // Laranja
+        "Fauna e Flora" -> Color(0xFFF57C00)
         "Poluição" -> Color(0xFF795548)
-        "Sustentabilidade" -> Color(0xFF7B1FA2) // Roxo
+        "Sustentabilidade" -> Color(0xFF7B1FA2)
         "ESG" -> Palette.achievementsIcon
         else -> Palette.primary
     }
@@ -174,23 +174,34 @@ fun QuizScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(theme, fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onClose) {
-                        Icon(Icons.Default.Close, contentDescription = "Fechar Quiz")
-                    }
-                },
-                actions = {
-                    if (gameMode == GameMode.SPEEDRUN) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Timer, contentDescription = "Timer", tint = if(timeLeft < 6 && timeLeft % 2 == 0) Palette.error else themeColor)
-                            Text(text = "0:${timeLeft.toString().padStart(2, '0')}", modifier = Modifier.padding(horizontal = 8.dp), fontWeight = FontWeight.Bold)
+            // ✅ SÓ MOSTRA TopAppBar durante o quiz (não na tela de resultado)
+            if (currentQuestionIndex < questionsForTheme.size) {
+                TopAppBar(
+                    title = { Text(theme, fontWeight = FontWeight.Bold) },
+                    navigationIcon = {
+                        IconButton(onClick = onClose) {
+                            Icon(Icons.Default.Close, contentDescription = "Fechar Quiz")
                         }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
-            )
+                    },
+                    actions = {
+                        if (gameMode == GameMode.SPEEDRUN) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Default.Timer,
+                                    contentDescription = "Timer",
+                                    tint = if (timeLeft < 6 && timeLeft % 2 == 0) Palette.error else themeColor
+                                )
+                                Text(
+                                    text = "0:${timeLeft.toString().padStart(2, '0')}",
+                                    modifier = Modifier.padding(horizontal = 8.dp),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                )
+            }
         },
         containerColor = Color.Transparent
     ) { paddingValues ->
@@ -201,7 +212,11 @@ fun QuizScreen(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = "Nenhuma pergunta encontrada para o tema \"$theme\".", style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
+                    Text(
+                        text = "Nenhuma pergunta encontrada para o tema \"$theme\".",
+                        style = MaterialTheme.typography.headlineMedium,
+                        textAlign = TextAlign.Center
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = onClose) {
                         Text("Voltar")
@@ -211,20 +226,33 @@ fun QuizScreen(
                 val question = questionsForTheme[currentQuestionIndex]
 
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     LinearProgressIndicator(
                         progress = progress,
-                        modifier = Modifier.fillMaxWidth().height(8.dp).clip(MaterialTheme.shapes.medium),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp)
+                            .clip(MaterialTheme.shapes.medium),
                         color = themeColor,
                         trackColor = themeColor.copy(alpha = 0.2f),
                         strokeCap = StrokeCap.Round
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                        Text("Questão ${currentQuestionIndex + 1} de ${questionsForTheme.size}", style = MaterialTheme.typography.bodyMedium, color = Palette.textMuted)
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            "Questão ${currentQuestionIndex + 1} de ${questionsForTheme.size}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Palette.textMuted
+                        )
                         Text(
                             text = "MODO: ${gameMode.name}",
                             style = MaterialTheme.typography.bodyMedium,
@@ -271,10 +299,16 @@ fun QuizScreen(
                             }
                         },
                         enabled = selectedOption != null || (gameMode == GameMode.SPEEDRUN && timeLeft == 0),
-                        modifier = Modifier.fillMaxWidth().height(50.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = themeColor)
                     ) {
-                        Text(if (isAnswered) "Próxima" else "Responder", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            if (isAnswered) "Próxima" else "Responder",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             } else {
@@ -312,37 +346,45 @@ fun QuizResultScreen(
         animationSpec = tween(durationMillis = 2000, easing = FastOutSlowInEasing),
         label = "Score Animation"
     )
-    
+
     val animatedPercentage by animateFloatAsState(
         targetValue = percentage,
         animationSpec = tween(durationMillis = 2000, easing = FastOutSlowInEasing),
         label = "Percentage Animation"
     )
 
-    var showConfetti by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        showConfetti = true
-        delay(3000)
-        showConfetti = false
-    }
-
     val resultData = when {
-        percentage >= 90 -> ResultData("Parabéns! Você é um Expert em $theme! 🌟", Palette.primary, Icons.Default.Star)
-        percentage >= 70 -> ResultData("Muito bem! Você dominou o tema! 🎯", Palette.primary, Icons.Default.CheckCircle)
-        percentage >= 50 -> ResultData("Bom trabalho! Continue estudando! 📚", Palette.secondary, Icons.Default.School)
-        percentage >= 30 -> ResultData("Você está no caminho certo! 🌱", Palette.tertiary, Icons.Default.TrendingUp)
-        else -> ResultData("Não desista! Tente novamente! 💪", Palette.error, Icons.Default.Refresh)
+        percentage >= 90 -> ResultData(
+            "Parabéns! Você é um Expert em $theme! 🌟",
+            Palette.primary,
+            Icons.Default.Star
+        )
+        percentage >= 70 -> ResultData(
+            "Muito bem! Você dominou o tema! 🎯",
+            Palette.primary,
+            Icons.Default.CheckCircle
+        )
+        percentage >= 50 -> ResultData(
+            "Bom trabalho! Continue estudando! 📚",
+            Palette.secondary,
+            Icons.Default.School
+        )
+        percentage >= 30 -> ResultData(
+            "Você está no caminho certo! 🌱",
+            Palette.accent,
+            Icons.Default.TrendingUp
+        )
+        else -> ResultData(
+            "Não desista! Tente novamente! 💪",
+            Palette.error,
+            Icons.Default.Refresh
+        )
     }
 
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        // Confetti Animation
-        if (showConfetti) {
-            ConfettiAnimation()
-        }
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -362,8 +404,15 @@ fun QuizResultScreen(
                 modifier = Modifier
                     .size(120.dp)
                     .scale(scale)
-                    .background(resultData.color.copy(alpha = 0.1f), shape = RoundedCornerShape(60.dp))
-                    .border(2.dp, resultData.color.copy(alpha = 0.3f), shape = RoundedCornerShape(60.dp)),
+                    .background(
+                        resultData.color.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(60.dp)
+                    )
+                    .border(
+                        2.dp,
+                        resultData.color.copy(alpha = 0.3f),
+                        shape = RoundedCornerShape(60.dp)
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -459,9 +508,13 @@ fun QuizResultScreen(
                         contentColor = Palette.text
                     )
                 ) {
-                    Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Icon(
+                        Icons.Default.Home,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Home")
+                    Text("Home Quiz")
                 }
 
                 Button(
@@ -472,90 +525,26 @@ fun QuizResultScreen(
                         contentColor = Color.White
                     )
                 ) {
-                    Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Icon(
+                        Icons.Default.Refresh,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Jogar Novamente")
+                    Text("Try Again")
                 }
             }
         }
     }
 }
 
-@Composable
-fun ConfettiAnimation() {
-    val infiniteTransition = rememberInfiniteTransition(label = "Confetti")
-    
-    val colors = listOf(
-        Palette.primary,
-        Palette.secondary,
-        Palette.accent,
-        Palette.error,
-        Palette.quizIcon
-    )
-    
-    // Criar animações sem remember
-    val offsetXAnimations = List(51) { i ->
-        infiniteTransition.animateFloat(
-            initialValue = -100f,
-            targetValue = 1000f, // Valor grande o suficiente
-            animationSpec = infiniteRepeatable(
-                animation = tween(
-                    durationMillis = (3000..5000).random(),
-                    easing = LinearEasing
-                ),
-                repeatMode = RepeatMode.Restart
-            ), label = "Confetti X $i"
-        )
-    }
-    
-    val offsetYAnimations = List(51) { i ->
-        infiniteTransition.animateFloat(
-            initialValue = -100f,
-            targetValue = 1000f, // Valor grande o suficiente
-            animationSpec = infiniteRepeatable(
-                animation = tween(
-                    durationMillis = (4000..6000).random(),
-                    easing = LinearEasing
-                ),
-                repeatMode = RepeatMode.Restart
-            ), label = "Confetti Y $i"
-        )
-    }
-    
-    val rotationAnimations = List(51) { i ->
-        infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = 360f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(
-                    durationMillis = (2000..4000).random(),
-                    easing = LinearEasing
-                ),
-                repeatMode = RepeatMode.Restart
-            ), label = "Confetti Rotation $i"
-        )
-    }
-    
-    Canvas(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        for (i in 0..50) {
-            rotate(rotationAnimations[i].value) {
-                drawRect(
-                    color = colors[i % colors.size].copy(alpha = 0.7f),
-                    topLeft = Offset(offsetXAnimations[i].value, offsetYAnimations[i].value),
-                    size = androidx.compose.ui.geometry.Size(8f, 8f)
-                )
-            }
-        }
-    }
-}
-
+// Preview Providers
 data class QuizPreviewParams(val theme: String, val gameMode: GameMode)
+
 class QuizPreviewProvider : CollectionPreviewParameterProvider<QuizPreviewParams>(
     listOf(
         QuizPreviewParams("Reciclagem", GameMode.SPEEDRUN),
-        QuizPreviewParams("Fauna e Flora", GameMode.NORMAL) // Preview com a nova cor
+        QuizPreviewParams("Fauna e Flora", GameMode.NORMAL)
     )
 )
 
