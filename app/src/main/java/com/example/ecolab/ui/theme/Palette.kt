@@ -6,6 +6,7 @@ object Palette {
     val primary = Color(0xFF2E7D32)
     val primaryHover = Color(0xFF388E3C)
     val secondary = Color(0xFF66BB6A)
+    val tertiary = Color(0xFFFFA726)
     val accent = Color(0xFF00BFA6)
     val background = Color(0xFFF7FAF7)
     val surface = Color(0xFFFFFFFF)

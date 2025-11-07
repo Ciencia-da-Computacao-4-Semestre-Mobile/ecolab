@@ -11,9 +11,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,29 +53,61 @@ import com.example.ecolab.ui.components.QuizOptionCard
 import com.example.ecolab.ui.theme.EcoLabTheme
 import com.example.ecolab.ui.theme.Palette
 import kotlinx.coroutines.delay
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.alpha
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.TrendingUp
+
+data class ResultData(
+    val message: String,
+    val color: Color,
+    val icon: ImageVector
+)
 
 data class QuizQuestion(
     val question: String,
     val options: List<String>,
-    val correctAnswer: String
+    val correctAnswer: String,
+    val theme: String
 )
 
 val quizQuestions = listOf(
-    QuizQuestion(
-        question = "Qual destes materiais NÃO é reciclável?",
-        options = listOf("Garrafa PET", "Pilha", "Papelão", "Vidro"),
-        correctAnswer = "Pilha"
-    ),
-    QuizQuestion(
-        question = "Qual a cor do cesto de lixo para PLÁSTICO?",
-        options = listOf("Amarelo", "Azul", "Verde", "Vermelho"),
-        correctAnswer = "Vermelho"
-    ),
-    QuizQuestion(
-        question = "O que significa a sigla ESG?",
-        options = listOf("Environmental, Social and Governance", "Economic, Social and Global", "Environmental, Security and Global", "Efficient, Sustainable and Green"),
-        correctAnswer = "Environmental, Social and Governance"
-    )
+    // Água
+    QuizQuestion("Qual porcentagem da água do planeta é doce?", listOf("A) 3%", "B) 10%", "C) 25%", "D) 50%"), "A) 3%", "Água"),
+    QuizQuestion("O que é água potável?", listOf("A) Água do mar", "B) Água própria para consumo", "C) Água poluída", "D) Água congelada"), "B) Água própria para consumo", "Água"),
+
+    // Energia
+    QuizQuestion("Qual das seguintes é uma fonte de energia renovável?", listOf("A) Carvão", "B) Petróleo", "C) Gás Natural", "D) Energia Solar"), "D) Energia Solar", "Energia"),
+    QuizQuestion("O que são combustíveis fósseis?", listOf("A) Fontes de energia limpa", "B) Restos de plantas e animais decompostos", "C) Energia do vento", "D) Energia da água"), "B) Restos de plantas e animais decompostos", "Energia"),
+
+    // Fauna e Flora
+    QuizQuestion("Qual o maior bioma do Brasil?", listOf("A) Mata Atlântica", "B) Pampa", "C) Cerrado", "D) Amazônia"), "D) Amazônia", "Fauna e Flora"),
+    QuizQuestion("Qual animal é um símbolo da fauna brasileira em risco de extinção?", listOf("A) Galinha", "B) Mico-leão-dourado", "C) Cachorro", "D) Gato"), "B) Mico-leão-dourado", "Fauna e Flora"),
+
+    // Poluição
+    QuizQuestion("O que causa a chuva ácida?", listOf("A) Excesso de CO2", "B) Poluentes do ar de fábricas e carros", "C) Derramamento de óleo", "D) Lixo nos rios"), "B) Poluentes do ar de fábricas e carros", "Poluição"),
+    QuizQuestion("Qual o principal gás do efeito estufa?", listOf("A) Oxigênio", "B) Nitrogênio", "C) Dióxido de Carbono (CO2)", "D) Hélio"), "C) Dióxido de Carbono (CO2)", "Poluição"),
+
+    // Reciclagem
+    QuizQuestion("Qual a cor da lixeira para descarte de metal?", listOf("A) Azul", "B) Verde", "C) Vermelho", "D) Amarelo"), "D) Amarelo", "Reciclagem"),
+    QuizQuestion("O que é compostagem?", listOf("A) Processo de queima de lixo", "B) Transformação de lixo orgânico em adubo", "C) Separação de plásticos", "D) Reciclagem de vidro"), "B) Transformação de lixo orgânico em adubo", "Reciclagem"),
+
+    // Sustentabilidade
+    QuizQuestion("O que são os 3 Rs da sustentabilidade?", listOf("A) Rir, Rezar, Reclamar", "B) Reduzir, Reutilizar, Reciclar", "C) Remediar, Remover, Replantar", "D) Rápido, Rasteiro, Real"), "B) Reduzir, Reutilizar, Reciclar", "Sustentabilidade"),
+    QuizQuestion("O que é pegada de carbono?", listOf("A) Uma marca de sapato ecológico", "B) A quantidade de carbono emitida por uma pessoa ou empresa", "C) Um tipo de fóssil", "D) Um novo app de celular"), "B) A quantidade de carbono emitida por uma pessoa ou empresa", "Sustentabilidade")
 )
 
 private const val TIME_PER_QUESTION = 15
@@ -85,6 +121,14 @@ fun QuizScreen(
     theme: String = "Default",
     gameMode: GameMode = GameMode.NORMAL
 ) {
+    val questionsForTheme = remember(theme) {
+        when (theme) {
+            "Aleatório" -> quizQuestions.shuffled().take(10)
+            "Default" -> quizQuestions.shuffled().take(10)
+            else -> quizQuestions.filter { it.theme == theme }.shuffled()
+        }
+    }
+
     var currentQuestionIndex by remember { mutableStateOf(0) }
     var selectedOption by remember { mutableStateOf<String?>(null) }
     var isAnswered by remember { mutableStateOf(false) }
@@ -92,7 +136,7 @@ fun QuizScreen(
     var timeLeft by remember { mutableIntStateOf(TIME_PER_QUESTION) }
 
     val progress by animateFloatAsState(
-        targetValue = (currentQuestionIndex.toFloat() + 1) / quizQuestions.size,
+        targetValue = (currentQuestionIndex.toFloat() + 1) / questionsForTheme.size,
         label = "Quiz Progress"
     )
 
@@ -151,8 +195,20 @@ fun QuizScreen(
         containerColor = Color.Transparent
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize().background(backgroundBrush)) {
-            if (currentQuestionIndex < quizQuestions.size) {
-                val question = quizQuestions[currentQuestionIndex]
+            if (questionsForTheme.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "Nenhuma pergunta encontrada para o tema \"$theme\".", style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = onClose) {
+                        Text("Voltar")
+                    }
+                }
+            } else if (currentQuestionIndex < questionsForTheme.size) {
+                val question = questionsForTheme[currentQuestionIndex]
 
                 Column(
                     modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp),
@@ -168,7 +224,7 @@ fun QuizScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                        Text("Questão ${currentQuestionIndex + 1} de ${quizQuestions.size}", style = MaterialTheme.typography.bodyMedium, color = Palette.textMuted)
+                        Text("Questão ${currentQuestionIndex + 1} de ${questionsForTheme.size}", style = MaterialTheme.typography.bodyMedium, color = Palette.textMuted)
                         Text(
                             text = "MODO: ${gameMode.name}",
                             style = MaterialTheme.typography.bodyMedium,
@@ -222,14 +278,274 @@ fun QuizScreen(
                     }
                 }
             } else {
+                QuizResultScreen(
+                    score = score,
+                    totalQuestions = questionsForTheme.size,
+                    theme = theme,
+                    onPlayAgain = {
+                        currentQuestionIndex = 0
+                        selectedOption = null
+                        isAnswered = false
+                        score = 0
+                        timeLeft = TIME_PER_QUESTION
+                    },
+                    onBackToHome = onClose,
+                    modifier = Modifier.padding(paddingValues)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun QuizResultScreen(
+    score: Int,
+    totalQuestions: Int,
+    theme: String,
+    onPlayAgain: () -> Unit,
+    onBackToHome: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val percentage = (score.toFloat() / (totalQuestions * 10)) * 100
+    val animatedScore by animateIntAsState(
+        targetValue = score,
+        animationSpec = tween(durationMillis = 2000, easing = FastOutSlowInEasing),
+        label = "Score Animation"
+    )
+    
+    val animatedPercentage by animateFloatAsState(
+        targetValue = percentage,
+        animationSpec = tween(durationMillis = 2000, easing = FastOutSlowInEasing),
+        label = "Percentage Animation"
+    )
+
+    var showConfetti by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        showConfetti = true
+        delay(3000)
+        showConfetti = false
+    }
+
+    val resultData = when {
+        percentage >= 90 -> ResultData("Parabéns! Você é um Expert em $theme! 🌟", Palette.primary, Icons.Default.Star)
+        percentage >= 70 -> ResultData("Muito bem! Você dominou o tema! 🎯", Palette.primary, Icons.Default.CheckCircle)
+        percentage >= 50 -> ResultData("Bom trabalho! Continue estudando! 📚", Palette.secondary, Icons.Default.School)
+        percentage >= 30 -> ResultData("Você está no caminho certo! 🌱", Palette.tertiary, Icons.Default.TrendingUp)
+        else -> ResultData("Não desista! Tente novamente! 💪", Palette.error, Icons.Default.Refresh)
+    }
+
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        // Confetti Animation
+        if (showConfetti) {
+            ConfettiAnimation()
+        }
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(32.dp)
+        ) {
+            // Animated Icon
+            val scale by animateFloatAsState(
+                targetValue = 1f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                ),
+                label = "Icon Scale"
+            )
+
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .scale(scale)
+                    .background(resultData.color.copy(alpha = 0.1f), shape = RoundedCornerShape(60.dp))
+                    .border(2.dp, resultData.color.copy(alpha = 0.3f), shape = RoundedCornerShape(60.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = resultData.icon,
+                    contentDescription = null,
+                    tint = resultData.color,
+                    modifier = Modifier.size(60.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Animated Message
+            val messageAlpha by animateFloatAsState(
+                targetValue = 1f,
+                animationSpec = tween(1000, delayMillis = 500),
+                label = "Message Alpha"
+            )
+
+            Text(
+                text = resultData.message,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = Palette.text,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.alpha(messageAlpha)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Score Display
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Palette.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(paddingValues),
-                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = "Quiz finalizado!", style = MaterialTheme.typography.headlineMedium)
-                    Text(text = "Sua pontuação: $score", style = MaterialTheme.typography.bodyLarge)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = animatedScore.toString(),
+                            style = MaterialTheme.typography.displayLarge,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = resultData.color
+                        )
+                        Text(
+                            text = "/${totalQuestions * 10}",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = Palette.textMuted,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Progress Bar
+                    LinearProgressIndicator(
+                        progress = animatedPercentage / 100,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp)
+                            .clip(RoundedCornerShape(4.dp)),
+                        color = resultData.color,
+                        trackColor = resultData.color.copy(alpha = 0.2f)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "${String.format("%.1f", animatedPercentage)}% de acerto",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Palette.textMuted
+                    )
                 }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Action Buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                OutlinedButton(
+                    onClick = onBackToHome,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = Palette.text
+                    )
+                ) {
+                    Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Home")
+                }
+
+                Button(
+                    onClick = onPlayAgain,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Palette.primary,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Jogar Novamente")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ConfettiAnimation() {
+    val infiniteTransition = rememberInfiniteTransition(label = "Confetti")
+    
+    val colors = listOf(
+        Palette.primary,
+        Palette.secondary,
+        Palette.accent,
+        Palette.error,
+        Palette.quizIcon
+    )
+    
+    // Criar animações sem remember
+    val offsetXAnimations = List(51) { i ->
+        infiniteTransition.animateFloat(
+            initialValue = -100f,
+            targetValue = 1000f, // Valor grande o suficiente
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = (3000..5000).random(),
+                    easing = LinearEasing
+                ),
+                repeatMode = RepeatMode.Restart
+            ), label = "Confetti X $i"
+        )
+    }
+    
+    val offsetYAnimations = List(51) { i ->
+        infiniteTransition.animateFloat(
+            initialValue = -100f,
+            targetValue = 1000f, // Valor grande o suficiente
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = (4000..6000).random(),
+                    easing = LinearEasing
+                ),
+                repeatMode = RepeatMode.Restart
+            ), label = "Confetti Y $i"
+        )
+    }
+    
+    val rotationAnimations = List(51) { i ->
+        infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 360f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = (2000..4000).random(),
+                    easing = LinearEasing
+                ),
+                repeatMode = RepeatMode.Restart
+            ), label = "Confetti Rotation $i"
+        )
+    }
+    
+    Canvas(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        for (i in 0..50) {
+            rotate(rotationAnimations[i].value) {
+                drawRect(
+                    color = colors[i % colors.size].copy(alpha = 0.7f),
+                    topLeft = Offset(offsetXAnimations[i].value, offsetYAnimations[i].value),
+                    size = androidx.compose.ui.geometry.Size(8f, 8f)
+                )
             }
         }
     }
@@ -250,5 +566,47 @@ private fun QuizScreenPreview(
 ) {
     EcoLabTheme {
         QuizScreen(onClose = {}, theme = params.theme, gameMode = params.gameMode)
+    }
+}
+
+@Preview(showBackground = true, name = "Quiz Result - Expert")
+@Composable
+private fun QuizResultExpertPreview() {
+    EcoLabTheme {
+        QuizResultScreen(
+            score = 90,
+            totalQuestions = 10,
+            theme = "Reciclagem",
+            onPlayAgain = {},
+            onBackToHome = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Quiz Result - Good")
+@Composable
+private fun QuizResultGoodPreview() {
+    EcoLabTheme {
+        QuizResultScreen(
+            score = 70,
+            totalQuestions = 10,
+            theme = "Energia",
+            onPlayAgain = {},
+            onBackToHome = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Quiz Result - Needs Practice")
+@Composable
+private fun QuizResultNeedsPracticePreview() {
+    EcoLabTheme {
+        QuizResultScreen(
+            score = 30,
+            totalQuestions = 10,
+            theme = "Água",
+            onPlayAgain = {},
+            onBackToHome = {}
+        )
     }
 }
