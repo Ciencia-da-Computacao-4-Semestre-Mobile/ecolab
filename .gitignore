@@ -43,3 +43,42 @@ captures/
 # IDEA files
 .idea/
 *.iml
+
+# Arquivos Python
+*.py
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Arquivos batch e PowerShell
+*.bat
+*.ps1
+*.psm1
+*.psd1
+*.ps1xml
+
+# Pastas de IDEs e editores
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# Trae AI IDE
+.trae/
+*.trae
+
+# Outros arquivos temporários
+Thumbs.db
+.DS_Store
+*.tmp
+*.temp
