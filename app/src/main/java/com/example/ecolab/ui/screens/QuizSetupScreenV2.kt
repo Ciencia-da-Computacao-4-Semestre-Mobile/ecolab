@@ -32,7 +32,7 @@ fun QuizSetupScreenV2(
     viewModel: QuizSetupViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+
     // AnimaÃ§Ãµes de entrada
     var isVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
@@ -65,14 +65,14 @@ fun QuizSetupScreenV2(
                 enter = fadeIn() + slideInVertically(initialOffsetY = { -it })
             ) {
                 TopAppBar(
-                    title = { 
+                    title = {
                         Text(
-                                "Prepare seu Desafio",
-                                color = Palette.text,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 24.sp,
-                                style = MaterialTheme.typography.titleLarge
-                            )
+                            "Prepare seu Desafio",
+                            color = Palette.text,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp,
+                            style = MaterialTheme.typography.titleLarge
+                        )
                     },
                     navigationIcon = {
                         Surface(
@@ -106,7 +106,7 @@ fun QuizSetupScreenV2(
         ) {
             // PartÃ­culas animadas de fundo
             AnimatedParticles()
-            
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -136,14 +136,15 @@ fun QuizSetupScreenV2(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Botão Start com animação
+                // Botão Start com animação - sempre visível, mas desabilitado quando não há seleção
                 AnimatedVisibility(
-                    visible = isVisible && uiState.selectedGameMode != null && uiState.selectedTheme != null,
+                    visible = isVisible,
                     enter = fadeIn() + scaleIn(initialScale = 0.8f),
                     exit = fadeOut() + scaleOut(targetScale = 0.8f)
                 ) {
                     StartQuizButton(
                         theme = uiState.selectedTheme,
+                        enabled = uiState.selectedGameMode != null && uiState.selectedTheme != null,
                         onClick = {
                             val theme = uiState.selectedTheme?.name ?: "Default"
                             val gameMode = if (uiState.selectedGameMode?.name == "Speed Run") GameMode.SPEEDRUN else GameMode.NORMAL
@@ -171,7 +172,7 @@ private fun GameModeSection(
             color = Palette.text,
             modifier = Modifier.padding(bottom = 12.dp)
         )
-        
+
         uiState.gameModes.forEachIndexed { index, gameMode ->
             AnimatedVisibility(
                 visible = true,
@@ -205,11 +206,11 @@ private fun ThemeSection(
             color = Palette.text,
             modifier = Modifier.padding(bottom = 12.dp)
         )
-        
+
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
             maxItemsInEachRow = 3
         ) {
             uiState.themes.forEachIndexed { index, theme ->
@@ -217,7 +218,8 @@ private fun ThemeSection(
                     visible = true,
                     enter = scaleIn() + fadeIn(
                         animationSpec = tween(400, delayMillis = index * 50)
-                    )
+                    ),
+                    modifier = Modifier.padding(horizontal = 5.dp)
                 ) {
                     ThemeCard(
                         item = theme,
@@ -284,7 +286,7 @@ private fun GameModeCard(
                     tint = item.color
                 )
             }
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.name,
@@ -299,7 +301,7 @@ private fun GameModeCard(
                     modifier = Modifier.padding(top = 2.dp)
                 )
             }
-            
+
             // Indicador de seleção simples
             if (isSelected) {
                 Surface(
@@ -409,19 +411,24 @@ private fun ThemeCard(
 @Composable
 private fun StartQuizButton(
     theme: SelectionItem?,
+    enabled: Boolean,
     onClick: () -> Unit
 ) {
-    val buttonColor = theme?.color ?: Palette.primary
+    val buttonColor = if (enabled) {
+        theme?.color ?: Palette.primary
+    } else {
+        Palette.textMuted.copy(alpha = 0.3f)
+    }
 
     Surface(
-        onClick = onClick,
+        onClick = if (enabled) onClick else { {} },
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp),
         shape = RoundedCornerShape(30.dp),
         color = buttonColor,
-        shadowElevation = 8.dp,
-        border = BorderStroke(2.dp, buttonColor.copy(alpha = 0.9f))
+        shadowElevation = if (enabled) 8.dp else 0.dp,
+        border = BorderStroke(2.dp, buttonColor.copy(alpha = if (enabled) 0.9f else 0.3f))
     ) {
         Box(contentAlignment = Alignment.Center) {
             Row(
@@ -430,15 +437,14 @@ private fun StartQuizButton(
             ) {
                 Icon(
                     Icons.Default.PlayArrow,
-                    contentDescription = null,
-                    tint = Color.White,
+                    contentDescription = null, tint = if (enabled) Color.White else Color.White.copy(alpha = 0.6f),
                     modifier = Modifier.size(26.dp)
                 )
                 Text(
                     "INICIAR QUIZ",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = if (enabled) Color.White else Color.White.copy(alpha = 0.6f),
                     letterSpacing = 0.8.sp
                 )
             }

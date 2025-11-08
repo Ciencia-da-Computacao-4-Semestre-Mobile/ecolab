@@ -22,6 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Directions
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MyLocation
@@ -29,6 +30,7 @@ import androidx.compose.material.icons.filled.Recycling
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
+import com.example.ecolab.ui.components.AwesomePointDetailsModal
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -226,162 +228,20 @@ fun MapScreen(
             val point = uiState.selectedPoint!!
             val categoryColor = getCategoryColor(point.category)
 
-            ModalBottomSheet(
-                onDismissRequest = { viewModel.onDismissBottomSheet() },
-                sheetState = sheetState
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = 24.dp, vertical = 32.dp)
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // Header com nome e botão de favorito
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = point.name,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.weight(1f)
-                        )
-                        IconButton(onClick = { viewModel.toggleFavorite() }) {
-                            Icon(
-                                imageVector = if (point.isFavorite) {
-                                    Icons.Default.Favorite
-                                } else {
-                                    Icons.Default.FavoriteBorder
-                                },
-                                contentDescription = "Favoritar",
-                                tint = if (point.isFavorite) {
-                                    Color.Red
-                                } else {
-                                    MaterialTheme.colorScheme.onSurface
-                                },
-                                modifier = Modifier.size(32.dp)
-                            )
-                        }
-                    }
-
-                    // Categoria
-                    Text(
-                        text = point.category,
-                        style = MaterialTheme.typography.titleSmall,
-                        color = categoryColor,
-                        fontWeight = FontWeight.Bold
+            AwesomePointDetailsModal(
+                point = point,
+                onDismiss = { viewModel.onDismissBottomSheet() },
+                onFavorite = { viewModel.toggleFavorite() },
+                onRouteClick = {
+                    val gmmIntentUri = Uri.parse(
+                        "geo:${point.latitude},${point.longitude}?q=${point.name}"
                     )
-
-                    // Descrição
-                    Text(
-                        text = point.description,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-
-                    // Horário de funcionamento
-                    point.openingHours?.let {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Schedule,
-                                contentDescription = "Horário de funcionamento",
-                                modifier = Modifier.size(20.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = it,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-
-                    // Materiais aceitos
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Recycling,
-                                contentDescription = "Materiais aceitos",
-                                modifier = Modifier.size(20.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Materiais aceitos",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        val materials = getMockMaterials(point.category)
-                        if (materials.isNotEmpty()) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .horizontalScroll(rememberScrollState())
-                            ) {
-                                materials.forEach { material ->
-                                    Card(
-                                        modifier = Modifier.padding(end = 8.dp),
-                                        shape = RoundedCornerShape(8.dp),
-                                        colors = CardDefaults.cardColors(
-                                            containerColor = categoryColor.copy(alpha = 0.1f)
-                                        ),
-                                        border = BorderStroke(1.dp, categoryColor)
-                                    ) {
-                                        Text(
-                                            text = material,
-                                            modifier = Modifier.padding(
-                                                horizontal = 12.dp,
-                                                vertical = 6.dp
-                                            ),
-                                            color = categoryColor,
-                                            style = MaterialTheme.typography.bodyMedium
-                                        )
-                                    }
-                                }
-                            }
-                        } else {
-                            Text(
-                                text = "Não há informações sobre os materiais aceitos.",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(start = 28.dp)
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Botão de rota
-                    Button(
-                        onClick = {
-                            val gmmIntentUri = Uri.parse(
-                                "geo:${point.latitude},${point.longitude}?q=${point.name}"
-                            )
-                            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-                            mapIntent.setPackage("com.google.android.apps.maps")
-                            context.startActivity(mapIntent)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = categoryColor
-                        )
-                    ) {
-                        Text(
-                            text = "Traçar rota",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-                }
-            }
+                    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                    mapIntent.setPackage("com.google.android.apps.maps")
+                    context.startActivity(mapIntent)
+                },
+                categoryColor = categoryColor
+            )
         }
 
         MapControls(

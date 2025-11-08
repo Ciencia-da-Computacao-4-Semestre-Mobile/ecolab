@@ -20,7 +20,7 @@ import androidx.navigation.navArgument
 import com.example.ecolab.ui.screens.AchievementsScreen
 import com.example.ecolab.ui.screens.EditProfileScreen
 import com.example.ecolab.ui.screens.GameMode
-import com.example.ecolab.ui.screens.HomeScreen
+import com.example.ecolab.ui.screens.HomeScreenV2
 import com.example.ecolab.ui.screens.LibraryScreen
 import com.example.ecolab.ui.screens.LoginScreen
 import com.example.ecolab.ui.screens.MapScreen
@@ -85,7 +85,7 @@ fun AppNavHost(
             modifier = modifier
         ) {
             composable(BottomNavItem.Home.route) {
-                HomeScreen(
+                HomeScreenV2(
                     onQuizClick = { navController.navigate("quiz_setup") },
                     onAchievementsClick = { navController.navigate("achievements") }
                 )
