@@ -4,6 +4,8 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
@@ -156,33 +158,39 @@ fun MapScreen(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            TextField(
-                value = uiState.searchQuery,
-                onValueChange = { viewModel.onSearchQueryChange(it) },
+            Card(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, Palette.textMuted, RoundedCornerShape(24.dp)),
-                placeholder = { Text("Pesquisar...", color = Palette.textMuted) },
-                trailingIcon = {
-                    IconButton(onClick = { viewModel.onSearch() }) {
-                        Icon(
-                            Icons.Default.Search,
-                            contentDescription = "Pesquisar",
-                            tint = Palette.textMuted
-                        )
-                    }
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    disabledContainerColor = Color.White,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedTextColor = Palette.text,
-                    unfocusedTextColor = Palette.text
-                ),
-                shape = RoundedCornerShape(24.dp)
-            )
+                    .fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Palette.surface)
+            ) {
+                TextField(
+                    value = uiState.searchQuery,
+                    onValueChange = { viewModel.onSearchQueryChange(it) },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Pesquisar...", color = Palette.textMuted) },
+                    trailingIcon = {
+                        IconButton(onClick = { viewModel.onSearch() }) {
+                            Icon(
+                                Icons.Default.Search,
+                                contentDescription = "Pesquisar",
+                                tint = Palette.primary
+                            )
+                        }
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedTextColor = Palette.text,
+                        unfocusedTextColor = Palette.text
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                )
+            }
 
             Row(
                 modifier = Modifier
@@ -191,42 +199,52 @@ fun MapScreen(
                     .padding(top = 16.dp)
             ) {
                 filterCategories.forEach { category ->
-                    val categoryColor = getCategoryColor(category)
                     val isSelected = if (category == "Favoritos") {
                         uiState.showFavorites
                     } else {
                         uiState.selectedCategory == category
                     }
 
-                    FilterChip(
-                        selected = isSelected,
-                        onClick = {
-                            if (category == "Favoritos") {
-                                viewModel.onToggleFavorites(!uiState.showFavorites)
-                            } else {
-                                viewModel.onFilterChange(category)
-                            }
-                        },
-                        label = { Text(category) },
-                        modifier = Modifier.padding(end = 8.dp),
-                        colors = FilterChipDefaults.filterChipColors(
-                            containerColor = Color.White,
-                            selectedContainerColor = categoryColor,
-                            labelColor = Palette.textMuted,
-                            selectedLabelColor = Color.White
-                        ),
-                        border = BorderStroke(
-                            width = if (isSelected) 2.dp else 1.dp,
-                            color = if (isSelected) categoryColor else Palette.textMuted
-                        )
+                    val containerColor by animateColorAsState(
+                        targetValue = if (isSelected) Palette.primary else Palette.surface,
+                        animationSpec = tween(durationMillis = 300), label = ""
                     )
+                    val labelColor by animateColorAsState(
+                        targetValue = if (isSelected) Color.White else Palette.text,
+                        animationSpec = tween(durationMillis = 300), label = ""
+                    )
+
+                    Card(
+                        modifier = Modifier.padding(end = 8.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                        colors = CardDefaults.cardColors(containerColor = containerColor),
+                        border = BorderStroke(1.dp, if(isSelected) Palette.primary else Palette.textMuted)
+                    ) {
+                        FilterChip(
+                            selected = isSelected,
+                            onClick = {
+                                if (category == "Favoritos") {
+                                    viewModel.onToggleFavorites(!uiState.showFavorites)
+                                } else {
+                                    viewModel.onFilterChange(category)
+                                }
+                            },
+                            label = { Text(text = category, color = labelColor) },
+                            modifier = Modifier,
+                            colors = FilterChipDefaults.filterChipColors(
+                                containerColor = Color.Transparent,
+                                selectedContainerColor = Color.Transparent,
+                            ),
+                            border = null
+                        )
+                    }
                 }
             }
         }
 
         if (uiState.selectedPoint != null) {
             val point = uiState.selectedPoint!!
-            val categoryColor = getCategoryColor(point.category)
 
             AwesomePointDetailsModal(
                 point = point,
@@ -240,7 +258,7 @@ fun MapScreen(
                     mapIntent.setPackage("com.google.android.apps.maps")
                     context.startActivity(mapIntent)
                 },
-                categoryColor = categoryColor
+                categoryColor = getCategoryColorForModal(point.category)
             )
         }
 
@@ -291,7 +309,8 @@ private fun MapControls(
                     }
                 }
             },
-            containerColor = Color.White
+            containerColor = Palette.primary,
+            contentColor = Color.White
         ) {
             Icon(
                 imageVector = Icons.Default.MyLocation,
@@ -311,7 +330,8 @@ private fun MapControls(
                         )
                     }
                 },
-                containerColor = Color.White
+                containerColor = Palette.surface,
+                contentColor = Palette.primary
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Zoom In")
             }
@@ -325,7 +345,8 @@ private fun MapControls(
                         )
                     }
                 },
-                containerColor = Color.White
+                containerColor = Palette.surface,
+                contentColor = Palette.primary
             ) {
                 Icon(imageVector = Icons.Default.Remove, contentDescription = "Zoom Out")
             }
@@ -334,7 +355,7 @@ private fun MapControls(
 }
 
 @Composable
-private fun getCategoryColor(category: String): Color {
+private fun getCategoryColorForModal(category: String): Color {
     return when (category) {
         "Ecoponto" -> Color(0xFF0F9D58) // Verde
         "Cooperativa" -> Color(0xFFD50F25) // Vermelho
