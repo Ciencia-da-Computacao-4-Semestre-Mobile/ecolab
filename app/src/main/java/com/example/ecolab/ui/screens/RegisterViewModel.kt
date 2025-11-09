@@ -2,6 +2,7 @@ package com.example.ecolab.ui.screens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ecolab.data.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.GoogleAuthProvider
@@ -35,7 +36,8 @@ data class PasswordRequirements(
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     sealed class RegisterEvent {
@@ -76,8 +78,32 @@ class RegisterViewModel @Inject constructor(
             auth.signInWithCredential(credential)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        viewModelScope.launch {
-                            _eventChannel.send(RegisterEvent.RegistrationSuccess)
+                        // Criar documento do usuário no Firestore
+                        val userId = auth.currentUser?.uid
+                        val userEmail = auth.currentUser?.email
+                        val userName = auth.currentUser?.displayName ?: "Usuário Google"
+                        
+                        if (userId != null && userEmail != null) {
+                            viewModelScope.launch {
+                                try {
+                                    userRepository.createUser(
+                                        com.example.ecolab.data.model.User(
+                                            id = userId,
+                                            name = userName,
+                                            email = userEmail,
+                                            favoritedPoints = emptyList(),
+                                            unlockedAchievements = emptyList()
+                                        )
+                                    )
+                                    _eventChannel.send(RegisterEvent.RegistrationSuccess)
+                                } catch (e: Exception) {
+                                    _eventChannel.send(RegisterEvent.RegistrationFailed("Erro ao salvar dados do usuário: ${e.message}"))
+                                }
+                            }
+                        } else {
+                            viewModelScope.launch {
+                                _eventChannel.send(RegisterEvent.RegistrationSuccess)
+                            }
                         }
                     } else {
                         viewModelScope.launch {
@@ -98,8 +124,29 @@ class RegisterViewModel @Inject constructor(
                     _state.value.password
                 ).addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        viewModelScope.launch {
-                            _eventChannel.send(RegisterEvent.RegistrationSuccess)
+                        // Criar documento do usuário no Firestore
+                        val userId = auth.currentUser?.uid
+                        if (userId != null) {
+                            viewModelScope.launch {
+                                try {
+                                    userRepository.createUser(
+                                        com.example.ecolab.data.model.User(
+                                            id = userId,
+                                            name = _state.value.name,
+                                            email = _state.value.email,
+                                            favoritedPoints = emptyList(),
+                                            unlockedAchievements = emptyList()
+                                        )
+                                    )
+                                    _eventChannel.send(RegisterEvent.RegistrationSuccess)
+                                } catch (e: Exception) {
+                                    _eventChannel.send(RegisterEvent.RegistrationFailed("Erro ao salvar dados do usuário: ${e.message}"))
+                                }
+                            }
+                        } else {
+                            viewModelScope.launch {
+                                _eventChannel.send(RegisterEvent.RegistrationSuccess)
+                            }
                         }
                     } else {
                         viewModelScope.launch {

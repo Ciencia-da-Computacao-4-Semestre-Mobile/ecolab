@@ -22,10 +22,6 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
-
-    @Provides
-    @Singleton
     fun provideAuthRepository(
         firebaseAuth: FirebaseAuth,
         firestore: FirebaseFirestore
