@@ -2,7 +2,9 @@ package com.example.ecolab.ui.profile
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
@@ -17,7 +19,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun ProfileScreen(
-    viewModel: ProfileViewModel = hiltViewModel()
+    viewModel: ProfileViewModel = hiltViewModel(),
+    onEditProfileClick: () -> Unit,
+    onStoreClick: () -> Unit,
+    onSignOutClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -32,7 +37,21 @@ fun ProfileScreen(
         ) {
             Text(text = "Logged in as: ${uiState.email}")
 
-            Button(onClick = { viewModel.signOut() }) {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = onEditProfileClick) {
+                Text(text = "Editar Perfil")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(onClick = onStoreClick) {
+                Text(text = "Loja")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(onClick = onSignOutClick) {
                 Text(text = "Logout")
             }
         }

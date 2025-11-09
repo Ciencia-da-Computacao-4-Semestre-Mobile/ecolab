@@ -17,8 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Quiz
+import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -43,7 +43,7 @@ import com.example.ecolab.ui.theme.Palette
 @Composable
 fun HomeScreenV2(
     onQuizClick: () -> Unit,
-    onAchievementsClick: () -> Unit,
+    onStoreClick: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -80,7 +80,7 @@ fun HomeScreenV2(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    AnimatedFeatureCards(uiState, onQuizClick, onAchievementsClick)
+                    AnimatedFeatureCards(uiState, onQuizClick, onStoreClick)
                 }
             }
         }
@@ -168,7 +168,7 @@ private fun AnimatedHeader() {
 private fun AnimatedFeatureCards(
     uiState: HomeUiState,
     onQuizClick: () -> Unit,
-    onAchievementsClick: () -> Unit
+    onStoreClick: () -> Unit
 ) {
     // Card do Quiz
     AnimatedFeatureCard(
@@ -176,22 +176,19 @@ private fun AnimatedFeatureCards(
         description = "Teste seus conhecimentos sobre sustentabilidade",
         icon = Icons.Default.Quiz,
         color = Palette.quizIcon,
+        onClick = onQuizClick,
         progress = uiState.quizProgress,
         progressText = uiState.quizProgressText,
-        completed = uiState.quizCompleted,
-        onClick = onQuizClick
+        completed = uiState.quizCompleted
     )
 
-    // Card de Conquistas
+    // Card da Loja
     AnimatedFeatureCard(
-        title = "Conquistas",
-        description = "Veja suas medalhas e progresso",
-        icon = Icons.Default.EmojiEvents,
+        title = "Loja",
+        description = "Troque seus EcoPoints por recompensas",
+        icon = Icons.Outlined.ShoppingBag,
         color = Palette.achievementsIcon,
-        progress = uiState.achievementsProgress,
-        progressText = uiState.achievementsProgressText,
-        completed = uiState.achievementsCompleted,
-        onClick = onAchievementsClick
+        onClick = onStoreClick
     )
 }
 
@@ -202,10 +199,10 @@ private fun AnimatedFeatureCard(
     description: String,
     icon: ImageVector,
     color: Color,
-    progress: Float,
-    progressText: String,
-    completed: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    progress: Float? = null,
+    progressText: String? = null,
+    completed: Boolean = false
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -311,7 +308,7 @@ private fun AnimatedFeatureCard(
                         fontWeight = FontWeight.Medium
                     )
 
-                    if (!completed) {
+                    if (progress != null && progressText != null && !completed) {
                         Spacer(modifier = Modifier.height(12.dp))
                         
                         LinearProgressIndicator(
@@ -332,7 +329,7 @@ private fun AnimatedFeatureCard(
                             color = Palette.textMuted,
                             modifier = Modifier.align(Alignment.End)
                         )
-                    } else {
+                    } else if (completed) {
                         Spacer(modifier = Modifier.height(12.dp))
                         
                         Row(
@@ -375,7 +372,7 @@ private fun HomeScreenV2Preview() {
     EcoLabTheme {
         HomeScreenV2(
             onQuizClick = {},
-            onAchievementsClick = {}
+            onStoreClick = {}
         )
     }
 }

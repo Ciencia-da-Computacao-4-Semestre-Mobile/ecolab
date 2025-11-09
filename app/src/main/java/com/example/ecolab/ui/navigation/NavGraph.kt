@@ -17,7 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.ecolab.ui.screens.AchievementsScreen
+import com.example.ecolab.ui.screens.StoreScreen // Changed from AchievementsScreen
 import com.example.ecolab.ui.screens.EditProfileScreen
 import com.example.ecolab.ui.screens.GameMode
 import com.example.ecolab.ui.screens.HomeScreenV2
@@ -32,6 +32,7 @@ import com.example.ecolab.ui.theme.Palette
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
+import com.example.ecolab.ui.profile.ProfileScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,13 +55,10 @@ fun AppNavHost(
         }
     }
 
-    // NOVO: Obter o Context e definir a função de abertura de URL
-    val context = LocalContext.current // 1. Obter o Context
+    val context = LocalContext.current
 
-    // 2. Definir a função que abre o link
     val openUrl: (String) -> Unit = { url ->
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        // Boa prática ao chamar uma atividade externa:
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
     }
@@ -87,7 +85,7 @@ fun AppNavHost(
             composable(BottomNavItem.Home.route) {
                 HomeScreenV2(
                     onQuizClick = { navController.navigate("quiz_setup") },
-                    onAchievementsClick = { navController.navigate("achievements") }
+                    onStoreClick = { navController.navigate("store") } // Corrected parameter
                 )
             }
             composable(BottomNavItem.Map.route) { MapScreen() }
@@ -95,6 +93,7 @@ fun AppNavHost(
             composable(BottomNavItem.Profile.route) {
                 ProfileScreen(
                     onEditProfileClick = { navController.navigate("edit_profile") },
+                    onStoreClick = { navController.navigate("store") },
                     onSignOutClick = {
                         viewModel.signOut()
                         navController.navigate("login") {
@@ -133,7 +132,7 @@ fun AppNavHost(
                     onBack = { navController.popBackStack() }
                 )
             }
-            composable("achievements") { AchievementsScreen() }
+            composable("store") { StoreScreen() } // Corrected destination
             composable("login") {
                 LoginScreen(
                     onLogin = {
