@@ -38,6 +38,7 @@
 <resources>
     <!-- IDENTIFICAÇÃO DO APLICATIVO -->
     <string name="app_name">EcoLab</string>
+    <string name="default_web_client_id" translatable="false">733860067111-n13ce5o85qe94jqs8phlb4mq6bl6qrlb.apps.googleusercontent.com</string>
     
     <!-- 
         NAVEGAÇÃO
@@ -287,7 +288,7 @@
     <string name="dynamic_colors">Cores dinâmicas</string>
     <string name="map_settings">Mapa</string>
     <string name="auto_location">Localização automática</string>
-    <string name="auto_location_description">Detectar localização automaticamente</string>
+    <string name="auto_location_description">Detectar localização automatically</string>
     <string name="map_type">Tipo de mapa</string>
     <string name="map_type_description">Escolha o tipo de mapa</string>
     <string name="dark_theme_description">Ativar tema escuro</string>
