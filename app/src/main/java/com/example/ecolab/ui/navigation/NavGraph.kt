@@ -32,7 +32,6 @@ import com.example.ecolab.ui.theme.Palette
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
-import com.example.ecolab.ui.profile.ProfileScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,7 +92,6 @@ fun AppNavHost(
             composable(BottomNavItem.Profile.route) {
                 ProfileScreen(
                     onEditProfileClick = { navController.navigate("edit_profile") },
-                    onStoreClick = { navController.navigate("store") },
                     onSignOutClick = {
                         viewModel.signOut()
                         navController.navigate("login") {
