@@ -45,5 +45,8 @@ data class HomeUiState(
     val quizCompleted: Boolean = false,
     val achievementsProgress: Float = 0f,
     val achievementsProgressText: String = "",
-    val achievementsCompleted: Boolean = false
+    val achievementsCompleted: Boolean = false,
+    val totalPoints: Int = 1250,
+    val levelProgress: Float = 0.75f,
+    val levelText: String = "Nível 3 - 75% para o próximo nível"
 )
