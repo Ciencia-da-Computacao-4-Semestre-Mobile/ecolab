@@ -9,8 +9,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,10 +18,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,7 +38,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -55,11 +53,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -80,24 +75,15 @@ fun ForgotPasswordScreen(
 ) {
     val state by viewModel.state.collectAsState()
     var email by remember { mutableStateOf("") }
-    
-    // Animações de entrada
+
     var isVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         delay(200)
         isVisible = true
     }
-    
-    // Gradientes dinâmicos
-    val backgroundGradient = Brush.verticalGradient(
-        colors = listOf(
-            Palette.primary.copy(alpha = 0.1f),
-            Palette.background,
-            Palette.background.copy(alpha = 0.95f)
-        )
-    )
-    
-    // Animação de escala para o botão
+
+    val backgroundColor = Color(0xFFDFE6DE)
+
     val buttonScale by animateFloatAsState(
         targetValue = if (state.isLoading) 0.95f else 1f,
         animationSpec = spring(
@@ -119,12 +105,9 @@ fun ForgotPasswordScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(backgroundGradient)
+                .background(backgroundColor)
                 .padding(paddingValues)
         ) {
-            // Partículas animadas de fundo
-            AnimatedParticles()
-            
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -133,7 +116,6 @@ fun ForgotPasswordScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Botão voltar no canto superior esquerdo
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -154,8 +136,7 @@ fun ForgotPasswordScreen(
                         )
                     }
                 }
-                
-                // Logo e título com animação
+
                 AnimatedVisibility(
                     visible = isVisible,
                     enter = fadeIn() + scaleIn(initialScale = 0.8f) + slideInVertically(
@@ -164,19 +145,28 @@ fun ForgotPasswordScreen(
                     )
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Default.Email,
-                            contentDescription = "Email",
-                            modifier = Modifier
-                                .size(80.dp)
-                                .clip(CircleShape)
-                                .background(Palette.primary.copy(alpha = 0.1f))
-                                .padding(16.dp),
-                            tint = Palette.primary
-                        )
-                        
+                        Box(
+                            modifier = Modifier.fillMaxWidth(0.4f),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_ecolab_logo),
+                                contentDescription = "Logo do EcoLab",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(1f)
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .align(Alignment.Center)
+                            ) {
+                                AnimatedParticles()
+                            }
+                        }
+
                         Spacer(modifier = Modifier.height(24.dp))
-                        
+
                         Text(
                             "Esqueceu sua senha?",
                             style = MaterialTheme.typography.headlineMedium.copy(
@@ -185,7 +175,7 @@ fun ForgotPasswordScreen(
                             ),
                             textAlign = TextAlign.Center
                         )
-                        
+
                         Text(
                             "Não se preocupe! Digite seu email abaixo e enviaremos um link para redefinir sua senha.",
                             style = MaterialTheme.typography.bodyLarge.copy(
@@ -197,10 +187,9 @@ fun ForgotPasswordScreen(
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(48.dp))
-                
-                // Card do formulário com animação
+
                 AnimatedVisibility(
                     visible = isVisible,
                     enter = fadeIn() + scaleIn(initialScale = 0.9f, animationSpec = tween(600, delayMillis = 200))
@@ -221,34 +210,32 @@ fun ForgotPasswordScreen(
                                 .padding(32.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            // Campo Email com ícone
-                        OutlinedTextField(
-                            value = email,
-                            onValueChange = { email = it },
-                            label = { Text("E-mail") },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Default.Email,
-                                    contentDescription = "Email",
-                                    tint = Palette.primary
-                                )
-                            },
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Palette.primary,
-                                focusedLabelColor = Palette.primary,
-                                unfocusedBorderColor = Palette.textMuted.copy(alpha = 0.3f),
-                                unfocusedLabelColor = Palette.textMuted,
-                                cursorColor = Palette.primary
-                            ),
-                            shape = RoundedCornerShape(16.dp),
-                            isError = state.error?.contains("email") == true
-                        )
-                            
+                            OutlinedTextField(
+                                value = email,
+                                onValueChange = { email = it },
+                                label = { Text("E-mail") },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.Email,
+                                        contentDescription = "Email",
+                                        tint = Palette.primary
+                                    )
+                                },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Palette.primary,
+                                    focusedLabelColor = Palette.primary,
+                                    unfocusedBorderColor = Palette.textMuted.copy(alpha = 0.3f),
+                                    unfocusedLabelColor = Palette.textMuted,
+                                    cursorColor = Palette.primary
+                                ),
+                                shape = RoundedCornerShape(16.dp),
+                                isError = state.error?.contains("email") == true
+                            )
+
                             Spacer(modifier = Modifier.height(32.dp))
-                            
-                            // Botão Enviar com animação
+
                             Button(
                                 onClick = { viewModel.onSendPasswordReset(email) },
                                 modifier = Modifier
@@ -287,7 +274,7 @@ fun ForgotPasswordScreen(
                         }
                     }
                 }
-                
+
                 state.error?.let { error ->
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(

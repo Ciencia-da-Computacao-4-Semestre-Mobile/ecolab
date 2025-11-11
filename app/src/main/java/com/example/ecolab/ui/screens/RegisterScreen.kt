@@ -34,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -47,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.ecolab.R
+import com.example.ecolab.ui.components.AnimatedParticles
 import com.example.ecolab.ui.theme.Palette
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -70,13 +70,7 @@ fun RegisterScreen(
         isVisible = true
     }
 
-    val backgroundGradient = Brush.verticalGradient(
-        colors = listOf(
-            Palette.primary.copy(alpha = 0.1f),
-            Palette.background,
-            Palette.background.copy(alpha = 0.95f)
-        )
-    )
+    val backgroundColor = Color(0xFFDFE6DE)
 
     val buttonScale by animateFloatAsState(
         targetValue = if (state.isLoading) 0.95f else 1f,
@@ -133,7 +127,7 @@ fun RegisterScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(backgroundGradient)
+                .background(backgroundColor)
                 .padding(paddingValues)
         ) {
             Column(
@@ -173,15 +167,25 @@ fun RegisterScreen(
                             }
                         }
 
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_ecolab_logo),
-                            contentDescription = "Logo do EcoLab",
-                            modifier = Modifier
-                                .fillMaxWidth(0.3f)
-                                .aspectRatio(1f)
-                                .clip(CircleShape)
-                                .border(2.dp, Palette.primary.copy(alpha = 0.3f), CircleShape)
-                        )
+                        Box(
+                            modifier = Modifier.fillMaxWidth(0.4f),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_ecolab_logo),
+                                contentDescription = "Logo do EcoLab",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(1f)
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .align(Alignment.Center)
+                            ) {
+                                AnimatedParticles()
+                            }
+                        }
                         Spacer(Modifier.height(24.dp))
                         Text(
                             "Criar Conta",
@@ -290,12 +294,7 @@ fun RegisterScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .background(
-                                            brush = Brush.horizontalGradient(
-                                                colors = listOf(
-                                                    Palette.primary.copy(alpha = 0.05f),
-                                                    Palette.primary.copy(alpha = 0.1f)
-                                                )
-                                            ),
+                                            color = Palette.primary.copy(alpha = 0.05f),
                                             shape = RoundedCornerShape(16.dp)
                                         )
                                         .padding(16.dp)

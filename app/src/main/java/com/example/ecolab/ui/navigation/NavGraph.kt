@@ -39,6 +39,7 @@ import androidx.navigation.navArgument
 import com.example.ecolab.ui.screens.StoreScreen
 import com.example.ecolab.ui.screens.EditProfileScreen
 import com.example.ecolab.ui.screens.GameMode
+import com.example.ecolab.ui.screens.HelpScreen
 import com.example.ecolab.ui.screens.HomeScreenV2
 import com.example.ecolab.ui.screens.LibraryScreen
 import com.example.ecolab.ui.screens.LoginScreen
@@ -47,6 +48,7 @@ import com.example.ecolab.ui.screens.ProfileScreen
 import com.example.ecolab.ui.screens.QuizScreen
 import com.example.ecolab.ui.screens.QuizSetupScreenV2
 import com.example.ecolab.ui.screens.RegisterScreen
+import com.example.ecolab.ui.screens.SettingsScreen
 import com.example.ecolab.ui.theme.Palette
 import android.content.Intent
 import android.net.Uri
@@ -118,11 +120,23 @@ fun AppNavHost(
                                 inclusive = true
                             }
                         }
-                    }
+                    },
+                    onAchievementsClick = { navController.navigate("achievements") },
+                    onSettingsClick = { navController.navigate("settings") },
+                    onHelpClick = { navController.navigate("help") }
                 )
             }
             composable("edit_profile") {
                 EditProfileScreen(onNavigateUp = { navController.navigateUp() })
+            }
+            composable("achievements") {
+                // TODO: Implement AchievementsScreen
+            }
+            composable("settings") {
+                SettingsScreen(navController = navController)
+            }
+            composable("help") {
+                HelpScreen(navController = navController)
             }
             composable(
                 route = "quiz/{theme}/{gameMode}",
