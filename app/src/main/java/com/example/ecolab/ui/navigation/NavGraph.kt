@@ -51,6 +51,7 @@ import com.example.ecolab.ui.theme.Palette
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
+import com.example.ecolab.ui.screens.ForgotPasswordScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -164,6 +165,17 @@ fun AppNavHost(
                     },
                     onRegisterClick = {
                         navController.navigate("register")
+                    },
+                    onForgotPasswordClick = {
+                        navController.navigate("forgot_password")
+                    }
+                )
+            }
+            composable("forgot_password") {
+                ForgotPasswordScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onPasswordResetSent = {
+                        navController.popBackStack()
                     }
                 )
             }

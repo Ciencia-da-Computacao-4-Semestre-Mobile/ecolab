@@ -3,46 +3,46 @@ package com.example.ecolab.ui.screens
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.*
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.scaleIn
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -51,6 +51,7 @@ import com.example.ecolab.ui.theme.Palette
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,6 +63,29 @@ fun RegisterScreen(
     val context = LocalContext.current
     val state by registerViewModel.state.collectAsState()
     val passwordRequirements by registerViewModel.passwordRequirements.collectAsState()
+
+    var isVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        delay(200)
+        isVisible = true
+    }
+
+    val backgroundGradient = Brush.verticalGradient(
+        colors = listOf(
+            Palette.primary.copy(alpha = 0.1f),
+            Palette.background,
+            Palette.background.copy(alpha = 0.95f)
+        )
+    )
+
+    val buttonScale by animateFloatAsState(
+        targetValue = if (state.isLoading) 0.95f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "register_button_scale"
+    )
 
     val googleSignInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
@@ -97,124 +121,383 @@ fun RegisterScreen(
             state.password.isNotBlank() &&
             state.confirmPassword.isNotBlank() &&
             state.password == state.confirmPassword &&
-            passwordRequirements.allMet()
+            passwordRequirements.isLengthCorrect &&
+            passwordRequirements.hasUppercase &&
+            passwordRequirements.hasLowercase &&
+            passwordRequirements.hasNumber &&
+            passwordRequirements.hasSpecialCharacter
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Criar Conta") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Palette.primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
-                )
-            )
-        }
+        containerColor = Color.Transparent
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(backgroundGradient)
                 .padding(paddingValues)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp),
+                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                OutlinedTextField(
-                    value = state.name,
-                    onValueChange = { registerViewModel.onNameChange(it) },
-                    label = { Text("Nome") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    enabled = !state.isLoading
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                OutlinedTextField(
-                    value = state.email,
-                    onValueChange = { registerViewModel.onEmailChange(it) },
-                    label = { Text("Email") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    enabled = !state.isLoading
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                OutlinedTextField(
-                    value = state.password,
-                    onValueChange = { registerViewModel.onPasswordChange(it) },
-                    label = { Text("Senha") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    enabled = !state.isLoading
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                OutlinedTextField(
-                    value = state.confirmPassword,
-                    onValueChange = { registerViewModel.onConfirmPasswordChange(it) },
-                    label = { Text("Confirmar Senha") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    enabled = !state.isLoading
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-
-                PasswordRequirementList(requirements = passwordRequirements)
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Button(
-                    onClick = { registerViewModel.onRegisterClick() },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = isFormValid && !state.isLoading,
-                    colors = ButtonDefaults.buttonColors(containerColor = Palette.primary)
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = fadeIn() + scaleIn(initialScale = 0.8f) + slideInVertically(
+                        initialOffsetY = { -it },
+                        animationSpec = tween(800, easing = FastOutSlowInEasing)
+                    )
                 ) {
-                    Text("Cadastrar", color = Color.White)
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Divider(modifier = Modifier.weight(1f))
-                    Text("ou", modifier = Modifier.padding(horizontal = 8.dp), color = Palette.textMuted)
-                    Divider(modifier = Modifier.weight(1f))
-                }
-                Spacer(Modifier.height(24.dp))
-                Button(
-                    onClick = {
-                        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                            .requestIdToken(context.getString(R.string.default_web_client_id))
-                            .requestEmail()
-                            .build()
-                        val googleSignInClient = GoogleSignIn.getClient(context, gso)
-                        googleSignInLauncher.launch(googleSignInClient.signInIntent)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(44.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Palette.surface),
-                    border = BorderStroke(1.dp, Palette.textMuted)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_google_logo),
-                            contentDescription = "Logo do Google",
-                            tint = Color.Unspecified
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp),
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            Surface(
+                                onClick = onBackClick,
+                                shape = CircleShape,
+                                color = Color.White.copy(alpha = 0.2f),
+                                modifier = Modifier.size(48.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Voltar",
+                                    tint = Palette.primary,
+                                    modifier = Modifier.padding(12.dp)
+                                )
+                            }
+                        }
+
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_ecolab_logo),
+                            contentDescription = "Logo do EcoLab",
+                            modifier = Modifier
+                                .fillMaxWidth(0.3f)
+                                .aspectRatio(1f)
+                                .clip(CircleShape)
+                                .border(2.dp, Palette.primary.copy(alpha = 0.3f), CircleShape)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Cadastrar com o Google", color = Palette.text)
+                        Spacer(Modifier.height(24.dp))
+                        Text(
+                            "Criar Conta",
+                            style = MaterialTheme.typography.headlineMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = Palette.text
+                            ),
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            "Junte-se à nossa comunidade sustentável",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = Palette.textMuted
+                            ),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(32.dp))
+
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = fadeIn() + scaleIn(initialScale = 0.9f, animationSpec = tween(600, delayMillis = 200))
+                ) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White
+                        ),
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = 8.dp
+                        ),
+                        shape = RoundedCornerShape(24.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            OutlinedTextField(
+                                value = state.name,
+                                onValueChange = { registerViewModel.onNameChange(it) },
+                                label = { Text("Nome completo") },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Person,
+                                        contentDescription = null,
+                                        tint = Palette.primary
+                                    )
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+                                shape = RoundedCornerShape(16.dp)
+                            )
+
+                            Spacer(Modifier.height(16.dp))
+
+                            OutlinedTextField(
+                                value = state.email,
+                                onValueChange = { registerViewModel.onEmailChange(it) },
+                                label = { Text("Email") },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Email,
+                                        contentDescription = null,
+                                        tint = Palette.primary
+                                    )
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                                shape = RoundedCornerShape(16.dp)
+                            )
+
+                            Spacer(Modifier.height(16.dp))
+
+                            OutlinedTextField(
+                                value = state.password,
+                                onValueChange = { registerViewModel.onPasswordChange(it) },
+                                label = { Text("Senha") },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Lock,
+                                        contentDescription = null,
+                                        tint = Palette.primary
+                                    )
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                visualTransformation = PasswordVisualTransformation(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                                shape = RoundedCornerShape(16.dp)
+                            )
+
+                            Spacer(Modifier.height(16.dp))
+
+                            AnimatedVisibility(
+                                visible = state.password.isNotEmpty(),
+                                enter = expandVertically() + fadeIn(),
+                                exit = fadeOut()
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(
+                                            brush = Brush.horizontalGradient(
+                                                colors = listOf(
+                                                    Palette.primary.copy(alpha = 0.05f),
+                                                    Palette.primary.copy(alpha = 0.1f)
+                                                )
+                                            ),
+                                            shape = RoundedCornerShape(16.dp)
+                                        )
+                                        .padding(16.dp)
+                                ) {
+                                    Text(
+                                        "Requisitos da senha:",
+                                        style = MaterialTheme.typography.bodySmall.copy(
+                                            fontWeight = FontWeight.Medium,
+                                            color = Palette.textMuted
+                                        )
+                                    )
+                                    Spacer(Modifier.height(8.dp))
+                                    PasswordRequirementItem("Mínimo 8 caracteres", passwordRequirements.isLengthCorrect)
+                                    PasswordRequirementItem("Pelo menos uma letra maiúscula", passwordRequirements.hasUppercase)
+                                    PasswordRequirementItem("Pelo menos uma letra minúscula", passwordRequirements.hasLowercase)
+                                    PasswordRequirementItem("Pelo menos um número", passwordRequirements.hasNumber)
+                                    PasswordRequirementItem("Pelo menos um caractere especial", passwordRequirements.hasSpecialCharacter)
+                                }
+                            }
+
+                            Spacer(Modifier.height(16.dp))
+
+                            OutlinedTextField(
+                                value = state.confirmPassword,
+                                onValueChange = { registerViewModel.onConfirmPasswordChange(it) },
+                                label = { Text("Confirmar senha") },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Lock,
+                                        contentDescription = null,
+                                        tint = Palette.primary
+                                    )
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                visualTransformation = PasswordVisualTransformation(),
+                                isError = state.confirmPassword.isNotBlank() && state.password != state.confirmPassword,
+                                shape = RoundedCornerShape(16.dp)
+                            )
+
+                            AnimatedVisibility(
+                                visible = state.confirmPassword.isNotBlank() && state.password != state.confirmPassword,
+                                enter = fadeIn() + slideInVertically(),
+                                exit = fadeOut() + slideOutVertically()
+                            ) {
+                                Text(
+                                    text = "As senhas não coincidem",
+                                    color = Palette.error,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(start = 16.dp, top = 4.dp)
+                                )
+                            }
+
+                            Spacer(Modifier.height(32.dp))
+
+                            Button(
+                                onClick = { registerViewModel.onRegisterClick() },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(56.dp)
+                                    .scale(buttonScale),
+                                enabled = isFormValid && !state.isLoading,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Palette.primary,
+                                    contentColor = Color.White,
+                                    disabledContainerColor = Color(0xFFCCCCCC),
+                                    disabledContentColor = Color(0xFF888888)
+                                ),
+                                shape = RoundedCornerShape(16.dp),
+                                elevation = ButtonDefaults.buttonElevation(
+                                    defaultElevation = 8.dp,
+                                    pressedElevation = 12.dp,
+                                    disabledElevation = 0.dp
+                                )
+                            ) {
+                                if (state.isLoading) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        color = Color.White,
+                                        strokeWidth = 2.dp
+                                    )
+                                } else {
+                                    Text(
+                                        "Criar Conta",
+                                        style = MaterialTheme.typography.titleMedium.copy(
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    )
+                                }
+                            }
+
+                            Spacer(Modifier.height(24.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Divider(
+                                    modifier = Modifier.weight(1f),
+                                    color = Palette.divider
+                                )
+                                Text(
+                                    "ou",
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    style = MaterialTheme.typography.bodySmall.copy(
+                                        color = Palette.textMuted
+                                    )
+                                )
+                                Divider(
+                                    modifier = Modifier.weight(1f),
+                                    color = Palette.divider
+                                )
+                            }
+
+                            Spacer(Modifier.height(24.dp))
+
+                            OutlinedButton(
+                                onClick = {
+                                    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                                        .requestIdToken(context.getString(R.string.default_web_client_id))
+                                        .requestEmail()
+                                        .build()
+                                    val googleSignInClient = GoogleSignIn.getClient(context, gso)
+                                    val signInIntent = googleSignInClient.signInIntent
+                                    googleSignInLauncher.launch(signInIntent)
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(56.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = Palette.text
+                                ),
+                                border = BorderStroke(1.dp, Palette.divider),
+                                shape = RoundedCornerShape(16.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_google_logo),
+                                        contentDescription = "Google",
+                                        modifier = Modifier.size(20.dp),
+                                        tint = Color.Unspecified
+                                    )
+                                    Text(
+                                        "Continuar com Google",
+                                        style = MaterialTheme.typography.titleMedium.copy(
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                    )
+                                }
+                            }
+
+                            Spacer(Modifier.height(32.dp))
+
+                            Text(
+                                "Ao criar uma conta, você concorda com nossos",
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    color = Palette.textMuted
+                                ),
+                                textAlign = TextAlign.Center
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                TextButton(
+                                    onClick = { /* TODO: Abrir termos de uso */ },
+                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        "Termos de Uso",
+                                        style = MaterialTheme.typography.bodySmall.copy(
+                                            color = Palette.primary,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                    )
+                                }
+                                Text(
+                                    "e",
+                                    style = MaterialTheme.typography.bodySmall.copy(
+                                        color = Palette.textMuted
+                                    ),
+                                    modifier = Modifier.padding(horizontal = 4.dp)
+                                )
+                                TextButton(
+                                    onClick = { /* TODO: Abrir política de privacidade */ },
+                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        "Política de Privacidade",
+                                        style = MaterialTheme.typography.bodySmall.copy(
+                                            color = Palette.primary,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -226,41 +509,26 @@ fun RegisterScreen(
 }
 
 @Composable
-private fun PasswordRequirementList(requirements: PasswordRequirements) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        PasswordRequirement(
-            text = "Pelo menos 8 caracteres",
-            isMet = requirements.isLengthCorrect
-        )
-        PasswordRequirement(
-            text = "Uma letra maiúscula",
-            isMet = requirements.hasUppercase
-        )
-        PasswordRequirement(
-            text = "Uma letra minúscula",
-            isMet = requirements.hasLowercase
-        )
-        PasswordRequirement(
-            text = "Um número",
-            isMet = requirements.hasNumber
-        )
-        PasswordRequirement(
-            text = "Um caractere especial (@, #, $, etc.)",
-            isMet = requirements.hasSpecialCharacter
-        )
-    }
-}
-
-@Composable
-private fun PasswordRequirement(text: String, isMet: Boolean) {
-    val color = if (isMet) Color(0xFF008000) else Color.Gray
+private fun PasswordRequirementItem(text: String, isMet: Boolean) {
+    val color = if (isMet) Palette.primary else Palette.textMuted
     val icon = if (isMet) Icons.Default.Check else Icons.Default.Close
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(vertical = 2.dp)
     ) {
-        Icon(icon, contentDescription = null, tint = color)
-        Text(text, color = color, fontSize = 14.sp)
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = color,
+            modifier = Modifier.size(16.dp)
+        )
+        Text(
+            text = text,
+            color = color,
+            style = MaterialTheme.typography.bodySmall,
+            fontSize = 12.sp
+        )
     }
 }

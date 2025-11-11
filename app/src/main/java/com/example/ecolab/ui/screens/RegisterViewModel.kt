@@ -1,5 +1,6 @@
 package com.example.ecolab.ui.screens
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecolab.data.repository.UserRepository
@@ -116,53 +117,125 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun onRegisterClick() {
+        Log.d("RegisterViewModel", "Iniciando processo de cadastro")
+        
+        // Validação extra dos dados antes de tentar criar usuário
+        val name = _state.value.name.trim()
+        val email = _state.value.email.trim()
+        val password = _state.value.password
+        val confirmPassword = _state.value.confirmPassword
+        
+        Log.d("RegisterViewModel", "Dados do cadastro - Nome: '$name', Email: '$email', Password length: ${password.length}, ConfirmPassword length: ${confirmPassword.length}")
+        
+        // Verificar se os campos estão válidos
+        if (name.isEmpty()) {
+            Log.e("RegisterViewModel", "Nome está vazio")
+            viewModelScope.launch {
+                _eventChannel.send(RegisterEvent.RegistrationFailed("Por favor, insira seu nome"))
+            }
+            return
+        }
+        
+        if (email.isEmpty()) {
+            Log.e("RegisterViewModel", "Email está vazio")
+            viewModelScope.launch {
+                _eventChannel.send(RegisterEvent.RegistrationFailed("Por favor, insira seu email"))
+            }
+            return
+        }
+        
+        if (password.isEmpty()) {
+            Log.e("RegisterViewModel", "Senha está vazia")
+            viewModelScope.launch {
+                _eventChannel.send(RegisterEvent.RegistrationFailed("Por favor, insira sua senha"))
+            }
+            return
+        }
+        
+        if (password != confirmPassword) {
+            Log.e("RegisterViewModel", "Senhas não coincidem")
+            viewModelScope.launch {
+                _eventChannel.send(RegisterEvent.RegistrationFailed("As senhas não coincidem"))
+            }
+            return
+        }
+        
+        if (!passwordRequirements.value.allMet()) {
+            Log.e("RegisterViewModel", "Senha não atende requisitos")
+            viewModelScope.launch {
+                _eventChannel.send(RegisterEvent.RegistrationFailed("A senha não atende todos os requisitos"))
+            }
+            return
+        }
+        
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             try {
-                auth.createUserWithEmailAndPassword(
-                    _state.value.email,
-                    _state.value.password
-                ).addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        // Criar documento do usuário no Firestore
-                        val userId = auth.currentUser?.uid
-                        if (userId != null) {
-                            viewModelScope.launch {
-                                try {
-                                    userRepository.createUser(
-                                        com.example.ecolab.data.model.User(
+                Log.d("RegisterViewModel", "Criando usuário com email: $email")
+                auth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        Log.d("RegisterViewModel", "Tarefa de criação completada: ${task.isSuccessful}")
+                        if (task.isSuccessful) {
+                            // Criar documento do usuário no Firestore
+                            val userId = auth.currentUser?.uid
+                            Log.d("RegisterViewModel", "UID do usuário: $userId")
+                            
+                            if (userId != null) {
+                                viewModelScope.launch {
+                                    try {
+                                        Log.d("RegisterViewModel", "Criando documento no Firestore")
+                                        
+                                        // Criar objeto User com validação extra
+                                        val user = com.example.ecolab.data.model.User(
                                             id = userId,
-                                            name = _state.value.name,
-                                            email = _state.value.email,
+                                            name = name,
+                                            email = email,
                                             favoritedPoints = emptyList(),
                                             unlockedAchievements = emptyList()
                                         )
-                                    )
-                                    _eventChannel.send(RegisterEvent.RegistrationSuccess)
-                                } catch (e: Exception) {
-                                    _eventChannel.send(RegisterEvent.RegistrationFailed("Erro ao salvar dados do usuário: ${e.message}"))
+                                        
+                                        Log.d("RegisterViewModel", "Objeto User criado: ID=$userId, Nome='$name', Email='$email'")
+                                        
+                                        userRepository.createUser(user)
+                                        
+                                        Log.d("RegisterViewModel", "Documento criado com sucesso")
+                                        _eventChannel.send(RegisterEvent.RegistrationSuccess)
+                                    } catch (e: Exception) {
+                                        Log.e("RegisterViewModel", "Erro ao criar documento no Firestore", e)
+                                        Log.e("RegisterViewModel", "Detalhes do erro: ${e.javaClass.simpleName} - ${e.message}")
+                                        _eventChannel.send(RegisterEvent.RegistrationFailed("Erro ao salvar dados do usuário: ${e.message}"))
+                                    }
+                                }
+                            } else {
+                                Log.e("RegisterViewModel", "UID é nulo após criação bem-sucedida")
+                                viewModelScope.launch {
+                                    _eventChannel.send(RegisterEvent.RegistrationFailed("Erro ao obter ID do usuário"))
                                 }
                             }
                         } else {
-                            viewModelScope.launch {
-                                _eventChannel.send(RegisterEvent.RegistrationSuccess)
-                            }
-                        }
-                    } else {
-                        viewModelScope.launch {
                             val exception = task.exception
-                            val message = when (exception) {
-                                is FirebaseAuthUserCollisionException -> "Este e-mail já está em uso."
-                                else -> exception?.message ?: "Ocorreu um erro desconhecido."
+                            Log.e("RegisterViewModel", "Erro ao criar usuário no Firebase Auth", exception)
+                            viewModelScope.launch {
+                                val message = when (exception) {
+                                    is FirebaseAuthUserCollisionException -> "Este e-mail já está em uso."
+                                    else -> exception?.message ?: "Ocorreu um erro desconhecido."
+                                }
+                                _eventChannel.send(RegisterEvent.RegistrationFailed(message))
                             }
-                            _eventChannel.send(RegisterEvent.RegistrationFailed(message))
                         }
+                        _state.update { it.copy(isLoading = false) }
                     }
-                    _state.update { it.copy(isLoading = false) }
-                }
+                    .addOnFailureListener { exception ->
+                        Log.e("RegisterViewModel", "Falha na criação do usuário", exception)
+                    }
             } catch (e: Exception) {
+                Log.e("RegisterViewModel", "Erro inesperado no processo de cadastro", e)
+                Log.e("RegisterViewModel", "Tipo da exceção: ${e.javaClass.simpleName}")
+                Log.e("RegisterViewModel", "Mensagem: ${e.message}")
                 _state.update { it.copy(isLoading = false) }
-                _eventChannel.send(RegisterEvent.RegistrationFailed(e.message ?: "Ocorreu um erro inesperado."))
+                viewModelScope.launch {
+                    _eventChannel.send(RegisterEvent.RegistrationFailed(e.message ?: "Ocorreu um erro inesperado."))
+                }
             }
         }
     }

@@ -9,12 +9,15 @@ object Palette {
     val tertiary = Color(0xFFFFA726)
     val accent = Color(0xFF00BFA6)
     val background = Color(0xFFF7FAF7)
+    val backgroundLight = Color(0xFFFFFFFF)
     val surface = Color(0xFFFFFFFF)
     val divider = Color(0xFFE6F1E6)
     val text = Color(0xFF102112)
+    val textDark = Color(0xFF102112)
     val textMuted = Color(0xFF46614D)
     val error = Color(0xFFD32F2F)
     val success = Color(0xFF10B981) // Mesma cor do secondary
     val quizIcon = Color(0xFF4CAF50)
     val achievementsIcon = Color(0xFFFFC107)
+    val outline = Color(0xFFE0E0E0)
 }

@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Este drawable "envelopa" o ícone da splash screen com um recuo (inset).
-    Isso impede que o sistema Android corte as bordas da logo em telas de abertura
-    que aplicam uma máscara circular por padrão (Android 12+).
--->
-<inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/ic_ecolab_logo"
-    android:insetLeft="32dp"
-    android:insetTop="32dp"
-    android:insetRight="32dp"
-    android:insetBottom="32dp" />
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/plano_de_fundo" />
+    <item
+        android:drawable="@drawable/ic_ecolab_logo"
+        android:gravity="center" />
+</layer-list>

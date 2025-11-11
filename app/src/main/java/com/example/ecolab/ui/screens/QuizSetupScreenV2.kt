@@ -104,9 +104,6 @@ fun QuizSetupScreenV2(
                 .background(backgroundGradient)
                 .padding(paddingValues)
         ) {
-            // PartÃ­culas animadas de fundo
-            AnimatedParticles()
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -449,39 +446,6 @@ private fun StartQuizButton(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun AnimatedParticles() {
-    // Partículas estáticas (sem animação infinita para evitar crash)
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Partícula 1
-        Box(
-            modifier = Modifier
-                .offset(x = 50.dp, y = 200.dp)
-                .size(8.dp)
-                .background(Palette.primary.copy(alpha = 0.3f), CircleShape)
-                .blur(2.dp)
-        )
-
-        // Partícula 2
-        Box(
-            modifier = Modifier
-                .offset(x = 250.dp, y = 400.dp)
-                .size(6.dp)
-                .background(Palette.secondary.copy(alpha = 0.4f), CircleShape)
-                .blur(1.5.dp)
-        )
-
-        // Partícula 3
-        Box(
-            modifier = Modifier
-                .offset(x = 150.dp, y = 600.dp)
-                .size(10.dp)
-                .background(Palette.accent.copy(alpha = 0.2f), CircleShape)
-                .blur(3.dp)
-        )
     }
 }
 
