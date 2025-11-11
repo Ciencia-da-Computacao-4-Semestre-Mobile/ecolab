@@ -61,7 +61,7 @@ fun AnimatedParticles(
                 x = Random.nextFloat() * 1000f,
                 y = Random.nextFloat() * 1000f,
                 size = Random.nextFloat() * 8.dp.value + 4.dp.value,
-                alpha = Random.nextFloat() * 0.4f + 0.1f,
+                alpha = Random.nextFloat() * 0.3f + 0.2f,
                 speed = Random.nextFloat() * 0.5f + 0.2f,
                 direction = Random.nextFloat() * 360f,
                 color = colors.random()
@@ -78,7 +78,7 @@ fun AnimatedParticles(
             particle.copy(
                 x = if (newX < 0) 1000f + newX else newX,
                 y = if (newY < 0) 1000f + newY else newY,
-                alpha = (kotlin.math.sin(animationValue * 2f * Math.PI + particle.id).toFloat() * 0.3f + 0.2f).coerceIn(0.1f, 0.5f)
+                alpha = (kotlin.math.sin(animationValue * 2f * Math.PI + particle.id).toFloat() * 0.3f + 0.2f).coerceIn(0.2f, 0.5f)
             )
         }
     }

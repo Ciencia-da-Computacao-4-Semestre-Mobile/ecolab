@@ -98,13 +98,7 @@ fun LoginScreen(
         isVisible = true
     }
 
-    val backgroundGradient = Brush.verticalGradient(
-        colors = listOf(
-            Palette.primary.copy(alpha = 0.1f),
-            Palette.background,
-            Palette.background.copy(alpha = 0.95f)
-        )
-    )
+    val backgroundColor = Color(0xFFDFE6DE)
 
     val buttonScale by animateFloatAsState(
         targetValue = if (state.isLoading) 0.95f else 1f,
@@ -149,11 +143,9 @@ fun LoginScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(backgroundGradient)
+                .background(backgroundColor)
                 .padding(paddingValues)
         ) {
-            AnimatedParticles()
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -176,13 +168,25 @@ fun LoginScreen(
                         )
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_ecolab_logo),
-                                contentDescription = "Logo do EcoLab",
-                                modifier = Modifier
-                                    .fillMaxWidth(0.4f)
-                                    .aspectRatio(1f)
-                            )
+                            Box(
+                                modifier = Modifier.fillMaxWidth(0.4f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_ecolab_logo),
+                                    contentDescription = "Logo do EcoLab",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(1f)
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .align(Alignment.Center)
+                                ) {
+                                    AnimatedParticles()
+                                }
+                            }
                             Spacer(Modifier.height(24.dp))
                             Text(
                                 "Bem-vindo ao EcoLab!",
@@ -198,7 +202,7 @@ fun LoginScreen(
                                     color = Palette.textMuted
                                 ),
                                 textAlign = TextAlign.Center
-                            )
+                             )
                         }
                     }
 
@@ -304,6 +308,73 @@ fun LoginScreen(
 
                                 Spacer(Modifier.height(16.dp))
 
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Divider(
+                                        modifier = Modifier.weight(1f),
+                                        color = Palette.outline.copy(alpha = 0.3f),
+                                        thickness = 1.dp
+                                    )
+                                    Text(
+                                        "ou",
+                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            color = Palette.textMuted,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                    )
+                                    Divider(
+                                        modifier = Modifier.weight(1f),
+                                        color = Palette.outline.copy(alpha = 0.3f),
+                                        thickness = 1.dp
+                                    )
+                                }
+
+                                Spacer(Modifier.height(16.dp))
+
+                                Surface(
+                                    onClick = {
+                                        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                                            .requestIdToken(context.getString(R.string.default_web_client_id))
+                                            .requestEmail()
+                                            .build()
+                                        val googleSignInClient = GoogleSignIn.getClient(context, gso)
+                                        googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(56.dp),
+                                    shape = RoundedCornerShape(16.dp),
+                                    color = Color.White,
+                                    shadowElevation = 4.dp,
+                                    border = BorderStroke(1.dp, Palette.outline.copy(alpha = 0.2f))
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center,
+                                        modifier = Modifier.fillMaxSize()
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_google_logo),
+                                            contentDescription = "Logo do Google",
+                                            tint = Color.Unspecified,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        Text(
+                                            "Continuar com Google",
+                                            style = MaterialTheme.typography.bodyLarge.copy(
+                                                color = Palette.textDark,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        )
+                                    }
+                                }
+
+                                Spacer(Modifier.height(24.dp))
+
                                 OutlinedButton(
                                     onClick = onRegisterClick,
                                     modifier = Modifier
@@ -322,83 +393,6 @@ fun LoginScreen(
                                         )
                                     )
                                 }
-                            }
-                        }
-                    }
-
-                    Spacer(Modifier.height(32.dp))
-
-                    AnimatedVisibility(
-                        visible = isVisible,
-                        enter = fadeIn(animationSpec = tween(600, delayMillis = 400))
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Divider(
-                                modifier = Modifier.weight(1f),
-                                color = Palette.outline.copy(alpha = 0.3f),
-                                thickness = 1.dp
-                            )
-                            Text(
-                                "ou",
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    color = Palette.textMuted,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            )
-                            Divider(
-                                modifier = Modifier.weight(1f),
-                                color = Palette.outline.copy(alpha = 0.3f),
-                                thickness = 1.dp
-                            )
-                        }
-                    }
-
-                    Spacer(Modifier.height(24.dp))
-
-                    AnimatedVisibility(
-                        visible = isVisible,
-                        enter = fadeIn(animationSpec = tween(600, delayMillis = 600))
-                    ) {
-                        Surface(
-                            onClick = {
-                                val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                                    .requestIdToken(context.getString(R.string.default_web_client_id))
-                                    .requestEmail()
-                                    .build()
-                                val googleSignInClient = GoogleSignIn.getClient(context, gso)
-                                googleSignInLauncher.launch(googleSignInClient.signInIntent)
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            color = Color.White,
-                            shadowElevation = 4.dp,
-                            border = BorderStroke(1.dp, Palette.outline.copy(alpha = 0.2f))
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center,
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_google_logo),
-                                    contentDescription = "Logo do Google",
-                                    tint = Color.Unspecified,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Text(
-                                    "Continuar com Google",
-                                    style = MaterialTheme.typography.bodyLarge.copy(
-                                        color = Palette.textDark,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                )
                             }
                         }
                     }
