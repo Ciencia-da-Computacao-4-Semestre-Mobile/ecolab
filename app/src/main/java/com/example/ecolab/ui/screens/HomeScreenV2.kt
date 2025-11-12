@@ -347,7 +347,7 @@ private fun AnimatedHeader() {
                     )
 
                     Text(
-                        text = "Olá, Eco Hero! 🌱",
+                        text = "Olá, Eco Hero!",
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White.copy(alpha = textAlpha)
@@ -496,7 +496,7 @@ private fun AnimatedStatsSection(uiState: HomeUiState) {
 
                 // Descrição mais curta e menor
                 Text(
-                    text = "Continue reciclando! 🌱",
+                    text = "Continue reciclando!",
                     fontSize = 14.sp,
                     color = Palette.textMuted,
                     fontWeight = FontWeight.Medium,
