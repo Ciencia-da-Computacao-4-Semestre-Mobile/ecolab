@@ -54,16 +54,35 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun signInWithGoogle(idToken: String): Result<AuthUser> {
+        Log.d("AuthRepositoryImpl", "Starting Google sign-in with idToken: ${idToken.take(10)}...")
         return try {
             val credential = GoogleAuthProvider.getCredential(idToken, null)
+            Log.d("AuthRepositoryImpl", "Google credential created successfully")
+            
             val result = firebaseAuth.signInWithCredential(credential).await()
+            Log.d("AuthRepositoryImpl", "Firebase sign-in with credential completed")
+            
             val user = result.user!!
+            Log.d("AuthRepositoryImpl", "User signed in: ${user.uid}, email: ${user.email}")
+            
             if (result.additionalUserInfo?.isNewUser == true) {
+                Log.d("AuthRepositoryImpl", "New user detected, saving profile to database")
                 saveUserProfileToDatabase(user)
+            } else {
+                Log.d("AuthRepositoryImpl", "Existing user, skipping profile creation")
             }
+            
             Result.Success(user.toAuthUser())
         } catch (e: Exception) {
             Log.e("AuthRepositoryImpl", "Error signing in with Google", e)
+            Log.e("AuthRepositoryImpl", "Exception type: ${e.javaClass.simpleName}")
+            Log.e("AuthRepositoryImpl", "Exception message: ${e.message}")
+            
+            // Verificar se é o erro 12500 específico
+            if (e.message?.contains("12500") == true) {
+                Log.e("AuthRepositoryImpl", "ERROR 12500 DETECTED: This typically indicates an OAuth consent screen or configuration issue")
+            }
+            
             Result.Error(e.message ?: "An unknown error occurred")
         }
     }

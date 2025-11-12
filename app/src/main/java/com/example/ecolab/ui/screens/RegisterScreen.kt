@@ -1,5 +1,6 @@
 package com.example.ecolab.ui.screens
 
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -84,14 +85,27 @@ fun RegisterScreen(
     val googleSignInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
         onResult = {
+            Log.d("RegisterScreen", "Google Sign-In result received")
             val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
             try {
                 val account = task.getResult(ApiException::class.java)
-                account?.idToken?.let {
-                    registerViewModel.onGoogleSignInResult(it)
+                Log.d("RegisterScreen", "Google account: ${account?.email}, idToken present: ${account?.idToken != null}")
+                account?.idToken?.let { token ->
+                    Log.d("RegisterScreen", "Calling onGoogleSignInResult with token")
+                    registerViewModel.onGoogleSignInResult(token)
+                } ?: run {
+                    Log.e("RegisterScreen", "Google account or idToken is null")
+                    Toast.makeText(context, "Erro ao obter token do Google", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: ApiException) {
-                Toast.makeText(context, "Falha ao entrar com Google: ${e.statusCode}", Toast.LENGTH_SHORT).show()
+                Log.e("RegisterScreen", "Google Sign-In ApiException: statusCode=${e.statusCode}, message=${e.message}", e)
+                when (e.statusCode) {
+                    12500 -> Toast.makeText(context, "Erro 12500: Problema de configuração do Google Sign-In. Verifique o OAuth Consent Screen e as credenciais.", Toast.LENGTH_LONG).show()
+                    else -> Toast.makeText(context, "Falha ao entrar com Google: ${e.statusCode}", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Log.e("RegisterScreen", "Google Sign-In unexpected error", e)
+                Toast.makeText(context, "Erro inesperado no Google Sign-In", Toast.LENGTH_SHORT).show()
             }
         }
     )

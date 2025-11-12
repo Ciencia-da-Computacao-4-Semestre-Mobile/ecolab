@@ -16,6 +16,14 @@ val localProperties = Properties().apply {
     }
 }
 
+// Load keystore properties
+val keystoreProperties = Properties().apply {
+    val keystorePropertiesFile = rootProject.file("keystore.properties")
+    if (keystorePropertiesFile.exists()) {
+        load(keystorePropertiesFile.inputStream())
+    }
+}
+
 android {
     namespace = "com.example.ecolab"
     compileSdk = 34
@@ -42,6 +50,14 @@ android {
         buildConfigField("String", "GOOGLE_IA_STUDIO_API_KEY", "\"$googleAiStudioApiKey\"")
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file(keystoreProperties["storeFile"] as String)
+            storePassword = keystoreProperties["storePassword"] as String
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+        }
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -49,6 +65,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

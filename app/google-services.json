@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "733860067111-g2pdmfpnicd2fuuerq4hokk8krgm877l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ecolab",
+            "certificate_hash": "bc77ed0b6f0c15ff0966f48ec3e3ac251403be6b"
+          }
+        },
+        {
           "client_id": "733860067111-n13ce5o85qe94jqs8phlb4mq6bl6qrlb.apps.googleusercontent.com",
           "client_type": 3
         }

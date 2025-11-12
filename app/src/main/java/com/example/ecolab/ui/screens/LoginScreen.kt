@@ -1,5 +1,6 @@
 package com.example.ecolab.ui.screens
 
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -112,14 +113,29 @@ fun LoginScreen(
     val googleSignInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
         onResult = {
+            Log.d("LoginScreen", "Google Sign-In result received")
             val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
             try {
                 val account = task.getResult(ApiException::class.java)
-                account?.idToken?.let {
-                    viewModel.onGoogleSignInResult(it)
+                Log.d("LoginScreen", "Google account: ${account?.email}, idToken present: ${account?.idToken != null}")
+                account?.idToken?.let { token ->
+                    Log.d("LoginScreen", "Calling onGoogleSignInResult with token")
+                    viewModel.onGoogleSignInResult(token)
+                } ?: run {
+                    Log.e("LoginScreen", "Google account or idToken is null")
+                    // Mostrar erro para o usuário
                 }
             } catch (e: ApiException) {
-                // Handle error
+                Log.e("LoginScreen", "Google Sign-In ApiException: statusCode=${e.statusCode}, message=${e.message}", e)
+                when (e.statusCode) {
+                    12500 -> {
+                        Log.e("LoginScreen", "Erro 12500 detectado - problema de configuração do Google Sign-In")
+                        // Mostrar erro específico para o usuário
+                    }
+                    else -> Log.e("LoginScreen", "Google Sign-In error with status code: ${e.statusCode}")
+                }
+            } catch (e: Exception) {
+                Log.e("LoginScreen", "Google Sign-In unexpected error", e)
             }
         }
     )

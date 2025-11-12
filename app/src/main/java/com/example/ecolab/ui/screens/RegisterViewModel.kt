@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecolab.data.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -73,46 +74,85 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun onGoogleSignInResult(idToken: String) {
+        Log.d("RegisterViewModel", "onGoogleSignInResult called with idToken: ${idToken.take(10)}...")
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-            val credential = GoogleAuthProvider.getCredential(idToken, null)
-            auth.signInWithCredential(credential)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        // Criar documento do usuário no Firestore
-                        val userId = auth.currentUser?.uid
-                        val userEmail = auth.currentUser?.email
-                        val userName = auth.currentUser?.displayName ?: "Usuário Google"
-                        
-                        if (userId != null && userEmail != null) {
-                            viewModelScope.launch {
-                                try {
-                                    userRepository.createUser(
-                                        com.example.ecolab.data.model.User(
-                                            id = userId,
-                                            name = userName,
-                                            email = userEmail,
-                                            favoritedPoints = emptyList(),
-                                            unlockedAchievements = emptyList()
+            try {
+                val credential = GoogleAuthProvider.getCredential(idToken, null)
+                Log.d("RegisterViewModel", "Firebase credential created successfully")
+                
+                auth.signInWithCredential(credential)
+                    .addOnCompleteListener { task ->
+                        Log.d("RegisterViewModel", "signInWithCredential completed: success=${task.isSuccessful}")
+                        if (task.isSuccessful) {
+                            // Criar documento do usuário no Firestore
+                            val userId = auth.currentUser?.uid
+                            val userEmail = auth.currentUser?.email
+                            val userName = auth.currentUser?.displayName ?: "Usuário Google"
+                            
+                            Log.d("RegisterViewModel", "User authenticated - UID: $userId, Email: $userEmail, Name: $userName")
+                            
+                            if (userId != null && userEmail != null) {
+                                viewModelScope.launch {
+                                    try {
+                                        userRepository.createUser(
+                                            com.example.ecolab.data.model.User(
+                                                id = userId,
+                                                name = userName,
+                                                email = userEmail,
+                                                favoritedPoints = emptyList(),
+                                                unlockedAchievements = emptyList()
+                                            )
                                         )
-                                    )
+                                        Log.d("RegisterViewModel", "User document created successfully")
+                                        _eventChannel.send(RegisterEvent.RegistrationSuccess)
+                                    } catch (e: Exception) {
+                                        Log.e("RegisterViewModel", "Error creating user document", e)
+                                        _eventChannel.send(RegisterEvent.RegistrationFailed("Erro ao salvar dados do usuário: ${e.message}"))
+                                    }
+                                }
+                            } else {
+                                Log.w("RegisterViewModel", "User authenticated but UID or email is null")
+                                viewModelScope.launch {
                                     _eventChannel.send(RegisterEvent.RegistrationSuccess)
-                                } catch (e: Exception) {
-                                    _eventChannel.send(RegisterEvent.RegistrationFailed("Erro ao salvar dados do usuário: ${e.message}"))
                                 }
                             }
                         } else {
+                            val exception = task.exception
+                            Log.e("RegisterViewModel", "signInWithCredential failed", exception)
+                            Log.e("RegisterViewModel", "Error details: ${exception?.javaClass?.simpleName} - ${exception?.message}")
+                            
                             viewModelScope.launch {
-                                _eventChannel.send(RegisterEvent.RegistrationSuccess)
+                                val message = when (exception) {
+                                    is FirebaseAuthInvalidCredentialsException -> {
+                                        Log.e("RegisterViewModel", "Invalid credentials error")
+                                        "Credenciais inválidas do Google. Tente novamente."
+                                    }
+                                    is FirebaseAuthUserCollisionException -> {
+                                        Log.e("RegisterViewModel", "User collision error")
+                                        "Este e-mail já está associado a outra conta."
+                                    }
+                                    else -> {
+                                        Log.e("RegisterViewModel", "Unknown error type: ${exception?.javaClass}")
+                                        exception?.message ?: "Erro desconhecido no login com Google"
+                                    }
+                                }
+                                _eventChannel.send(RegisterEvent.RegistrationFailed(message))
                             }
                         }
-                    } else {
-                        viewModelScope.launch {
-                            _eventChannel.send(RegisterEvent.RegistrationFailed(task.exception?.message ?: "Erro desconhecido no login com Google"))
-                        }
+                        _state.update { it.copy(isLoading = false) }
                     }
-                    _state.update { it.copy(isLoading = false) }
+                    .addOnFailureListener { exception ->
+                        Log.e("RegisterViewModel", "signInWithCredential failure listener", exception)
+                        _state.update { it.copy(isLoading = false) }
+                    }
+            } catch (e: Exception) {
+                Log.e("RegisterViewModel", "Unexpected error in onGoogleSignInResult", e)
+                _state.update { it.copy(isLoading = false) }
+                viewModelScope.launch {
+                    _eventChannel.send(RegisterEvent.RegistrationFailed("Erro inesperado: ${e.message}"))
                 }
+            }
         }
     }
 

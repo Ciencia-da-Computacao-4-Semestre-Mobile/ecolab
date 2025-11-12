@@ -1,5 +1,6 @@
 package com.example.ecolab.ui.screens
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecolab.core.domain.repository.AuthRepository
@@ -76,18 +77,28 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onGoogleSignInResult(idToken: String) {
+        Log.d("LoginViewModel", "onGoogleSignInResult called with idToken: ${idToken.take(10)}...")
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-            val result = authRepository.signInWithGoogle(idToken)
-            _state.update { it.copy(isLoading = false) }
-            when (result) {
-                is Result.Success -> {
-                    _state.update { it.copy(isSignInSuccessful = true) }
+            try {
+                val result = authRepository.signInWithGoogle(idToken)
+                _state.update { it.copy(isLoading = false) }
+                when (result) {
+                    is Result.Success -> {
+                        Log.d("LoginViewModel", "Google sign-in successful")
+                        _state.update { it.copy(isSignInSuccessful = true) }
+                    }
+                    is Result.Error -> {
+                        Log.e("LoginViewModel", "Google sign-in error: ${result.message}")
+                        _state.update { it.copy(signInError = result.message) }
+                    }
+                    else -> {
+                        Log.w("LoginViewModel", "Google sign-in result: $result")
+                    }
                 }
-                is Result.Error -> {
-                    _state.update { it.copy(signInError = result.message) }
-                }
-                else -> {}
+            } catch (e: Exception) {
+                Log.e("LoginViewModel", "Unexpected error in onGoogleSignInResult", e)
+                _state.update { it.copy(isLoading = false, signInError = "Erro inesperado: ${e.message}") }
             }
         }
     }
