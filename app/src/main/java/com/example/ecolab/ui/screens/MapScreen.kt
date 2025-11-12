@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -139,6 +140,10 @@ fun MapScreen(
                 zoomControlsEnabled = false
             )
         ) {
+            val favoritePoints = uiState.collectionPoints.filter { it.isFavorite }
+            Log.d("MapScreen", "Displaying ${uiState.collectionPoints.size} total points on map")
+            Log.d("MapScreen", "Of these ${uiState.collectionPoints.size} points, ${favoritePoints.size} are favorites")
+            
             uiState.collectionPoints.forEach { point ->
                 Marker(
                     state = MarkerState(position = LatLng(point.latitude, point.longitude)),
@@ -225,6 +230,7 @@ fun MapScreen(
                             selected = isSelected,
                             onClick = {
                                 if (category == "Favoritos") {
+                                    Log.d("MapScreen", "Favoritos filter clicked, current state: ${uiState.showFavorites}, will set to: ${!uiState.showFavorites}")
                                     viewModel.onToggleFavorites(!uiState.showFavorites)
                                 } else {
                                     viewModel.onFilterChange(category)

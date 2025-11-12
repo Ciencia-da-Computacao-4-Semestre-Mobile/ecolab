@@ -3,6 +3,7 @@ package com.example.ecolab.feature.map
 import android.location.Address
 import android.location.Geocoder
 import android.os.Build
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecolab.core.domain.model.CollectionPoint
@@ -29,29 +30,56 @@ class MapViewModel @Inject constructor(
     private val _showFavorites = MutableStateFlow(false)
     private val _searchedLocation = MutableStateFlow<LatLng?>(null)
 
+    private val _currentFilteredPoints = MutableStateFlow<List<CollectionPoint>>(emptyList())
+    
     private val _filteredPoints = combine(
         pointsRepository.observePoints(),
         _selectedCategory,
         _searchQuery,
         _showFavorites
     ) { allPoints, selectedCategory, searchQuery, showFavorites ->
+        Log.d("MapViewModel", "Starting filter process:")
+        Log.d("MapViewModel", "- Total points: ${allPoints.size}")
+        Log.d("MapViewModel", "- Selected category: $selectedCategory")
+        Log.d("MapViewModel", "- Search query: '$searchQuery'")
+        Log.d("MapViewModel", "- Show favorites: $showFavorites")
+        Log.d("MapViewModel", "- Points with isFavorite=true: ${allPoints.count { it.isFavorite }}")
+        
         val filteredPointsByCategory = if (selectedCategory == "Todos") {
             allPoints
         } else {
             allPoints.filter { it.category == selectedCategory }
         }
+        Log.d("MapViewModel", "After category filter: ${filteredPointsByCategory.size} points")
 
         val filteredPointsBySearch = if (searchQuery.isBlank()) {
             filteredPointsByCategory
         } else {
-            filteredPointsByCategory.filter { it.name.contains(searchQuery, ignoreCase = true) }
+            filteredPointsByCategory.filter { 
+                val matches = it.name.contains(searchQuery, ignoreCase = true) ||
+                              it.description.contains(searchQuery, ignoreCase = true)
+                Log.d("MapViewModel", "Point ${it.name} matches search '$searchQuery': $matches")
+                matches
+            }
         }
+        Log.d("MapViewModel", "After search filter: ${filteredPointsBySearch.size} points")
 
-        if (showFavorites) {
-            filteredPointsBySearch.filter { it.isFavorite }
+        val finalFilteredPoints = if (showFavorites) {
+            Log.d("MapViewModel", "Applying favorites filter...")
+            val favoritePoints = filteredPointsBySearch.filter { 
+                val isFavorite = it.isFavorite
+                Log.d("MapViewModel", "Point ${it.name} (id: ${it.id}) - isFavorite: $isFavorite")
+                isFavorite
+            }
+            Log.d("MapViewModel", "After favorites filter: ${favoritePoints.size} points")
+            favoritePoints
         } else {
             filteredPointsBySearch
         }
+        
+        _currentFilteredPoints.value = finalFilteredPoints
+        Log.d("MapViewModel", "Final result: ${finalFilteredPoints.size} points after all filters")
+        finalFilteredPoints
     }
 
     val uiState: StateFlow<MapUiState> = combine(
@@ -125,15 +153,26 @@ class MapViewModel @Inject constructor(
     }
 
     fun onToggleFavorites(isFavorite: Boolean) {
+        Log.d("MapViewModel", "onToggleFavorites called: $isFavorite")
         _showFavorites.value = isFavorite
     }
 
     fun toggleFavorite() {
         viewModelScope.launch {
             _selectedPoint.value?.let { point ->
+                Log.d("MapViewModel", "toggleFavorite called for point: ${point.name} (id: ${point.id}), current favorite: ${point.isFavorite}")
                 val updatedPoint = point.copy(isFavorite = !point.isFavorite)
                 _selectedPoint.value = updatedPoint
                 pointsRepository.toggleFavorite(point.id)
+                
+                // Atualizar também o ponto na lista de pontos filtrados
+                // Isso garante que o estado seja consistente
+                val currentPoints = _currentFilteredPoints.value
+                val updatedPoints = currentPoints.map { 
+                    if (it.id == point.id) updatedPoint else it 
+                }
+                _currentFilteredPoints.value = updatedPoints
+                Log.d("MapViewModel", "Updated point favorite status to: ${updatedPoint.isFavorite}")
             }
         }
     }
