@@ -44,6 +44,8 @@ import com.example.ecolab.ui.theme.EcoLabTheme
 import com.example.ecolab.ui.theme.Palette
 import kotlin.math.PI
 import kotlin.math.sin
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 
 @Composable
 fun HomeScreenV2(
@@ -73,12 +75,13 @@ fun HomeScreenV2(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(backgroundBrush)
+                    .verticalScroll(rememberScrollState()) // ADICIONADO: Scroll vertical
             ) {
                 AnimatedHeader()
 
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth() // MUDADO: De fillMaxSize para fillMaxWidth
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
