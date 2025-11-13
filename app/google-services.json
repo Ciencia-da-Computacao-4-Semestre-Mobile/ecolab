@@ -15,16 +15,20 @@
       },
       "oauth_client": [
         {
-          "client_id": "733860067111-g2pdmfpnicd2fuuerq4hokk8krgm877l.apps.googleusercontent.com",
+          "client_id": "733860067111-9g23bo1nl7jusvm5rcc65h9k5td157nh.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.ecolab",
-            "certificate_hash": "bc77ed0b6f0c15ff0966f48ec3e3ac251403be6b"
+            "certificate_hash": "dabe8d125085a63cc9afbb289c2463ca0c6947e3"
           }
         },
         {
-          "client_id": "733860067111-n13ce5o85qe94jqs8phlb4mq6bl6qrlb.apps.googleusercontent.com",
-          "client_type": 3
+          "client_id": "733860067111-nqoebfqhoorikeof7te1ulnb0re3ftet.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ecolab",
+            "certificate_hash": "bee6af9246be87375a4f03beeb9e0652ced9f11d"
+          }
         }
       ],
       "api_key": [
@@ -36,7 +40,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "733860067111-n13ce5o85qe94jqs8phlb4mq6bl6qrlb.apps.googleusercontent.com",
+              "client_id": "733860067111-f49g462t8ff5kv4bp2ag4uuqi2db6hbt.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

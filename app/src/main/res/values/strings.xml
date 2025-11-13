@@ -38,7 +38,7 @@
 <resources>
     <!-- IDENTIFICAÇÃO DO APLICATIVO -->
     <string name="app_name">EcoLab</string>
-    <string name="default_web_client_id" translatable="false">733860067111-0lhus47ijm6nmnb60r7hsrr5bv1dbq3m.apps.googleusercontent.com</string>
+    <string name="default_web_client_id" translatable="false">733860067111-clpmkvkmfi41004kd5sa0q88mso9ivbc.apps.googleusercontent.com</string>
     
     <!-- 
         NAVEGAÇÃO

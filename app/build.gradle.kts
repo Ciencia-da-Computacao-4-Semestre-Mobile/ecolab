@@ -16,14 +16,6 @@ val localProperties = Properties().apply {
     }
 }
 
-// Load keystore properties
-val keystoreProperties = Properties().apply {
-    val keystorePropertiesFile = rootProject.file("keystore.properties")
-    if (keystorePropertiesFile.exists()) {
-        load(keystorePropertiesFile.inputStream())
-    }
-}
-
 android {
     namespace = "com.example.ecolab"
     compileSdk = 34
@@ -52,20 +44,25 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file(keystoreProperties["storeFile"] as String)
-            storePassword = keystoreProperties["storePassword"] as String
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
+            storeFile = file("C:/Ecolab/ecolab/release.jks")
+            storePassword = "@ecolab2025"
+            keyAlias = "key"
+            keyPassword = "@ecolab2025"
         }
     }
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
+            isShrinkResources = false
+            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+        }
+        debug {
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
