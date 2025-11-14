@@ -138,6 +138,9 @@ dependencies {
     // DataStore
     implementation(libs.androidx.datastore.preferences)
 
+    // Custom Tabs
+    implementation("androidx.browser:browser:1.7.0")
+
     // Splash Screen
     implementation(libs.androidx.core.splashscreen)
 
@@ -154,6 +157,13 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-firestore-ktx")
+
+    // HTTP Client
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // HTML Parser
+    implementation("org.jsoup:jsoup:1.17.2")
 
     // Test
     testImplementation(libs.junit)
