@@ -46,6 +46,7 @@ import kotlin.math.PI
 import kotlin.math.sin
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
+import com.example.ecolab.ui.components.AnimatedParticles
 
 @Composable
 fun HomeScreenV2(
@@ -61,21 +62,15 @@ fun HomeScreenV2(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Palette.background)
                 .padding(paddingValues)
         ) {
-            val backgroundBrush = Brush.verticalGradient(
-                colors = listOf(
-                    Palette.primary.copy(alpha = 0.1f),
-                    Palette.background,
-                    Palette.background
-                )
-            )
+            AnimatedParticles()
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(backgroundBrush)
-                    .verticalScroll(rememberScrollState()) // ADICIONADO: Scroll vertical
+                    .verticalScroll(rememberScrollState())
             ) {
                 AnimatedHeader()
 
@@ -239,7 +234,7 @@ private fun AnimatedHeader() {
         label = "wave_animation"
     )
 
-    Box(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth()
             .scale(scale)
@@ -249,10 +244,11 @@ private fun AnimatedHeader() {
                 onClick = { }
             )
     ) {
+        val headerHeight = maxWidth * 0.28f
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(148.dp)
+                .height(headerHeight)
                 .align(Alignment.TopCenter)
         ) {
             for (i in 0..3) {
@@ -316,7 +312,7 @@ private fun AnimatedHeader() {
 
                 Box(
                     modifier = Modifier
-                        .size(96.dp)
+                        .size(headerHeight * 0.9f)
                         .scale(avatarScale)
                         .clip(CircleShape)
                         .background(Color.White, CircleShape)
@@ -331,7 +327,7 @@ private fun AnimatedHeader() {
                         painter = painterResource(id = R.drawable.ic_launcher_foreground),
                         contentDescription = "Avatar",
                         modifier = Modifier
-                            .size(64.dp)
+                            .fillMaxSize()
                             .padding(4.dp)
                     )
                 }

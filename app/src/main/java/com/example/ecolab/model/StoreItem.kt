@@ -21,6 +21,7 @@ enum class StoreCategory {
 
 enum class Rarity {
     COMMON,
+    UNCOMMON,
     RARE,
     EPIC,
     LEGENDARY

@@ -78,7 +78,8 @@ fun ProfileScreen(
                     totalPoints = state.totalPoints,
                     articlesRead = state.articlesRead,
                     quizzesDone = state.quizzesDone,
-                    achievementsUnlocked = state.achievementsUnlocked
+                    achievementsUnlocked = state.achievementsUnlocked,
+                    onDetailsClick = onAchievementsClick
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -228,7 +229,8 @@ private fun StatsSection(
     totalPoints: Int,
     articlesRead: Int,
     quizzesDone: Int,
-    achievementsUnlocked: Int
+    achievementsUnlocked: Int,
+    onDetailsClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.padding(24.dp)
@@ -290,48 +292,15 @@ private fun StatsSection(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Stats grid
-        Row(
+        OutlinedButton(
+            onClick = onDetailsClick,
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = Palette.primary),
+            shape = RoundedCornerShape(16.dp)
         ) {
-            StatCard(
-                title = "Quizzes",
-                value = quizzesDone.toString(),
-                icon = Icons.Default.Psychology,
-                color = Palette.quizIcon,
-                modifier = Modifier.weight(1f)
-            )
-            StatCard(
-                title = "Conquistas",
-                value = achievementsUnlocked.toString(),
-                icon = Icons.Default.EmojiEvents,
-                color = Palette.achievementsIcon,
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            StatCard(
-                title = "Artigos",
-                value = articlesRead.toString(),
-                icon = Icons.AutoMirrored.Filled.MenuBook,
-                color = Palette.secondary,
-                modifier = Modifier.weight(1f)
-            )
-            StatCard(
-                title = "Favoritos",
-                value = "0", // Implementar quando houver favoritos
-                icon = Icons.Default.Favorite,
-                color = Color.Red,
-                modifier = Modifier.weight(1f)
-            )
+            Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = Palette.primary)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Ver detalhes de conquistas e progresso", color = Palette.primary)
         }
     }
 }

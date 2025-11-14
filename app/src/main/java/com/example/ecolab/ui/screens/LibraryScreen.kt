@@ -220,7 +220,7 @@ private fun NewsSection(onItemClick: (String) -> Unit) {
             }
         }
         is NewsState.Success -> {
-            LibraryItemList(items = state.news, onItemClick = onItemClick)
+            LibraryItemList(items = state.news, onItemClick = onItemClick, showPostedTime = true)
         }
         is NewsState.Empty -> {
             Box(
@@ -304,6 +304,7 @@ private fun ArticlesSection(onItemClick: (String) -> Unit) {
             .get()
             .addOnSuccessListener { result ->
                 val mapped = result.documents.mapIndexed { idx, doc ->
+                    val url = doc.getString("url")
                     LibraryItem(
                         id = (doc.id.hashCode() + idx),
                         title = doc.getString("title") ?: (doc.getString("titulo") ?: ""),
@@ -311,8 +312,9 @@ private fun ArticlesSection(onItemClick: (String) -> Unit) {
                         category = doc.getString("category") ?: (doc.getString("categoria") ?: "Artigo"),
                         readTime = doc.getString("readTime") ?: "8 min",
                         imageRes = R.drawable.ic_launcher_foreground,
+                        imageUrl = doc.getString("imageUrl") ?: (url?.let { u -> "https://www.google.com/s2/favicons?sz=64&domain_url=$u" }),
                         date = doc.getString("date") ?: "",
-                        url = doc.getString("url")
+                        url = url
                     )
                 }
                 itemsState = mapped
@@ -341,6 +343,7 @@ private fun ArticlesSection(onItemClick: (String) -> Unit) {
                         FirebaseFirestore.getInstance().collection("Artigo").get()
                             .addOnSuccessListener { result ->
                                 val mapped = result.documents.mapIndexed { idx, doc ->
+                                    val url = doc.getString("url")
                                     LibraryItem(
                                         id = (doc.id.hashCode() + idx),
                                         title = doc.getString("title") ?: (doc.getString("titulo") ?: ""),
@@ -348,8 +351,9 @@ private fun ArticlesSection(onItemClick: (String) -> Unit) {
                                         category = doc.getString("category") ?: (doc.getString("categoria") ?: "Artigo"),
                                         readTime = doc.getString("readTime") ?: "8 min",
                                         imageRes = R.drawable.ic_launcher_foreground,
+                                        imageUrl = doc.getString("imageUrl") ?: (url?.let { u -> "https://www.google.com/s2/favicons?sz=64&domain_url=$u" }),
                                         date = doc.getString("date") ?: "",
-                                        url = doc.getString("url")
+                                        url = url
                                     )
                                 }
                                 itemsState = mapped
@@ -366,143 +370,97 @@ private fun ArticlesSection(onItemClick: (String) -> Unit) {
             }
         }
         else -> {
-            LibraryItemList(items = itemsState, onItemClick = onItemClick)
+            LibraryItemList(items = itemsState, onItemClick = onItemClick, showPostedTime = false)
         }
-    }
+}
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TutorialsSection(onItemClick: (String) -> Unit) {
-    val tutorialItems = listOf(
-        LibraryItem(10, "Guia prático de reciclagem em casa", "Como separar, lavar e destinar corretamente", "Reciclagem", "12 min", R.drawable.ic_launcher_foreground, "10 Jan 2025", "https://blog.eureciclo.com.br/como-reciclar-em-casa/"),
-        LibraryItem(11, "Montando composteira doméstica", "Passo a passo de compostagem caseira", "Compostagem", "15 min", R.drawable.ic_launcher_foreground, "09 Jan 2025", "https://www.gov.br/ibama/pt-br/assuntos/educacao-ambiental/compostagem"),
-        LibraryItem(12, "Economia de água: 20 dicas úteis", "Reduza consumo sem perder conforto", "Água", "8 min", R.drawable.ic_launcher_foreground, "08 Jan 2025", "https://www.sabesp.com.br/conteudo/consumo-consciente"),
-        LibraryItem(13, "Energia solar residencial", "Introdução, custos e benefícios", "Energia", "10 min", R.drawable.ic_launcher_foreground, "07 Jan 2025", "https://pt.wikipedia.org/wiki/Energia_solar_fotovoltaica"),
-        LibraryItem(14, "Horta urbana em pequenos espaços", "Cultive temperos e hortaliças", "Horta", "14 min", R.drawable.ic_launcher_foreground, "06 Jan 2025", "https://www.gov.br/agricultura/pt-br/assuntos/inovacao/como-fazer-horta-em-casa"),
-        LibraryItem(15, "Upcycling: transformando resíduos", "Ideias criativas para reuso", "Faça Você Mesmo", "18 min", R.drawable.ic_launcher_foreground, "05 Jan 2025", "https://www.ecycle.com.br/upcycling/"),
-        LibraryItem(16, "Separação correta de resíduos", "Classificação e coleta seletiva", "Reciclagem", "9 min", R.drawable.ic_launcher_foreground, "04 Jan 2025", "https://www.naturallimp.com.br/blog/quais-sao-os-materiais-reciclaveis-e-nao-reciclaveis"),
-        LibraryItem(17, "Logística reversa na prática", "Como devolver produtos ao ciclo", "Logística Reversa", "10 min", R.drawable.ic_launcher_foreground, "03 Jan 2025", "https://www.ecycle.com.br/logistica-reversa/"),
-        LibraryItem(18, "Coleta de óleo de cozinha", "Armazenamento e destinação correta", "Óleo de Cozinha", "7 min", R.drawable.ic_launcher_foreground, "02 Jan 2025", "https://www.ecycle.com.br/oleo-de-cozinha/"),
-        LibraryItem(19, "Ecopontos municipais", "Onde levar volumosos e recicláveis", "Ecopontos", "6 min", R.drawable.ic_launcher_foreground, "01 Jan 2025", "https://www.prefeitura.sp.gov.br/cidade/secretarias/subprefeituras/ecopontos/"),
-        LibraryItem(20, "Reuso de água cinza", "Aproveitamento seguro em casa", "Água Cinza", "9 min", R.drawable.ic_launcher_foreground, "31 Dez 2024", "https://www.ecycle.com.br/agua-cinza/")
+    var itemsState by remember { mutableStateOf<List<LibraryItem>>(emptyList()) }
+    var loading by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    val fallback = listOf(
+        LibraryItem(10, "Guia prático de reciclagem em casa", "Como separar, lavar e destinar corretamente", "Reciclagem", "12 min", R.drawable.ic_launcher_foreground, imageUrl = "https://www.ecycle.com.br/wp-content/uploads/2021/05/reciclagem.jpg", date = "10 Jan 2025", url = "https://www.ecycle.com.br/reciclagem/"),
+        LibraryItem(11, "Montando composteira doméstica", "Passo a passo de compostagem caseira", "Compostagem", "15 min", R.drawable.ic_launcher_foreground, imageUrl = "https://upload.wikimedia.org/wikipedia/commons/9/9b/Compost_bin.jpg", date = "09 Jan 2025", url = "https://pt.wikipedia.org/wiki/Compostagem"),
+        LibraryItem(12, "Economia de água: dicas úteis", "Reduza consumo sem perder conforto", "Água", "8 min", R.drawable.ic_launcher_foreground, imageUrl = "https://www.ecycle.com.br/wp-content/uploads/2020/07/agua.jpg", date = "08 Jan 2025", url = "https://www.ecycle.com.br/economia-de-agua/"),
+        LibraryItem(13, "Energia solar residencial", "Introdução, custos e benefícios", "Energia", "10 min", R.drawable.ic_launcher_foreground, imageUrl = "https://upload.wikimedia.org/wikipedia/commons/c/c4/Solar_panels.jpg", date = "07 Jan 2025", url = "https://pt.wikipedia.org/wiki/Energia_solar_fotovoltaica"),
+        LibraryItem(14, "Horta urbana em pequenos espaços", "Cultive temperos e hortaliças", "Horta", "14 min", R.drawable.ic_launcher_foreground, imageUrl = "https://www.gov.br/agro/pt-br/assuntos/sustentabilidade/imagens/horta.jpg", date = "06 Jan 2025", url = "https://www.gov.br/agro/pt-br/assuntos/sustentabilidade/horta-em-casa"),
+        LibraryItem(15, "Upcycling: transformando resíduos", "Ideias criativas para reuso", "Faça Você Mesmo", "18 min", R.drawable.ic_launcher_foreground, imageUrl = "https://www.ecycle.com.br/wp-content/uploads/2021/05/upcycling.jpg", date = "05 Jan 2025", url = "https://www.ecycle.com.br/upcycling/"),
+        LibraryItem(16, "Separação correta de resíduos", "Classificação e coleta seletiva", "Reciclagem", "9 min", R.drawable.ic_launcher_foreground, imageUrl = "https://www.ecycle.com.br/wp-content/uploads/2021/05/coleta-seletiva.jpg", date = "04 Jan 2025", url = "https://www.ecycle.com.br/coleta-seletiva/"),
+        LibraryItem(17, "Logística reversa na prática", "Como devolver produtos ao ciclo", "Logística Reversa", "10 min", R.drawable.ic_launcher_foreground, imageUrl = "https://www.ecycle.com.br/wp-content/uploads/2021/05/logistica-reversa.jpg", date = "03 Jan 2025", url = "https://www.ecycle.com.br/logistica-reversa/"),
+        LibraryItem(18, "Coleta de óleo de cozinha", "Armazenamento e destinação correta", "Óleo de Cozinha", "7 min", R.drawable.ic_launcher_foreground, imageUrl = "https://www.ecycle.com.br/wp-content/uploads/2021/05/oleo-de-cozinha.jpg", date = "02 Jan 2025", url = "https://www.ecycle.com.br/oleo-de-cozinha/"),
+        LibraryItem(19, "Ecopontos municipais", "Onde levar volumosos e recicláveis", "Ecopontos", "6 min", R.drawable.ic_launcher_foreground, imageUrl = "https://www.prefeitura.sp.gov.br/cidade/secretarias/subprefeituras/ecopontos/galeria/ecoponto.jpg", date = "01 Jan 2025", url = "https://www.prefeitura.sp.gov.br/cidade/secretarias/subprefeituras/ecopontos/"),
+        LibraryItem(20, "Reuso de água cinza", "Aproveitamento seguro em casa", "Água Cinza", "9 min", R.drawable.ic_launcher_foreground, imageUrl = "https://www.ecycle.com.br/wp-content/uploads/2020/07/agua-cinza.jpg", date = "31 Dez 2024", url = "https://www.ecycle.com.br/agua-cinza/")
     )
 
-    var selected by remember { mutableStateOf<LibraryItem?>(null) }
-    val sheetState = rememberModalBottomSheetState()
-
-    LibraryItemList(items = tutorialItems) { url ->
-        selected = tutorialItems.find { it.url == url }
-    }
-
-    selected?.let { item ->
-        ModalBottomSheet(
-            onDismissRequest = { selected = null },
-            sheetState = sheetState,
-            containerColor = Palette.surface,
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(Palette.primary.copy(alpha = 0.1f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(id = item.imageRes),
-                            contentDescription = item.title,
-                            tint = Palette.primary,
-                            modifier = Modifier.size(32.dp)
+    LaunchedEffect(Unit) {
+        FirebaseFirestore.getInstance()
+            .collection("Tutoria")
+            .get()
+            .addOnSuccessListener { result ->
+                if (result.isEmpty) {
+                    itemsState = fallback
+                    val db = FirebaseFirestore.getInstance()
+                    fallback.forEach { item ->
+                        val data = hashMapOf(
+                            "title" to item.title,
+                            "description" to item.description,
+                            "category" to item.category,
+                            "readTime" to item.readTime,
+                            "date" to item.date,
+                            "url" to item.url
+                        )
+                        db.collection("Tutoria").add(data)
+                    }
+                } else {
+                    val mapped = result.documents.mapIndexed { idx, doc ->
+                        val url = doc.getString("url")
+                        LibraryItem(
+                            id = (doc.id.hashCode() + idx),
+                            title = doc.getString("title") ?: (doc.getString("titulo") ?: ""),
+                            description = doc.getString("description") ?: (doc.getString("descricao") ?: ""),
+                            category = doc.getString("category") ?: (doc.getString("categoria") ?: "Tutoria"),
+                            readTime = doc.getString("readTime") ?: "8 min",
+                            imageRes = R.drawable.ic_launcher_foreground,
+                            imageUrl = doc.getString("imageUrl") ?: (url?.let { u -> "https://www.google.com/s2/favicons?sz=64&domain_url=$u" }),
+                            date = doc.getString("date") ?: "",
+                            url = url
                         )
                     }
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(item.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Palette.text)
-                        Text(item.category, style = MaterialTheme.typography.bodySmall, color = Palette.secondary)
-                    }
+                    itemsState = mapped
                 }
+                loading = false
+            }
+            .addOnFailureListener { ex ->
+                itemsState = fallback
+                error = null
+                loading = false
+            }
+    }
 
-                Text(item.description, style = MaterialTheme.typography.bodyMedium, color = Palette.text)
-
-                val steps = when (item.category.lowercase()) {
-                    "reciclagem" -> listOf(
-                        Pair(Icons.Default.CheckCircle, "Separe recicláveis por material"),
-                        Pair(Icons.Default.Build, "Lave e seque embalagens"),
-                        Pair(Icons.Default.Eco, "Destine ao ecoponto/coop")
-                    )
-                    "compostagem" -> listOf(
-                        Pair(Icons.Default.Eco, "Separe orgânicos"),
-                        Pair(Icons.Default.Build, "Monte a composteira"),
-                        Pair(Icons.Default.CheckCircle, "Adicione matéria seca e revolva")
-                    )
-                    "água" -> listOf(
-                        Pair(Icons.Default.CheckCircle, "Instale arejadores e conserte vazamentos"),
-                        Pair(Icons.Default.Build, "Reaproveite água de lavagem"),
-                        Pair(Icons.Default.Eco, "Use coleta de água da chuva")
-                    )
-                    "logística reversa" -> listOf(
-                        Pair(Icons.Default.CheckCircle, "Identifique produtos com responsabilidade"),
-                        Pair(Icons.Default.Build, "Procure pontos de entrega"),
-                        Pair(Icons.Default.Eco, "Acompanhe destino homologado")
-                    )
-                    "óleo de cozinha" -> listOf(
-                        Pair(Icons.Default.CheckCircle, "Armazene óleo usado em garrafa"),
-                        Pair(Icons.Default.Build, "Não despeje no ralo"),
-                        Pair(Icons.Default.Eco, "Leve ao ponto de coleta")
-                    )
-                    "ecopontos" -> listOf(
-                        Pair(Icons.Default.CheckCircle, "Separe volumosos e entulho"),
-                        Pair(Icons.Default.Build, "Verifique horários e regras"),
-                        Pair(Icons.Default.Eco, "Leve ao ecoponto mais próximo")
-                    )
-                    "água cinza" -> listOf(
-                        Pair(Icons.Default.CheckCircle, "Separe saída da máquina/chuveiro"),
-                        Pair(Icons.Default.Build, "Filtre antes do reuso"),
-                        Pair(Icons.Default.Eco, "Use em irrigação não comestível")
-                    )
-                    else -> listOf(
-                        Pair(Icons.Default.CheckCircle, "Siga o passo a passo do tutorial"),
-                        Pair(Icons.Default.Eco, "Adapte ao seu contexto")
-                    )
-                }
-
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    steps.forEachIndexed { index, (icon, text) ->
-                        AnimatedVisibility(visible = true, enter = fadeIn(animationSpec = tween(300 + index * 100))) {
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Icon(icon, contentDescription = null, tint = Palette.primary)
-                                Text(text, color = Palette.text)
-                            }
-                        }
-                    }
-                }
-
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Button(onClick = { onItemClick(item.url ?: "") }, colors = ButtonDefaults.buttonColors(containerColor = Palette.primary)) {
-                        Text("Abrir Tutorial")
-                    }
-                    OutlinedButton(onClick = { selected = null }, colors = ButtonDefaults.outlinedButtonColors(contentColor = Palette.primary)) {
-                        Text("Fechar")
-                    }
-                }
+    when {
+        loading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = Palette.primary)
             }
         }
-    }
+        error != null -> {
+            LibraryItemList(items = itemsState, onItemClick = onItemClick, showPostedTime = false)
+        }
+        else -> {
+            LibraryItemList(items = itemsState, onItemClick = onItemClick, showPostedTime = false)
+        }
+}
 }
 
 @Composable
 private fun LibraryItemList(
     items: List<LibraryItem>,
-    onItemClick: (String) -> Unit
+    onItemClick: (String) -> Unit,
+    showPostedTime: Boolean = false
 ) {
     var visible by remember { mutableStateOf(false) }
 
@@ -522,7 +480,7 @@ private fun LibraryItemList(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(items, key = { it.id }) { item ->
-                LibraryItemCard(item = item, onItemClick = onItemClick)
+                LibraryItemCard(item = item, onItemClick = onItemClick, showPostedTime = showPostedTime)
             }
             item {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -534,7 +492,8 @@ private fun LibraryItemList(
 @Composable
 private fun LibraryItemCard(
     item: LibraryItem,
-    onItemClick: (String) -> Unit
+    onItemClick: (String) -> Unit,
+    showPostedTime: Boolean
 ) {
     val scale by animateFloatAsState(
         targetValue = 1f,
@@ -565,37 +524,29 @@ private fun LibraryItemCard(
             containerColor = Palette.surface
         )
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(16.dp)
         ) {
-            // Imagem do item
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Palette.primary.copy(alpha = 0.1f)),
-                contentAlignment = Alignment.Center
+            // Categoria e tempo de leitura
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    painter = painterResource(id = item.imageRes),
-                    contentDescription = item.title,
-                    tint = Palette.primary,
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                // Categoria e tempo de leitura
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    androidx.compose.foundation.Image(
+                        painter = coil.compose.rememberAsyncImagePainter(
+                            model = item.imageUrl ?: (item.url?.let { u ->
+                                "https://www.google.com/s2/favicons?sz=64&domain_url=$u"
+                            } ?: "")
+                        ),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                    )
                     Surface(
                         shape = RoundedCornerShape(12.dp),
                         color = Palette.secondary.copy(alpha = 0.1f)
@@ -608,27 +559,32 @@ private fun LibraryItemCard(
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                         )
                     }
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.Schedule,
-                            contentDescription = null,
-                            tint = Palette.textMuted,
-                            modifier = Modifier.size(14.dp)
-                        )
-                        Text(
-                            text = item.readTime,
-                            fontSize = 12.sp,
-                            color = Palette.textMuted,
-                            fontWeight = FontWeight.Medium
-                        )
+                }
+                if (showPostedTime) {
+                    val postedTime = formatPostedTimeOrNull(item.date)
+                    if (!postedTime.isNullOrBlank()) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Schedule,
+                                contentDescription = null,
+                                tint = Palette.textMuted,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Text(
+                                text = postedTime,
+                                fontSize = 12.sp,
+                                color = Palette.textMuted,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
                 // Título
                 Text(
@@ -679,6 +635,39 @@ private fun LibraryItemCard(
             }
         }
     }
+
+private fun formatPostedTimeOrNull(dateString: String): String? {
+    val patternsWithTime = listOf(
+        "yyyy-MM-dd'T'HH:mm:ssXXX",
+        "yyyy-MM-dd'T'HH:mm:ss'Z'",
+        "yyyy-MM-dd HH:mm:ss",
+        "dd MMM yyyy HH:mm",
+        "dd/MM/yyyy HH:mm"
+    )
+    val patternsDateOnly = listOf(
+        "dd MMM yyyy",
+        "dd/MM/yyyy"
+    )
+
+    for (p in patternsWithTime) {
+        try {
+            val sdf = java.text.SimpleDateFormat(p, java.util.Locale.getDefault())
+            sdf.timeZone = java.util.TimeZone.getDefault()
+            val d = sdf.parse(dateString)
+            if (d != null) {
+                val out = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
+                return out.format(d)
+            }
+        } catch (_: Exception) { }
+    }
+    for (p in patternsDateOnly) {
+        try {
+            val sdf = java.text.SimpleDateFormat(p, java.util.Locale.getDefault())
+            val d = sdf.parse(dateString)
+            if (d != null) return null
+        } catch (_: Exception) { }
+    }
+    return null
 }
 
 // Modelo de dados
@@ -689,6 +678,7 @@ data class LibraryItem(
     val category: String,
     val readTime: String,
     val imageRes: Int,
+    val imageUrl: String? = null,
     val date: String,
     val url: String?
 )

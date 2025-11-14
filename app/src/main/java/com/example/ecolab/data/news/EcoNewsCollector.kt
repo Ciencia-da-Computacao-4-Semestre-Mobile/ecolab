@@ -5,6 +5,7 @@ import com.example.ecolab.ui.screens.LibraryItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
 import java.util.Date
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -171,6 +172,7 @@ object EcoNewsCollector {
                         }?.takeIf { it.isNotEmpty() }
                         
                         val relevanceScore = calculateRelevanceScore(title, summary)
+                        val publishedDate = parsePublishedDate(container)
                         val isRelevant = isEnvironmentalNews(title) || isEnvironmentalNews(summary)
                         if (isRelevant) {
                             newsList.add(
@@ -181,7 +183,7 @@ object EcoNewsCollector {
                                     url = fullUrl,
                                     imageUrl = imageUrl,
                                     source = source,
-                                    date = Date(),
+                                    date = publishedDate,
                                     category = categorizeNews(title),
                                     relevanceScore = relevanceScore
                                 )
@@ -257,6 +259,33 @@ object EcoNewsCollector {
             clean.toString()
         } catch (_: Exception) {
             if (url.startsWith("http")) url else baseUrl + url
+        }
+    }
+
+    private fun parsePublishedDate(container: Element): Date {
+        return try {
+            val timeEl = container.selectFirst("time[datetime]")
+            val metaEl = container.selectFirst("meta[itemprop=datePublished], meta[property=article:published_time], meta[name=article:published_time]")
+            val raw = timeEl?.attr("datetime")?.trim()
+                ?: metaEl?.attr("content")?.trim()
+            if (!raw.isNullOrEmpty()) {
+                val patterns = listOf(
+                    "yyyy-MM-dd'T'HH:mm:ssXXX",
+                    "yyyy-MM-dd'T'HH:mm:ss'Z'",
+                    "yyyy-MM-dd"
+                )
+                for (p in patterns) {
+                    try {
+                        val sdf = SimpleDateFormat(p, Locale.getDefault())
+                        return sdf.parse(raw) ?: Date()
+                    } catch (_: Exception) { }
+                }
+                Date()
+            } else {
+                Date()
+            }
+        } catch (_: Exception) {
+            Date()
         }
     }
     
