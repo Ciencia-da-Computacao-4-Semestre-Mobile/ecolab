@@ -2,6 +2,7 @@ package com.example.ecolab.ui.screens
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -138,13 +140,60 @@ private fun ProfileHeader(
                     contentScale = ContentScale.Crop
                 )
             } else {
-                val initial = displayName.firstOrNull()?.uppercase() ?: email.firstOrNull()?.uppercase() ?: "U"
-                Text(
-                    text = initial,
-                    fontSize = 56.sp,
-                    color = Palette.primary,
-                    fontWeight = FontWeight.Bold
-                )
+                val context = androidx.compose.ui.platform.LocalContext.current
+                val prefs = remember { context.getSharedPreferences("ecolab_prefs", android.content.Context.MODE_PRIVATE) }
+                val equippedRes = prefs.getInt("equipped_avatar_res_id", 0)
+                if (equippedRes != 0) {
+                    AsyncImage(
+                        model = equippedRes,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                        error = painterResource(id = com.example.ecolab.R.drawable.ic_launcher_foreground)
+                    )
+                } else {
+                    val initial = displayName.firstOrNull()?.uppercase() ?: email.firstOrNull()?.uppercase() ?: "U"
+                    Text(
+                        text = initial,
+                        fontSize = 56.sp,
+                        color = Palette.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            val prefsLocal = androidx.compose.ui.platform.LocalContext.current.getSharedPreferences("ecolab_prefs", android.content.Context.MODE_PRIVATE)
+            val sealRes = prefsLocal.getInt("equipped_seal_res_id", 0)
+            val sealEmoji = prefsLocal.getString("equipped_seal_emoji", "")
+            if (sealRes != 0) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(6.dp)
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.85f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AsyncImage(
+                        model = sealRes,
+                        contentDescription = null,
+                        modifier = Modifier.size(22.dp),
+                        error = if (!sealEmoji.isNullOrEmpty()) null else painterResource(id = com.example.ecolab.R.drawable.ic_launcher_foreground)
+                    )
+                }
+            } else if (!sealEmoji.isNullOrEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(6.dp)
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.85f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = sealEmoji!!, fontSize = 14.sp)
+                }
             }
         }
 

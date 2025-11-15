@@ -96,17 +96,17 @@ class LibraryViewModel : ViewModel() {
     // Função que aplica a cor e ícone baseados na categoria (para consistência do UI)
     fun getGuideVisuals(guide: GuideItem): Pair<Color, Int> {
         return when (guide.category.lowercase()) {
-            "papel" -> Pair(Color(0xFF1E88E5), R.drawable.icone_papel)
-            "plastico" -> Pair(Color(0xFFE53935), R.drawable.icone_plastico)
-            "vidro" -> Pair(Color(0xFF43A047), R.drawable.icone_vidro)
-            "metal" -> Pair(Color(0xFFFDD835), R.drawable.icone_metal)
-            "madeira" -> Pair(Color(0xFF424242), R.drawable.icone_madeira)
-            "perigoso" -> Pair(Color(0xFFFF5722), R.drawable.icone_reciclavel)
-            "hospitalar" -> Pair(Color(0xFFBDBDBD), R.drawable.icone_medicamento)
-            "radioativo" -> Pair(Color(0xFF673AB7), R.drawable.icone_radioativo)
-            "organico" -> Pair(Color(0xFF964B00), R.drawable.icone_organico)
-            "naoreciclavel" -> Pair(Color(0xFF575757), R.drawable.icone_naoreciclavel)
-            else -> Pair(Color(0xFF00BCD4), R.drawable.icone_artigo) // artigo
+            "papel" -> Pair(Color(0xFF1E88E5), R.drawable.ic_recycling)
+            "plastico" -> Pair(Color(0xFFE53935), R.drawable.ic_recycling)
+            "vidro" -> Pair(Color(0xFF43A047), R.drawable.ic_recycling)
+            "metal" -> Pair(Color(0xFFFDD835), R.drawable.ic_recycling)
+            "madeira" -> Pair(Color(0xFF424242), R.drawable.ic_recycling)
+            "perigoso" -> Pair(Color(0xFFFF5722), R.drawable.ic_notifications)
+            "hospitalar" -> Pair(Color(0xFFBDBDBD), R.drawable.ic_help)
+            "radioativo" -> Pair(Color(0xFF673AB7), R.drawable.ic_time)
+            "organico" -> Pair(Color(0xFF964B00), R.drawable.ic_ecolab_logo)
+            "naoreciclavel" -> Pair(Color(0xFF575757), R.drawable.ic_delete)
+            else -> Pair(Color(0xFF00BCD4), R.drawable.icone_artigo)
         }
     }
 }

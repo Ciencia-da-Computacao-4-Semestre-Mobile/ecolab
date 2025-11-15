@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -47,6 +48,7 @@ import kotlin.math.sin
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import com.example.ecolab.ui.components.AnimatedParticles
+import coil.compose.AsyncImage
 
 @Composable
 fun HomeScreenV2(
@@ -323,13 +325,61 @@ private fun AnimatedHeader() {
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                        contentDescription = "Avatar",
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(4.dp)
-                    )
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    val prefs = remember { context.getSharedPreferences("ecolab_prefs", android.content.Context.MODE_PRIVATE) }
+                    val equippedRes = prefs.getInt("equipped_avatar_res_id", 0)
+                    if (equippedRes != 0) {
+                        AsyncImage(
+                            model = equippedRes,
+                            contentDescription = "Avatar",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(4.dp),
+                            contentScale = ContentScale.Crop,
+                            error = painterResource(id = R.drawable.ic_launcher_foreground)
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                            contentDescription = "Avatar",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(4.dp)
+                        )
+                    }
+
+                    val sealRes = prefs.getInt("equipped_seal_res_id", 0)
+                    val sealEmoji = prefs.getString("equipped_seal_emoji", "")
+                    if (sealRes != 0) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(8.dp)
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(Color.White.copy(alpha = 0.8f), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            AsyncImage(
+                                model = sealRes,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp),
+                                error = if (!sealEmoji.isNullOrEmpty()) null else painterResource(id = R.drawable.ic_launcher_foreground)
+                            )
+                        }
+                    } else if (!sealEmoji.isNullOrEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(8.dp)
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(Color.White.copy(alpha = 0.8f), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = sealEmoji!!, fontSize = 16.sp)
+                        }
+                    }
                 }
 
                 Column(

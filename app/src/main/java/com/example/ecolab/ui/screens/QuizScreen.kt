@@ -340,9 +340,13 @@ fun QuizResultScreen(
     onBackToHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val percentage = (score.toFloat() / (totalQuestions * 10)) * 100
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val boost = context.getSharedPreferences("ecolab_prefs", android.content.Context.MODE_PRIVATE)
+        .getInt("equipped_seal_effect_quiz_boost_percent", 0)
+    val boostedScore = score + (score * boost) / 100
+    val percentage = (boostedScore.toFloat() / (totalQuestions * 10)) * 100
     val animatedScore by animateIntAsState(
-        targetValue = score,
+        targetValue = boostedScore,
         animationSpec = tween(durationMillis = 2000, easing = FastOutSlowInEasing),
         label = "Score Animation"
     )
