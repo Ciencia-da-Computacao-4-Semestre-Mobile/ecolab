@@ -43,6 +43,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import com.example.ecolab.ui.components.AnimatedParticles
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
+import com.google.firebase.firestore.Query
+import coil.request.ImageRequest
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -297,33 +300,17 @@ private fun ArticlesSection(onItemClick: (String) -> Unit) {
     var itemsState by remember { mutableStateOf<List<LibraryItem>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        FirebaseFirestore.getInstance()
-            .collection("Artigo")
-            .get()
-            .addOnSuccessListener { result ->
-                val mapped = result.documents.mapIndexed { idx, doc ->
-                    val url = doc.getString("url")
-                    LibraryItem(
-                        id = (doc.id.hashCode() + idx),
-                        title = doc.getString("title") ?: (doc.getString("titulo") ?: ""),
-                        description = doc.getString("description") ?: (doc.getString("descricao") ?: ""),
-                        category = doc.getString("category") ?: (doc.getString("categoria") ?: "Artigo"),
-                        readTime = doc.getString("readTime") ?: "8 min",
-                        imageRes = R.drawable.ic_launcher_foreground,
-                        imageUrl = doc.getString("imageUrl") ?: (url?.let { u -> "https://www.google.com/s2/favicons?sz=64&domain_url=$u" }),
-                        date = doc.getString("date") ?: "",
-                        url = url
-                    )
-                }
-                itemsState = mapped
-                loading = false
-            }
-            .addOnFailureListener { ex ->
-                error = ex.message
-                loading = false
-            }
+        try {
+            itemsState = fetchLibraryItems("artigo", "Artigo", altCollection = "Artigo")
+            loading = false
+        } catch (ex: Exception) {
+            android.util.Log.e("LibraryScreen", "Falha ao carregar artigos", ex)
+            error = ex.message
+            loading = false
+        }
     }
 
     when {
@@ -340,29 +327,16 @@ private fun ArticlesSection(onItemClick: (String) -> Unit) {
                     OutlinedButton(onClick = {
                         loading = true
                         error = null
-                        FirebaseFirestore.getInstance().collection("Artigo").get()
-                            .addOnSuccessListener { result ->
-                                val mapped = result.documents.mapIndexed { idx, doc ->
-                                    val url = doc.getString("url")
-                                    LibraryItem(
-                                        id = (doc.id.hashCode() + idx),
-                                        title = doc.getString("title") ?: (doc.getString("titulo") ?: ""),
-                                        description = doc.getString("description") ?: (doc.getString("descricao") ?: ""),
-                                        category = doc.getString("category") ?: (doc.getString("categoria") ?: "Artigo"),
-                                        readTime = doc.getString("readTime") ?: "8 min",
-                                        imageRes = R.drawable.ic_launcher_foreground,
-                                        imageUrl = doc.getString("imageUrl") ?: (url?.let { u -> "https://www.google.com/s2/favicons?sz=64&domain_url=$u" }),
-                                        date = doc.getString("date") ?: "",
-                                        url = url
-                                    )
-                                }
-                                itemsState = mapped
+                        scope.launch {
+                            try {
+                                itemsState = fetchLibraryItems("artigo", "Artigo", altCollection = "Artigo")
                                 loading = false
-                            }
-                            .addOnFailureListener { e ->
+                            } catch (e: Exception) {
+                                android.util.Log.e("LibraryScreen", "Falha ao carregar artigos (retry)", e)
                                 error = e.message
                                 loading = false
                             }
+                        }
                     }) {
                         Text("Tentar novamente")
                     }
@@ -397,48 +371,16 @@ private fun TutorialsSection(onItemClick: (String) -> Unit) {
     )
 
     LaunchedEffect(Unit) {
-        FirebaseFirestore.getInstance()
-            .collection("Tutoria")
-            .get()
-            .addOnSuccessListener { result ->
-                if (result.isEmpty) {
-                    itemsState = fallback
-                    val db = FirebaseFirestore.getInstance()
-                    fallback.forEach { item ->
-                        val data = hashMapOf(
-                            "title" to item.title,
-                            "description" to item.description,
-                            "category" to item.category,
-                            "readTime" to item.readTime,
-                            "date" to item.date,
-                            "url" to item.url
-                        )
-                        db.collection("Tutoria").add(data)
-                    }
-                } else {
-                    val mapped = result.documents.mapIndexed { idx, doc ->
-                        val url = doc.getString("url")
-                        LibraryItem(
-                            id = (doc.id.hashCode() + idx),
-                            title = doc.getString("title") ?: (doc.getString("titulo") ?: ""),
-                            description = doc.getString("description") ?: (doc.getString("descricao") ?: ""),
-                            category = doc.getString("category") ?: (doc.getString("categoria") ?: "Tutoria"),
-                            readTime = doc.getString("readTime") ?: "8 min",
-                            imageRes = R.drawable.ic_launcher_foreground,
-                            imageUrl = doc.getString("imageUrl") ?: (url?.let { u -> "https://www.google.com/s2/favicons?sz=64&domain_url=$u" }),
-                            date = doc.getString("date") ?: "",
-                            url = url
-                        )
-                    }
-                    itemsState = mapped
-                }
-                loading = false
-            }
-            .addOnFailureListener { ex ->
-                itemsState = fallback
-                error = null
-                loading = false
-            }
+        try {
+            val mapped = fetchLibraryItems("tutoria", "Tutoria", altCollection = "Tutoria")
+            itemsState = if (mapped.isNotEmpty()) mapped else fallback
+            loading = false
+        } catch (ex: Exception) {
+            itemsState = fallback
+            android.util.Log.e("LibraryScreen", "Falha ao carregar tutoriais, usando fallback", ex)
+            error = null
+            loading = false
+        }
     }
 
     when {
@@ -538,9 +480,25 @@ private fun LibraryItemCard(
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     androidx.compose.foundation.Image(
                         painter = coil.compose.rememberAsyncImagePainter(
-                            model = item.imageUrl ?: (item.url?.let { u ->
-                                "https://www.google.com/s2/favicons?sz=64&domain_url=$u"
-                            } ?: "")
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(
+                                    item.imageUrl ?: (item.url?.let { u ->
+                                        try {
+                                            val host = java.net.URI(u).host
+                                            if (!host.isNullOrBlank()) {
+                                                "https://www.google.com/s2/favicons?sz=64&domain_url=https://$host"
+                                            } else {
+                                                "https://www.google.com/s2/favicons?sz=64&domain_url=$u"
+                                            }
+                                        } catch (_: Exception) {
+                                            "https://www.google.com/s2/favicons?sz=64&domain_url=$u"
+                                        }
+                                    } ?: "")
+                                )
+                                .crossfade(true)
+                                .build(),
+                            placeholder = painterResource(R.drawable.icone_artigo),
+                            error = painterResource(R.drawable.icone_artigo)
                         ),
                         contentDescription = null,
                         modifier = Modifier
@@ -617,7 +575,7 @@ private fun LibraryItemCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = item.date,
+                        text = formatDateDisplay(item.date),
                         fontSize = 12.sp,
                         color = Palette.textMuted,
                         fontWeight = FontWeight.Medium
@@ -670,6 +628,29 @@ private fun formatPostedTimeOrNull(dateString: String): String? {
     return null
 }
 
+private fun formatDateDisplay(dateString: String): String {
+    val patterns = listOf(
+        "yyyy-MM-dd'T'HH:mm:ssXXX",
+        "yyyy-MM-dd'T'HH:mm:ss'Z'",
+        "yyyy-MM-dd HH:mm:ss",
+        "dd MMM yyyy HH:mm",
+        "dd/MM/yyyy HH:mm",
+        "dd MMM yyyy",
+        "dd/MM/yyyy"
+    )
+    for (p in patterns) {
+        try {
+            val sdf = java.text.SimpleDateFormat(p, java.util.Locale("pt", "BR"))
+            val d = sdf.parse(dateString)
+            if (d != null) {
+                val out = java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale("pt", "BR"))
+                return out.format(d)
+            }
+        } catch (_: Exception) { }
+    }
+    return dateString
+}
+
 // Modelo de dados
 data class LibraryItem(
     val id: Int,
@@ -682,3 +663,40 @@ data class LibraryItem(
     val date: String,
     val url: String?
 )
+private suspend fun fetchLibraryItems(collection: String, defaultCategory: String, altCollection: String? = null): List<LibraryItem> {
+    suspend fun load(col: String): List<LibraryItem> {
+        val snapshot = FirebaseFirestore.getInstance()
+            .collection(col)
+            .get()
+            .await()
+        return snapshot.documents.mapIndexed { idx, doc ->
+            val url = doc.getString("url")
+            val title = doc.getString("title") ?: (doc.getString("titulo") ?: "")
+            val description = doc.getString("description") ?: (doc.getString("descricao") ?: "")
+            val category = doc.getString("category") ?: (doc.getString("categoria") ?: defaultCategory)
+            val readTime = doc.getString("readTime") ?: "8 min"
+            val imageUrl = doc.getString("imageUrl") ?: (url?.let { u -> "https://www.google.com/s2/favicons?sz=64&domain_url=$u" })
+            val date = doc.getString("date") ?: ""
+            LibraryItem(
+                id = (doc.id.hashCode() + idx),
+                title = title,
+                description = description,
+                category = category,
+                readTime = readTime,
+                imageRes = R.drawable.ic_launcher_foreground,
+                imageUrl = imageUrl,
+                date = date,
+                url = url
+            )
+        }
+    }
+
+    return try {
+        val primary = load(collection)
+        if (primary.isNotEmpty()) primary else if (altCollection != null) load(altCollection) else emptyList()
+    } catch (_: Exception) {
+        if (altCollection != null) {
+            try { load(altCollection) } catch (_: Exception) { emptyList() }
+        } else emptyList()
+    }
+}
