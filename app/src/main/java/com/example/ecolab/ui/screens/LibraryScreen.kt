@@ -139,9 +139,8 @@ fun LibraryScreen(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .fillMaxWidth(0.9f)
-                                    .height(48.dp)
                                     .padding(horizontal = 12.dp, vertical = 6.dp)
+                                    .height(40.dp)
                                     .clip(RoundedCornerShape(24.dp))
                                     .background(if (isSelected) Palette.primary else Color.Transparent),
                                 contentAlignment = Alignment.Center

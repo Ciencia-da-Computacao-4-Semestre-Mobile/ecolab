@@ -4,6 +4,9 @@ import com.example.ecolab.core.data.repository.AuthRepositoryImpl
 import com.example.ecolab.core.data.repository.FirebasePointsRepository
 import com.example.ecolab.core.domain.repository.AuthRepository
 import com.example.ecolab.core.domain.repository.PointsRepository
+import com.example.ecolab.data.repository.AchievementsRepository
+import com.example.ecolab.data.repository.QuizRepository
+import com.example.ecolab.data.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
@@ -33,4 +36,18 @@ object DataModule {
         firestore: FirebaseFirestore,
         firebaseAuth: FirebaseAuth
     ): PointsRepository = FirebasePointsRepository(firestore, firebaseAuth)
+
+    @Provides
+    @Singleton
+    fun provideAchievementsRepository(): AchievementsRepository = AchievementsRepository()
+
+    @Provides
+    @Singleton
+    fun provideQuizRepository(): QuizRepository = QuizRepository()
+
+    @Provides
+    @Singleton
+    fun provideUserRepository(
+        firestore: FirebaseFirestore
+    ): UserRepository = UserRepository(firestore)
 }

@@ -6,7 +6,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -16,7 +19,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import android.graphics.BitmapFactory
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -26,6 +31,11 @@ import android.content.Context
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.launch
+import androidx.compose.ui.draw.clip
 
 // Enum exclusivo da UI para evitar colisão com o modelo
 enum class UiRarity {
@@ -43,7 +53,9 @@ data class UiStoreItem(
     val rarity: UiRarity = UiRarity.COMMON,
     val iconRes: Int? = null,
     val isPurchased: Boolean = false,
-    val isEquipped: Boolean = false
+    val isEquipped: Boolean = false,
+    val discountPercent: Int = 0,
+    val quizBoostPercent: Int = 0
 )
 
 // Modelo de dados da UI para itens do inventário
@@ -55,22 +67,80 @@ data class UiInventoryItem(
     val iconRes: Int? = null
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun StoreScreen(
     onNavigateBack: () -> Unit = {}
 ) {
-    var selectedTab by remember { mutableStateOf(0) }
+    val pagerState = rememberPagerState(pageCount = { 3 })
+    val coroutineScope = rememberCoroutineScope()
     val tabs = listOf("Avatares", "Selos", "Inventário")
-    var userCoins by remember { mutableStateOf(1000) }
+    var ecoPoints by remember { mutableStateOf(0) }
     val context = LocalContext.current
     var avatarItems by remember { mutableStateOf(getAvatarStoreItems(context)) }
-    var sealItems by remember { mutableStateOf(getSealStoreItems()) }
+    var sealItems by remember { mutableStateOf(getSealStoreItemsV2()) }
     var inventory by remember { mutableStateOf(listOf<UiInventoryItem>()) }
+    val auth = FirebaseAuth.getInstance()
+    val firestore = FirebaseFirestore.getInstance()
+
+    LaunchedEffect(Unit) {
+        try {
+            val uid = auth.currentUser?.uid
+            if (uid != null) {
+                val userDoc = firestore.collection("users").document(uid).get().await()
+                ecoPoints = userDoc.getLong("totalPoints")?.toInt() ?: 0
+                val stateDoc = firestore.collection("users").document(uid).collection("store").document("state").get().await()
+                if (stateDoc.exists()) {
+                    val purchasedAvatars = (stateDoc.get("purchasedAvatars") as? List<*>)?.mapNotNull { (it as? Number)?.toInt() } ?: emptyList()
+                    val purchasedSeals = (stateDoc.get("purchasedSeals") as? List<*>)?.mapNotNull { (it as? Number)?.toInt() } ?: emptyList()
+                    val equippedAvatar = stateDoc.getLong("equippedAvatar")?.toInt()
+                    val equippedSeal = stateDoc.getLong("equippedSeal")?.toInt()
+                    avatarItems = avatarItems.map { it.copy(isPurchased = purchasedAvatars.contains(it.id), isEquipped = equippedAvatar == it.id) }
+                    sealItems = sealItems.map { it.copy(isPurchased = purchasedSeals.contains(it.id), isEquipped = equippedSeal == it.id) }
+                    val invFromAvatars = avatarItems.filter { it.isPurchased }.map { UiInventoryItem(it.id, it.name, 1, it.icon, it.iconRes) }
+                    val invFromSeals = sealItems.filter { it.isPurchased }.map { UiInventoryItem(it.id, it.name, 1, it.icon, it.iconRes) }
+                    inventory = (invFromAvatars + invFromSeals)
+                }
+            }
+        } catch (_: Exception) { }
+    }
+
+    suspend fun saveState() {
+        try {
+            val uid = auth.currentUser?.uid
+            if (uid != null) {
+                val purchasedAvatars = avatarItems.filter { it.isPurchased }.map { it.id }
+                val purchasedSeals = sealItems.filter { it.isPurchased }.map { it.id }
+                val equippedAvatar = avatarItems.find { it.isEquipped }?.id
+                val equippedSeal = sealItems.find { it.isEquipped }?.id
+                val data = hashMapOf(
+                    "purchasedAvatars" to purchasedAvatars,
+                    "purchasedSeals" to purchasedSeals,
+                    "equippedAvatar" to equippedAvatar,
+                    "equippedSeal" to equippedSeal
+                )
+                firestore.collection("users").document(uid).collection("store").document("state").set(data).await()
+            }
+        } catch (_: Exception) { }
+    }
 
     Scaffold(
         topBar = {
-            StoreTopBar(onNavigateBack = onNavigateBack)
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        "Loja",
+                        fontWeight = FontWeight.Bold,
+                        color = com.example.ecolab.ui.theme.Palette.text
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = null, tint = com.example.ecolab.ui.theme.Palette.text)
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent)
+            )
         }
     ) { paddingValues ->
         Box(
@@ -85,27 +155,95 @@ fun StoreScreen(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                CoinsHeader(coins = userCoins)
+                EcoPointsHeader(points = ecoPoints)
 
-                // Tabs
-                TabRow(selectedTabIndex = selectedTab) {
-                    tabs.forEachIndexed { index, title ->
-                        Tab(
-                            selected = selectedTab == index,
-                            onClick = { selectedTab = index },
-                            text = { Text(title) }
-                        )
+                val equippedAvatarItem = avatarItems.find { it.isEquipped }
+                val equippedSealItem = sealItems.find { it.isEquipped }
+                EquippedSection(
+                    equippedAvatar = equippedAvatarItem,
+                    equippedSeal = equippedSealItem,
+                    onUnequipAvatar = {
+                        avatarItems = avatarItems.map { it.copy(isEquipped = false) }
+                        val prefs = context.getSharedPreferences("ecolab_prefs", Context.MODE_PRIVATE)
+                        prefs.edit().remove("equipped_avatar_res_id").apply()
+                        coroutineScope.launch { saveState() }
+                    },
+                    onUnequipSeal = {
+                        sealItems = sealItems.map { it.copy(isEquipped = false) }
+                        val prefs = context.getSharedPreferences("ecolab_prefs", Context.MODE_PRIVATE)
+                        prefs.edit().remove("equipped_seal_res_id").apply()
+                        prefs.edit().remove("equipped_seal_emoji").apply()
+                        applySealEffectOnEquipV2(context, UiStoreItem(0, "", "", 0, "Selos"))
+                        coroutineScope.launch { saveState() }
+                    }
+                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    TabRow(
+                        selectedTabIndex = pagerState.currentPage,
+                        containerColor = Color.Transparent,
+                        indicator = {},
+                        divider = {}
+                    ) {
+                        tabs.forEachIndexed { index, title ->
+                            val isSelected = pagerState.currentPage == index
+                            Tab(
+                                selected = isSelected,
+                                onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
+                                selectedContentColor = Color.White,
+                                unselectedContentColor = com.example.ecolab.ui.theme.Palette.primary
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                                        .clip(RoundedCornerShape(20.dp))
+                                        .background(if (isSelected) com.example.ecolab.ui.theme.Palette.primary else Color.Transparent)
+                                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = when (index) {
+                                            0 -> Icons.Default.Person
+                                            1 -> Icons.Default.Star
+                                            else -> Icons.Default.Inventory
+                                        },
+                                        contentDescription = null,
+                                        tint = if (isSelected) Color.White else com.example.ecolab.ui.theme.Palette.primary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = title,
+                                        color = if (isSelected) Color.White else com.example.ecolab.ui.theme.Palette.primary,
+                                        fontWeight = FontWeight.Bold,
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
 
-                // Conteúdo baseado na tab selecionada
-                when (selectedTab) {
-                    0 -> StoreItemsPage(
-                        storeItems = avatarItems,
-                        userCoins = userCoins,
-                        onPurchase = { item: UiStoreItem, price: Int ->
-                            if (userCoins >= price && !item.isPurchased) {
-                                userCoins -= price
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { page ->
+                    when (page) {
+                        0 -> StoreItemsPage(
+                            storeItems = avatarItems,
+                            userCoins = ecoPoints,
+                            onPurchase = { item: UiStoreItem, price: Int ->
+                                if (ecoPoints >= price && !item.isPurchased) {
+                                    ecoPoints -= price
+                                    val uid = auth.currentUser?.uid
+                                    if (uid != null) {
+                                        firestore.collection("users").document(uid).update("totalPoints", ecoPoints)
+                                    }
 
                                 avatarItems = avatarItems.map {
                                     if (it.id == item.id) it.copy(isPurchased = true)
@@ -127,6 +265,7 @@ fun StoreScreen(
                                         iconRes = item.iconRes
                                     )
                                 }
+                                coroutineScope.launch { saveState() }
                             }
                         },
                         onEquip = { item: UiStoreItem ->
@@ -138,27 +277,37 @@ fun StoreScreen(
                                 }
 
                                 val equipped = avatarItems.find { it.isEquipped }
-                                val prefs = context.getSharedPreferences(
-                                    "ecolab_prefs",
-                                    android.content.Context.MODE_PRIVATE
-                                )
-                                if (equipped?.iconRes != null) {
-                                    prefs.edit()
-                                        .putInt("equipped_avatar_res_id", equipped.iconRes!!)
-                                        .apply()
-                                } else {
-                                    prefs.edit().remove("equipped_avatar_res_id").apply()
-                                }
+                        val prefs = context.getSharedPreferences(
+                            "ecolab_prefs",
+                            android.content.Context.MODE_PRIVATE
+                        )
+                        if (equipped?.iconRes != null) {
+                            prefs.edit()
+                                .putInt("equipped_avatar_res_id", equipped.iconRes!!)
+                                .apply()
+                        } else {
+                            prefs.edit().remove("equipped_avatar_res_id").apply()
+                        }
+                        val res = equipped?.iconRes ?: 0
+                        val isValid = res != 0 && runCatching { context.resources.getResourceName(res) }.isSuccess
+                        if (!isValid) {
+                            prefs.edit().remove("equipped_avatar_res_id").apply()
+                        }
+                                coroutineScope.launch { saveState() }
                             }
                         }
                     )
 
-                    1 -> StoreItemsPage(
-                        storeItems = sealItems,
-                        userCoins = userCoins,
-                        onPurchase = { item: UiStoreItem, price: Int ->
-                            if (userCoins >= price && !item.isPurchased) {
-                                userCoins -= price
+                        1 -> StoreItemsPage(
+                            storeItems = sealItems,
+                            userCoins = ecoPoints,
+                            onPurchase = { item: UiStoreItem, price: Int ->
+                                if (ecoPoints >= price && !item.isPurchased) {
+                                    ecoPoints -= price
+                                    val uid = auth.currentUser?.uid
+                                    if (uid != null) {
+                                        firestore.collection("users").document(uid).update("totalPoints", ecoPoints)
+                                    }
 
                                 sealItems = sealItems.map {
                                     if (it.id == item.id) it.copy(isPurchased = true)
@@ -180,6 +329,7 @@ fun StoreScreen(
                                         iconRes = item.iconRes
                                     )
                                 }
+                                coroutineScope.launch { saveState() }
                             }
                         },
                         onEquip = { item: UiStoreItem ->
@@ -207,17 +357,24 @@ fun StoreScreen(
                                     prefs.edit().remove("equipped_seal_res_id").apply()
                                 }
 
+                                val sealRes = equippedSeal?.iconRes ?: 0
+                                val sealValid = sealRes != 0 && runCatching { context.resources.getResourceName(sealRes) }.isSuccess
+                                if (!sealValid) {
+                                    prefs.edit().remove("equipped_seal_res_id").apply()
+                                }
+
                                 equippedSeal?.let {
-                                    applySealEffectOnEquip(
+                                    applySealEffectOnEquipV2(
                                         context,
                                         it
                                     )
                                 }
+                                coroutineScope.launch { saveState() }
                     }
                 }
             )
 
-                    2 -> InventoryPage(
+                        2 -> InventoryPage(
                         inventory = inventory,
                         onUseItem = { item: UiInventoryItem ->
                             inventory = inventory.map {
@@ -227,11 +384,11 @@ fun StoreScreen(
                             }.filter { it.quantity > 0 }
                         }
                     )
+                    }
                 }
             }
         }
     }
-
 }
 
 @Composable
@@ -261,43 +418,140 @@ private fun StoreTopBar(onNavigateBack: () -> Unit) {
 }
 
 @Composable
-private fun CoinsHeader(coins: Int) {
-    Row(
+private fun EcoPointsHeader(points: Int) {
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("ecolab_prefs", Context.MODE_PRIVATE) }
+    val equippedAvatarRes = prefs.getInt("equipped_avatar_res_id", 0)
+    val equippedSealRes = prefs.getInt("equipped_seal_res_id", 0)
+    val equippedSealEmoji = prefs.getString("equipped_seal_emoji", "")
+    val resources = LocalContext.current.resources
+    val isValidAvatarRes = equippedAvatarRes != 0 && runCatching { resources.getResourceName(equippedAvatarRes) }.isSuccess
+    val isValidSealRes = equippedSealRes != 0 && runCatching { resources.getResourceName(equippedSealRes) }.isSuccess
+    val discount = getStoreDiscountPercent(context)
+
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Default.MonetizationOn,
-                contentDescription = null,
-                tint = Color(0xFFFFD700),
-                modifier = Modifier.size(22.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "$coins",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(
+                            com.example.ecolab.ui.theme.Palette.primary.copy(alpha = 0.9f),
+                            com.example.ecolab.ui.theme.Palette.secondary
+                        )
+                    ),
+                    RoundedCornerShape(20.dp)
+                )
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color.White)
+                    ) {
+                        val bmpAvatar = if (isValidAvatarRes && equippedAvatarRes != 0) runCatching { BitmapFactory.decodeResource(context.resources, equippedAvatarRes) }.getOrNull() else null
+                        if (bmpAvatar != null) {
+                            Image(
+                                bitmap = bmpAvatar.asImageBitmap(),
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                tint = com.example.ecolab.ui.theme.Palette.primary,
+                                modifier = Modifier.padding(8.dp).fillMaxSize()
+                            )
+                        }
 
-        val context = LocalContext.current
-        val discount = getStoreDiscountPercent(context)
-        if (discount > 0) {
-            AssistChip(
-                onClick = {},
-                label = { Text(text = "Desconto ${discount}%") },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.LocalOffer,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
+                        if (equippedSealRes != 0 || !equippedSealEmoji.isNullOrEmpty()) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(4.dp)
+                                    .size(20.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.White.copy(alpha = 0.85f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                val bmpSeal = if (isValidSealRes && equippedSealRes != 0) runCatching { BitmapFactory.decodeResource(context.resources, equippedSealRes) }.getOrNull() else null
+                                if (bmpSeal != null) {
+                                    Image(
+                                        bitmap = bmpSeal.asImageBitmap(),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                } else {
+                                    Text(text = (equippedSealEmoji ?: ""), fontSize = 12.sp)
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = Color.White.copy(alpha = 0.15f)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MonetizationOn,
+                                contentDescription = null,
+                                tint = Color(0xFFFFD700),
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "EcoPoints",
+                                color = Color.White,
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "$points",
+                                color = Color.White,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+
+                if (discount > 0) {
+                    AssistChip(
+                        onClick = {},
+                        label = { Text(text = "Desconto ${discount}%") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.LocalOffer,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                        },
+                        colors = AssistChipDefaults.assistChipColors(
+                            containerColor = Color.White.copy(alpha = 0.15f),
+                            labelColor = Color.White
+                        )
                     )
                 }
-            )
+            }
         }
     }
 }
@@ -440,62 +694,41 @@ private fun UiStoreItemCard(
                     if (canAfford) onPurchase(finalPrice)
                     else if (item.isPurchased) onEquip()
                 },
+            shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
-                containerColor = if (item.isPurchased)
-                    MaterialTheme.colorScheme.tertiaryContainer
-                else if (canAfford)
-                    MaterialTheme.colorScheme.surface
-                else
-                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                containerColor = com.example.ecolab.ui.theme.Palette.surface
             ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
-            val glow = item.rarity == UiRarity.EPIC || item.rarity == UiRarity.LEGENDARY
-            val infinite = rememberInfiniteTransition(label = "rarity_glow")
-            val glowAlpha by infinite.animateFloat(
-                initialValue = if (glow) 0.1f else 0f,
-                targetValue = if (glow) 0.3f else 0f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(1800),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "glow_alpha"
-            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
-                    .background(rarityColor.copy(alpha = glowAlpha), RoundedCornerShape(16.dp)),
+                    .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Ícone do item
-                Box(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .background(
-                            rarityColor.copy(alpha = 0.2f),
-                            RoundedCornerShape(12.dp)
-                        ),
-                    contentAlignment = Alignment.Center
                 ) {
-                    if (item.iconRes != null) {
-                        val req = ImageRequest.Builder(LocalContext.current)
-                            .data(item.iconRes)
-                            .allowHardware(false)
-                            .build()
+                    // Ícone do item
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                    val res = item.iconRes
+                    val isValidRes = res != null && res != 0 && runCatching { context.resources.getResourceName(res) }.isSuccess
+                    val bmp = if (isValidRes && res != null) runCatching { BitmapFactory.decodeResource(context.resources, res) }.getOrNull() else null
+                    if (bmp != null) {
                         Image(
-                            painter = rememberAsyncImagePainter(model = req),
+                            bitmap = bmp.asImageBitmap(),
                             contentDescription = null,
-                            modifier = Modifier.size(48.dp)
+                            modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp))
                         )
                     } else {
                         Text(
                             text = item.icon,
-                            fontSize = 32.sp
+                            fontSize = 20.sp
                         )
                     }
-                }
+                    }
 
                 Spacer(modifier = Modifier.width(16.dp))
 
@@ -530,11 +763,18 @@ private fun UiStoreItemCard(
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            text = item.category,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = com.example.ecolab.ui.theme.Palette.secondary.copy(alpha = 0.1f)
+                        ) {
+                            Text(
+                                text = item.category,
+                                fontSize = 12.sp,
+                                color = com.example.ecolab.ui.theme.Palette.secondary,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
                         Text(
                             text = "• ${item.rarity.name}",
                             style = MaterialTheme.typography.labelSmall,
@@ -571,7 +811,8 @@ private fun UiStoreItemCard(
                         Button(
                             onClick = { onPurchase(finalPrice) },
                             enabled = canAfford,
-                            modifier = Modifier.height(36.dp)
+                            modifier = Modifier.height(36.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = com.example.ecolab.ui.theme.Palette.primary)
                         ) {
                             Text(if (canAfford) "Comprar" else "Sem moedas")
                         }
@@ -581,9 +822,9 @@ private fun UiStoreItemCard(
                             modifier = Modifier.height(36.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = if (item.isEquipped)
-                                    Color(0xFF4CAF50)
+                                    com.example.ecolab.ui.theme.Palette.success
                                 else
-                                    MaterialTheme.colorScheme.primary
+                                    com.example.ecolab.ui.theme.Palette.primary
                             )
                         ) {
                             Icon(
@@ -622,18 +863,18 @@ private fun InventoryPage(
                         imageVector = Icons.Default.Inventory,
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                        tint = com.example.ecolab.ui.theme.Palette.textMuted
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "Seu inventário está vazio",
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = com.example.ecolab.ui.theme.Palette.text
                     )
                     Text(
                         text = "Compre itens na loja para começar!",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        color = com.example.ecolab.ui.theme.Palette.textMuted
                     )
                 }
             }
@@ -669,24 +910,24 @@ private fun UiInventoryItemCard(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Ícone do item
-                Box(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .background(
-                            MaterialTheme.colorScheme.tertiaryContainer,
-                            RoundedCornerShape(12.dp)
-                        ),
-                    contentAlignment = Alignment.Center
                 ) {
-                    if (item.iconRes != null) {
-                        val req = ImageRequest.Builder(LocalContext.current)
-                            .data(item.iconRes)
-                            .allowHardware(false)
-                            .build()
+                    // Ícone do item
+                    Box(
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(
+                                MaterialTheme.colorScheme.tertiaryContainer,
+                                RoundedCornerShape(12.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                    val context = LocalContext.current
+                    val res = item.iconRes
+                    val isValidRes = res != null && res != 0 && runCatching { context.resources.getResourceName(res) }.isSuccess
+                    val bmp = if (isValidRes && res != null) runCatching { BitmapFactory.decodeResource(context.resources, res) }.getOrNull() else null
+                    if (bmp != null) {
                         Image(
-                            painter = rememberAsyncImagePainter(model = req),
+                            bitmap = bmp.asImageBitmap(),
                             contentDescription = null,
                             modifier = Modifier.size(48.dp)
                         )
@@ -696,7 +937,7 @@ private fun UiInventoryItemCard(
                             fontSize = 32.sp
                         )
                     }
-                }
+                    }
 
                 Spacer(modifier = Modifier.width(16.dp))
 
@@ -854,3 +1095,145 @@ private fun finalPriceFor(item: UiStoreItem, context: Context): Int {
         val discounted = (item.price * (100 - discount)) / 100
         return discounted
     }
+
+private fun applySealEffectOnEquipV2(context: Context, item: UiStoreItem) {
+        val prefs = context.getSharedPreferences("ecolab_prefs", Context.MODE_PRIVATE)
+        prefs.edit().putInt("equipped_seal_effect_discount_percent", item.discountPercent.coerceIn(0, 90)).apply()
+        prefs.edit().putInt("equipped_seal_effect_quiz_boost_percent", item.quizBoostPercent.coerceIn(0, 100)).apply()
+}
+
+fun getSealStoreItemsV2(): List<UiStoreItem> {
+        val items = mutableListOf<UiStoreItem>()
+        val fields = R.drawable::class.java.fields.filter { it.name.startsWith("seal_") }
+        fields.forEachIndexed { index, field ->
+            val resId = field.getInt(null)
+            val namePart = field.name.removePrefix("seal_")
+            val num = namePart.toIntOrNull() ?: (100 + index)
+            val rarity = rarityForNumber(num)
+            val price = priceForNumber(num)
+            items += UiStoreItem(
+                id = num,
+                name = "Selo #$namePart",
+                description = "Selo visual",
+                price = price,
+                category = "Selos",
+                icon = "",
+                rarity = rarity,
+                iconRes = resId
+            )
+        }
+
+        val more = listOf(
+            UiStoreItem(101, "Reciclagem", "5% desconto na Loja", 250, "Selos", "♻️", UiRarity.UNCOMMON, null, false, false, 5, 0),
+            UiStoreItem(102, "Energia Solar", "+5% pontos no Quiz", 400, "Selos", "☀️", UiRarity.RARE, null, false, false, 0, 5),
+            UiStoreItem(103, "Eco Warrior", "10% desconto e +10% pontos", 800, "Selos", "🛡️", UiRarity.EPIC, null, false, false, 10, 10),
+            UiStoreItem(104, "Água Limpa", "3% desconto", 220, "Selos", "💧", UiRarity.COMMON, null, false, false, 3, 0),
+            UiStoreItem(105, "Floresta Viva", "+3% pontos", 260, "Selos", "🌲", UiRarity.COMMON, null, false, false, 0, 3),
+            UiStoreItem(106, "Eco Chef", "+4% pontos", 320, "Selos", "🥗", UiRarity.UNCOMMON, null, false, false, 0, 4),
+            UiStoreItem(107, "Bike Lover", "4% desconto", 340, "Selos", "🚲", UiRarity.UNCOMMON, null, false, false, 4, 0),
+            UiStoreItem(108, "Sol & Vento", "+6% pontos", 480, "Selos", "🌬️", UiRarity.RARE, null, false, false, 0, 6),
+            UiStoreItem(109, "Plástico Zero", "6% desconto", 520, "Selos", "🧴", UiRarity.RARE, null, false, false, 6, 0),
+            UiStoreItem(110, "Guardião Verde", "8% desconto", 700, "Selos", "🛡️", UiRarity.EPIC, null, false, false, 8, 0),
+            UiStoreItem(111, "Sábio Sustentável", "+8% pontos", 720, "Selos", "📚", UiRarity.EPIC, null, false, false, 0, 8),
+            UiStoreItem(112, "Lenda Eco", "12% desconto e +12% pontos", 1200, "Selos", "🏆", UiRarity.LEGENDARY, null, false, false, 12, 12),
+            UiStoreItem(113, "Compostagem Pro", "5% desconto", 400, "Selos", "🪱", UiRarity.RARE, null, false, false, 5, 0),
+            UiStoreItem(114, "Mar Limpo", "+5% pontos", 450, "Selos", "🌊", UiRarity.RARE, null, false, false, 0, 5),
+            UiStoreItem(115, "Cidade Verde", "7% desconto", 600, "Selos", "🏙️", UiRarity.EPIC, null, false, false, 7, 0),
+            UiStoreItem(116, "Agricultura Orgânica", "+7% pontos", 650, "Selos", "🌾", UiRarity.EPIC, null, false, false, 0, 7),
+            UiStoreItem(117, "Eco Tech", "+6% pontos", 550, "Selos", "💡", UiRarity.RARE, null, false, false, 0, 6),
+            UiStoreItem(118, "Guerreiro da Natureza", "9% desconto", 780, "Selos", "🗡️", UiRarity.EPIC, null, false, false, 9, 0),
+            UiStoreItem(119, "Fauna & Flora", "+9% pontos", 820, "Selos", "🦋", UiRarity.EPIC, null, false, false, 0, 9),
+            UiStoreItem(120, "Eco Mestre", "15% desconto e +15% pontos", 1500, "Selos", "👑", UiRarity.LEGENDARY, null, false, false, 15, 15)
+        )
+        items.addAll(more)
+        return items.sortedBy { it.id }
+}
+
+@Composable
+private fun EquippedSection(
+    equippedAvatar: UiStoreItem?,
+    equippedSeal: UiStoreItem?,
+    onUnequipAvatar: () -> Unit,
+    onUnequipSeal: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
+        if (equippedAvatar != null || equippedSeal != null) {
+            Text(
+                text = "Equipado",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = com.example.ecolab.ui.theme.Palette.text,
+                modifier = Modifier.padding(bottom = 8.dp, top = 4.dp)
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (equippedAvatar != null) {
+                    Surface(shape = RoundedCornerShape(16.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val context = LocalContext.current
+                            val res = equippedAvatar.iconRes
+                            val isValidRes = res != null && res != 0 && runCatching { context.resources.getResourceName(res) }.isSuccess
+                            val bmp = if (isValidRes && res != null) runCatching { BitmapFactory.decodeResource(context.resources, res) }.getOrNull() else null
+                            if (bmp != null) {
+                                Image(
+                                    bitmap = bmp.asImageBitmap(),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp))
+                                )
+                            } else {
+                                Text(text = equippedAvatar.icon, fontSize = 24.sp)
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(equippedAvatar.name, fontWeight = FontWeight.SemiBold)
+                            Spacer(modifier = Modifier.width(12.dp))
+                            OutlinedButton(onClick = onUnequipAvatar, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)) {
+                                Text("Desequipar")
+                            }
+                        }
+                    }
+                }
+
+                if (equippedSeal != null) {
+                    Surface(shape = RoundedCornerShape(16.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val context = LocalContext.current
+                            val res = equippedSeal.iconRes
+                            val isValidRes = res != null && res != 0 && runCatching { context.resources.getResourceName(res) }.isSuccess
+                            val bmp = if (isValidRes && res != null) runCatching { BitmapFactory.decodeResource(context.resources, res) }.getOrNull() else null
+                            if (bmp != null) {
+                                Image(
+                                    bitmap = bmp.asImageBitmap(),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp))
+                                )
+                            } else {
+                                Text(text = equippedSeal.icon, fontSize = 24.sp)
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(equippedSeal.name, fontWeight = FontWeight.SemiBold)
+                            Spacer(modifier = Modifier.width(12.dp))
+                            OutlinedButton(onClick = onUnequipSeal, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)) {
+                                Text("Desequipar")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

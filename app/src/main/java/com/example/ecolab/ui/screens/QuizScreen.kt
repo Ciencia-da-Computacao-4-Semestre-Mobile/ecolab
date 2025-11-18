@@ -52,6 +52,9 @@ import androidx.compose.ui.unit.sp
 import com.example.ecolab.ui.components.QuizOptionCard
 import com.example.ecolab.ui.theme.EcoLabTheme
 import com.example.ecolab.ui.theme.Palette
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.delay
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -383,6 +386,19 @@ fun QuizResultScreen(
             Palette.error,
             Icons.Default.Refresh
         )
+    }
+
+    LaunchedEffect(Unit) {
+        try {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+            if (uid != null) {
+                val fs = FirebaseFirestore.getInstance()
+                val doc = fs.collection("users").document(uid).get().await()
+                val current = doc.getLong("totalPoints")?.toInt() ?: 0
+                val newTotal = current + boostedScore
+                fs.collection("users").document(uid).update("totalPoints", newTotal)
+            }
+        } catch (_: Exception) { }
     }
 
     Box(
