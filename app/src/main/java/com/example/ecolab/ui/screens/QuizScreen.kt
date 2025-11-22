@@ -31,11 +31,17 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.TextField
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,6 +58,9 @@ import androidx.compose.ui.unit.sp
 import com.example.ecolab.ui.components.QuizOptionCard
 import com.example.ecolab.ui.theme.EcoLabTheme
 import com.example.ecolab.ui.theme.Palette
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.serialization.json.Json
+import com.example.ecolab.ui.screens.AiQuizData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -124,11 +133,34 @@ fun QuizScreen(
     theme: String = "Default",
     gameMode: GameMode = GameMode.NORMAL
 ) {
-    val questionsForTheme = remember(theme) {
-        when (theme) {
+    val ctx = LocalContext.current
+    val aiQuestions = remember(theme) {
+        val prefs = ctx.getSharedPreferences("quiz_cache", android.content.Context.MODE_PRIVATE)
+        val jsonStr = prefs.getString("latest_ai_quiz", null)
+        if (!jsonStr.isNullOrBlank()) {
+            try {
+                val data = Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true; allowTrailingComma = true }
+                    .decodeFromString<AiQuizData>(jsonStr)
+                data.questions.mapNotNull { q ->
+                    val opts = q.options.map { it.trim() }.filter { it.isNotBlank() }
+                    val idx = q.correctIndex.coerceIn(0, if (opts.isNotEmpty()) opts.size - 1 else 0)
+                    if (opts.size >= 2) QuizQuestion(q.question.trim(), opts, opts[idx], theme) else null
+                }
+            } catch (_: Throwable) { emptyList() }
+        } else emptyList()
+    }
+    val questionsForTheme = remember(theme, aiQuestions) {
+        if (aiQuestions.isNotEmpty()) aiQuestions else when (theme) {
             "Aleatório" -> quizQuestions.shuffled().take(10)
             "Default" -> quizQuestions.shuffled().take(10)
             else -> quizQuestions.filter { it.theme == theme }.shuffled()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            val prefs = ctx.getSharedPreferences("quiz_cache", android.content.Context.MODE_PRIVATE)
+            prefs.edit().remove("latest_ai_quiz").apply()
         }
     }
 
@@ -617,5 +649,55 @@ private fun QuizResultNeedsPracticePreview() {
             onPlayAgain = {},
             onBackToHome = {}
         )
+    }
+}
+
+@Composable
+fun QuizAIScreen(quizViewModel: QuizViewModel = viewModel()) {
+    var topic by remember { mutableStateOf("") }
+    var count by remember { mutableStateOf("10") }
+    val state by quizViewModel.uiState.collectAsState()
+    val isLoading = state is QuizUiState.Loading
+    val ctx = LocalContext.current
+    LaunchedEffect(Unit) { quizViewModel.attachCache(ctx) }
+    Box(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize().padding(16.dp)) {
+            TextField(value = topic, onValueChange = { if (!isLoading) topic = it }, enabled = !isLoading, placeholder = { Text("Tema do quiz") })
+            Spacer(Modifier.height(8.dp))
+            TextField(value = count, onValueChange = { if (!isLoading) count = it }, enabled = !isLoading, placeholder = { Text("Quantidade") })
+            Spacer(Modifier.height(8.dp))
+            val canGenerate = !isLoading && topic.isNotBlank() && count.toIntOrNull() != null
+            Button(enabled = canGenerate, onClick = { count.toIntOrNull()?.let { quizViewModel.generateQuiz(topic, it) } }) { Text("Gerar Quiz") }
+            Spacer(Modifier.height(16.dp))
+            when (val s = state) {
+                is QuizUiState.Loading -> {
+                    val progress = s.progress.coerceIn(0, 100)
+                    Text("Preparando quiz… $progress%")
+                    LinearProgressIndicator(progress = progress / 100f, modifier = Modifier.fillMaxWidth().height(8.dp).clip(MaterialTheme.shapes.medium))
+                }
+                is QuizUiState.Error -> {
+                    Text("Erro: ${s.error}")
+                }
+                is QuizUiState.Success -> {
+                    if (s.quiz.questions.isEmpty()) {
+                        Text("Nenhuma questão gerada.")
+                    } else {
+                        LazyColumn {
+                            items(s.quiz.questions) { q ->
+                                Text(q.question)
+                                q.options.forEachIndexed { i, opt -> Text("${i + 1}. $opt") }
+                                Spacer(Modifier.height(8.dp))
+                            }
+                        }
+                    }
+                }
+                else -> {}
+            }
+        }
+        if (isLoading) {
+            Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.2f))) {
+                androidx.compose.material3.CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+        }
     }
 }

@@ -9,8 +9,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import javax.inject.Singleton
 
 @Module
@@ -25,5 +23,5 @@ object AppModule {
     fun provideGeoJsonParser(@ApplicationContext context: Context) = GeoJsonParser(context)
 
     @Provides @Singleton
-    fun provideFirestore(): FirebaseFirestore = Firebase.firestore
+    fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 }

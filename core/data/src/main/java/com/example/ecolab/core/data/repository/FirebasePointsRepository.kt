@@ -6,7 +6,7 @@ import com.example.ecolab.core.domain.repository.PointsRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObjects
+import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -30,7 +30,7 @@ class FirebasePointsRepository @Inject constructor(
                     return@addSnapshotListener
                 }
                 if (snapshot != null) {
-                    val points = snapshot.toObjects<CollectionPoint>()
+                    val points = snapshot.toObjects(CollectionPoint::class.java)
                     Log.d("FirebasePointsRepo", "Loaded ${points.size} points from Firestore")
                     
                     // Verificar se há usuário logado e carregar favoritos

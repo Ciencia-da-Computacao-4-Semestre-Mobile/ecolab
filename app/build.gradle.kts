@@ -3,6 +3,9 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.google.services)
@@ -77,12 +80,16 @@ android {
         buildConfig = true
     }
     composeOptions {
-            kotlinCompilerExtensionVersion = "1.5.11"
+            kotlinCompilerExtensionVersion = "1.9.0"
         }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+
+    lint {
+        disable += setOf("StateFlowValueCalledInComposition")
     }
 }
 
@@ -119,11 +126,12 @@ dependencies {
 
     // Serialization
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.serialization.json)
 
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    kapt(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
 
     // Maps & Location
     implementation(libs.maps.compose)
@@ -149,14 +157,16 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.compiler)
 
     // Firebase
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
+    implementation("com.google.firebase:firebase-auth")
     implementation(libs.play.services.auth)
     implementation("com.google.firebase:firebase-analytics")
-    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx:24.10.0")
+    implementation("com.google.firebase:firebase-ai")
+    implementation("com.google.firebase:firebase-config")
 
     // HTTP Client
     implementation("com.squareup.okhttp3:okhttp:4.12.0")

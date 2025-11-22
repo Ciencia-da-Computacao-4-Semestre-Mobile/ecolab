@@ -1,4 +1,4 @@
-﻿package com.example.ecolab.ui.screens
+package com.example.ecolab.ui.screens
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.*
 import androidx.compose.ui.draw.*
 import androidx.compose.ui.graphics.*
@@ -20,9 +21,14 @@ import androidx.compose.ui.text.style.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ecolab.ui.screens.GameMode
 import com.example.ecolab.ui.theme.*
 import kotlinx.coroutines.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +38,15 @@ fun QuizSetupScreenV2(
     viewModel: QuizSetupViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val quizViewModel: QuizViewModel = viewModel()
+    val quizState by quizViewModel.uiState.collectAsState()
+    var navigated by rememberSaveable { mutableStateOf(false) }
+    val ctx = LocalContext.current
+    LaunchedEffect(Unit) {
+        quizViewModel.attachCache(ctx)
+        navigated = false
+        quizViewModel.reset()
+    }
 
     // AnimaÃ§Ãµes de entrada
     var isVisible by remember { mutableStateOf(false) }
@@ -104,10 +119,22 @@ fun QuizSetupScreenV2(
                 .background(backgroundGradient)
                 .padding(paddingValues)
         ) {
+            LaunchedEffect(quizState, navigated) {
+                if (!navigated) {
+                    val s = quizState
+                    if (s is QuizUiState.Success && s.quiz.questions.isNotEmpty()) {
+                        val theme = uiState.selectedTheme?.name ?: "Default"
+                        val gameMode = if (uiState.selectedGameMode?.name == "Speed Run") GameMode.SPEEDRUN else GameMode.NORMAL
+                        navigated = true
+                        onStartQuiz(theme, gameMode)
+                    }
+                }
+            }
+            val isSuccess = quizState is QuizUiState.Success
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
+                    .let { if (!isSuccess) it.verticalScroll(rememberScrollState()) else it }
                     .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -141,16 +168,35 @@ fun QuizSetupScreenV2(
                 ) {
                     StartQuizButton(
                         theme = uiState.selectedTheme,
-                        enabled = uiState.selectedGameMode != null && uiState.selectedTheme != null,
+                        enabled = uiState.selectedGameMode != null && uiState.selectedTheme != null && quizState !is QuizUiState.Loading,
                         onClick = {
                             val theme = uiState.selectedTheme?.name ?: "Default"
                             val gameMode = if (uiState.selectedGameMode?.name == "Speed Run") GameMode.SPEEDRUN else GameMode.NORMAL
-                            onStartQuiz(theme, gameMode)
+                            navigated = false
+                            quizViewModel.generateQuiz(theme, 10)
                         }
                     )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
+
+                when (val s = quizState) {
+                    is QuizUiState.Loading -> {
+                        Spacer(Modifier.height(12.dp))
+                    }
+                    is QuizUiState.Error -> {
+                        Text("Erro: ${s.error}", color = Palette.error)
+                    }
+                    is QuizUiState.Success -> {
+                        Spacer(Modifier.height(12.dp))
+                    }
+                    else -> {}
+                }
+            }
+            if (quizState is QuizUiState.Loading) {
+                Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.15f))) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
             }
         }
     }

@@ -1,8 +1,8 @@
 [versions]
 # Plugins
 androidGradlePlugin = "8.13.1"
-kotlin = "1.9.23"
-hilt = "2.48"
+kotlin = "2.1.0"
+hilt = "2.51.1"
 mapsSecrets = "2.0.1"
 googleServices = "4.4.2"
 
@@ -16,7 +16,7 @@ playServicesMaps = "18.2.0"
 playServicesLocation = "21.0.1"
 playServicesAuth = "21.2.0"
 composeBom = "2024.02.00"
-firebaseBom = "33.1.2"
+firebaseBom = "34.6.0"
 activityCompose = "1.8.2"
 navigationCompose = "2.7.6"
 hiltNavigationCompose = "1.1.0"
@@ -61,7 +61,7 @@ play-services-maps = { group = "com.google.android.gms", name = "play-services-m
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
-firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version = "22.0.0" }
 
 # Compose
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
@@ -115,5 +115,7 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version = "2.1.0-1.0.29" }
 mapsplatform-secrets = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "mapsSecrets" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
