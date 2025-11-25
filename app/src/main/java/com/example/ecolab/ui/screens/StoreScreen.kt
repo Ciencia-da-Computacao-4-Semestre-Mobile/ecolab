@@ -91,7 +91,6 @@ fun StoreScreen(
                     val purchasedSeals = sealItems.filter { it.isPurchased }.map { it.id }
                     val equippedAvatar = avatarItems.find { it.isEquipped }?.id
                     val equippedSeal = sealItems.find { it.isEquipped }?.id
-                    val inventoryCounts = inventory.associate { it.id.toString() to it.quantity }
                     val equippedAvatarResId = avatarItems.find { it.isEquipped }?.iconRes
                     val equippedSealEmoji = sealItems.find { it.isEquipped && it.iconRes == null }?.icon
                     val data = hashMapOf(
@@ -99,7 +98,7 @@ fun StoreScreen(
                         "purchasedSeals" to purchasedSeals,
                         "equippedAvatar" to equippedAvatar,
                         "equippedSeal" to equippedSeal,
-                        "inventoryCounts" to inventoryCounts,
+                        
                         "equippedAvatarResId" to equippedAvatarResId,
                         "equippedSealEmoji" to equippedSealEmoji
                     )
@@ -176,13 +175,10 @@ fun StoreScreen(
                     val equippedSealEmoji = stateDoc.getString("equippedSealEmoji")
                     avatarItems = avatarItems.map { it.copy(isPurchased = purchasedAvatars.contains(it.id), isEquipped = equippedAvatar == it.id) }
                     sealItems = sealItems.map { it.copy(isPurchased = purchasedSeals.contains(it.id), isEquipped = equippedSeal == it.id) }
-                    val countsMap = (stateDoc.get("inventoryCounts") as? Map<*, *>)?.mapNotNull {
-                        val k = (it.key as? Number)?.toInt() ?: it.key?.toString()?.toIntOrNull()
-                        val v = (it.value as? Number)?.toInt()
-                        if (k != null && v != null) k to v else null
-                    }?.toMap() ?: emptyMap()
-                    val invFromAvatars = avatarItems.filter { it.isPurchased }.map { UiInventoryItem(it.id, it.name, countsMap[it.id] ?: 1, it.icon, it.iconRes, "Avatares") }
-                    val invFromSeals = sealItems.filter { it.isPurchased }.map { UiInventoryItem(it.id, it.name, countsMap[it.id] ?: 1, it.icon, it.iconRes, "Selos") }
+                    val invFromAvatars = avatarItems.filter { it.isPurchased }
+                        .map { UiInventoryItem(it.id, it.name, 1, it.icon, it.iconRes, "Avatares") }
+                    val invFromSeals = sealItems.filter { it.isPurchased }
+                        .map { UiInventoryItem(it.id, it.name, 1, it.icon, it.iconRes, "Selos") }
                     inventory = (invFromAvatars + invFromSeals)
                     writeInventoryCache(context, inventory)
 
@@ -356,14 +352,9 @@ fun StoreScreen(
                                     else it
                                 }
 
-                                val existingItem = inventory.find { it.id == item.id }
-                                inventory = if (existingItem != null) {
-                                    inventory.map {
-                                        if (it.id == item.id) it.copy(quantity = it.quantity + 1)
-                                        else it
-                                    }
-                                } else {
-                                    inventory + UiInventoryItem(
+                                val exists = inventory.any { it.id == item.id }
+                                if (!exists) {
+                                    inventory = inventory + UiInventoryItem(
                                         id = item.id,
                                         name = item.name,
                                         quantity = 1,
@@ -421,14 +412,9 @@ fun StoreScreen(
                                     else it
                                 }
 
-                                val existingItem = inventory.find { it.id == item.id }
-                                inventory = if (existingItem != null) {
-                                    inventory.map {
-                                        if (it.id == item.id) it.copy(quantity = it.quantity + 1)
-                                        else it
-                                    }
-                                } else {
-                                    inventory + UiInventoryItem(
+                                val exists = inventory.any { it.id == item.id }
+                                if (!exists) {
+                                    inventory = inventory + UiInventoryItem(
                                         id = item.id,
                                         name = item.name,
                                         quantity = 1,
@@ -1110,22 +1096,7 @@ private fun UiInventoryItemCard(
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Inventory2,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "Quantidade: ${item.quantity}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    
                 }
 
                 if (item.category == "Avatares" || item.category == "Selos") {
@@ -1342,11 +1313,13 @@ private fun normalizeSealId(context: Context, id: Int): Int {
 private fun writeInventoryCache(context: Context, inventory: List<UiInventoryItem>) {
     try {
         val arr = org.json.JSONArray()
-        inventory.forEach {
+        // Deduplica por id e força quantidade = 1
+        val unique = inventory.distinctBy { it.id }
+        unique.forEach {
             val obj = org.json.JSONObject()
             obj.put("id", it.id)
             obj.put("name", it.name)
-            obj.put("quantity", it.quantity)
+            obj.put("quantity", 1)
             obj.put("icon", it.icon)
             obj.put("iconRes", it.iconRes ?: 0)
             obj.put("category", it.category)
@@ -1368,13 +1341,13 @@ private fun readInventoryCache(context: Context): List<UiInventoryItem> {
             out += UiInventoryItem(
                 id = obj.optInt("id", 0),
                 name = obj.optString("name", ""),
-                quantity = obj.optInt("quantity", 1),
+                quantity = 1,
                 icon = obj.optString("icon", ""),
                 iconRes = obj.optInt("iconRes", 0).let { if (it == 0) null else it },
                 category = obj.optString("category", "")
             )
         }
-        out
+        out.distinctBy { it.id }
     } catch (_: Exception) { emptyList() }
 }
 

@@ -137,36 +137,32 @@ fun LibraryScreen(
                             selectedContentColor = Color.White,
                             unselectedContentColor = Palette.primary
                         ) {
-                            Box(
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
-                                    .padding(horizontal = 12.dp, vertical = 6.dp)
-                                    .height(40.dp)
-                                    .clip(RoundedCornerShape(24.dp))
-                                    .background(if (isSelected) Palette.primary else Color.Transparent),
-                                contentAlignment = Alignment.Center
+                                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .background(if (isSelected) Palette.primary else Color.Transparent)
+                                    .padding(horizontal = 12.dp, vertical = 8.dp)
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    Icon(
-                                        imageVector = when (index) {
-                                            0 -> Icons.Default.Article
-                                            1 -> Icons.AutoMirrored.Filled.MenuBook
-                                            else -> Icons.Default.School
-                                        },
-                                        contentDescription = null,
-                                        tint = if (isSelected) Color.White else Palette.primary,
-                                        modifier = Modifier.size(22.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = title,
-                                        color = if (isSelected) Color.White else Palette.primary,
-                                        fontWeight = FontWeight.Bold,
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                }
+                                Icon(
+                                    imageVector = when (index) {
+                                        0 -> Icons.Default.Article
+                                        1 -> Icons.AutoMirrored.Filled.MenuBook
+                                        else -> Icons.Default.School
+                                    },
+                                    contentDescription = null,
+                                    tint = if (isSelected) Color.White else Palette.primary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = title,
+                                    color = if (isSelected) Color.White else Palette.primary,
+                                    fontWeight = FontWeight.SemiBold,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    maxLines = 1
+                                )
                             }
                         }
                     }
