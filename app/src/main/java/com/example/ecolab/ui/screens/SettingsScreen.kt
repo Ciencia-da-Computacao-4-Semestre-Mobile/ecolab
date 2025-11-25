@@ -28,6 +28,8 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var showAbout by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -82,18 +84,6 @@ fun SettingsScreen(
                     title = "Geral",
                     items = listOf(
                         SettingsItem(
-                            title = "Notificações",
-                            description = "Gerenciar notificações do app",
-                            icon = Icons.Default.Notifications,
-                            onClick = { /* TODO: Implement notifications settings */ }
-                        ),
-                        SettingsItem(
-                            title = "Idioma",
-                            description = "Português (Brasil)",
-                            icon = Icons.Default.Language,
-                            onClick = { /* TODO: Implement language settings */ }
-                        ),
-                        SettingsItem(
                             title = "Tema",
                             description = if (uiState.isDarkMode) "Escuro" else "Claro",
                             icon = Icons.Default.Brightness6,
@@ -101,24 +91,6 @@ fun SettingsScreen(
                             hasSwitch = true,
                             switchState = uiState.isDarkMode,
                             onSwitchChange = { viewModel.toggleTheme() }
-                        )
-                    )
-                )
-
-                SettingsSection(
-                    title = "Privacidade",
-                    items = listOf(
-                        SettingsItem(
-                            title = "Privacidade",
-                            description = "Configurar privacidade",
-                            icon = Icons.Default.PrivacyTip,
-                            onClick = { /* TODO: Implement privacy settings */ }
-                        ),
-                        SettingsItem(
-                            title = "Segurança",
-                            description = "Configurar segurança",
-                            icon = Icons.Default.Security,
-                            onClick = { /* TODO: Implement security settings */ }
                         ),
                         SettingsItem(
                             title = "Limpar Dados",
@@ -129,6 +101,8 @@ fun SettingsScreen(
                     )
                 )
 
+                
+
                 SettingsSection(
                     title = "Sobre",
                     items = listOf(
@@ -136,19 +110,35 @@ fun SettingsScreen(
                             title = "Sobre o App",
                             description = "Versão ${uiState.appVersion}",
                             icon = Icons.Default.Info,
-                            onClick = { /* TODO: Show app info */ }
+                            onClick = { showAbout = true }
                         ),
                         SettingsItem(
                             title = "Avaliar App",
                             description = "Avalie-nos na Play Store",
                             icon = Icons.Default.Star,
-                            onClick = { /* TODO: Open Play Store */ }
+                            onClick = {
+                                val pkg = context.packageName
+                                val market = android.net.Uri.parse("market://details?id=$pkg")
+                                val web = android.net.Uri.parse("https://play.google.com/store/apps/details?id=$pkg")
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, market)
+                                intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                runCatching { context.startActivity(intent) }.getOrElse {
+                                    context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, web).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
+                                }
+                            }
                         ),
                         SettingsItem(
                             title = "Compartilhar App",
                             description = "Compartilhe com amigos",
                             icon = Icons.Default.Share,
-                            onClick = { /* TODO: Share app */ }
+                            onClick = {
+                                val pkg = context.packageName
+                                val url = "https://play.google.com/store/apps/details?id=$pkg"
+                                val intent = android.content.Intent(android.content.Intent.ACTION_SEND)
+                                intent.type = "text/plain"
+                                intent.putExtra(android.content.Intent.EXTRA_TEXT, "Conheça o EcoLab: $url")
+                                context.startActivity(android.content.Intent.createChooser(intent, "Compartilhar EcoLab").addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
+                            }
                         )
                     )
                 )
@@ -166,16 +156,41 @@ fun SettingsScreen(
                             title = "Feedback",
                             description = "Enviar feedback",
                             icon = Icons.Default.Feedback,
-                            onClick = { /* TODO: Implement feedback */ }
+                            onClick = {
+                                val intent = android.content.Intent(android.content.Intent.ACTION_SENDTO)
+                                intent.data = android.net.Uri.parse("mailto:")
+                                intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf("suporte@ecolab.app"))
+                                intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Feedback EcoLab")
+                                context.startActivity(intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
+                            }
                         ),
                         SettingsItem(
                             title = "Reportar Problema",
                             description = "Reportar um bug",
                             icon = Icons.Default.BugReport,
-                            onClick = { /* TODO: Implement bug report */ }
+                            onClick = {
+                                val intent = android.content.Intent(android.content.Intent.ACTION_SENDTO)
+                                intent.data = android.net.Uri.parse("mailto:")
+                                intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf("bugs@ecolab.app"))
+                                intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Bug no EcoLab")
+                                context.startActivity(intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
+                            }
                         )
                     )
                 )
+
+                if (showAbout) {
+                    androidx.compose.material3.AlertDialog(
+                        onDismissRequest = { showAbout = false },
+                        confirmButton = {
+                            androidx.compose.material3.TextButton(onClick = { showAbout = false }) {
+                                androidx.compose.material3.Text("OK")
+                            }
+                        },
+                        title = { androidx.compose.material3.Text("EcoLab") },
+                        text = { androidx.compose.material3.Text("Versão ${uiState.appVersion}\nAplicativo para educação ambiental e reciclagem.") }
+                    )
+                }
             }
         }
     }

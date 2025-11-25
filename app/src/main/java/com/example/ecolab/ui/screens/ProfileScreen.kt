@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.EnergySavingsLeaf
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,9 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,7 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.example.ecolab.ui.components.AnimatedParticles
+import android.graphics.BitmapFactory
+import com.example.ecolab.ui.components.UserAvatar
 import com.example.ecolab.ui.theme.EcoLabTheme
 import com.example.ecolab.ui.theme.Palette
 
@@ -49,8 +51,7 @@ fun ProfileScreen(
             .fillMaxSize()
             .background(Palette.background)
     ) {
-        // Animated particles background - consistent with other screens
-        AnimatedParticles()
+        
 
         Column(
             modifier = Modifier
@@ -61,8 +62,6 @@ fun ProfileScreen(
                 displayName = state.displayName,
                 email = state.email,
                 photoUrl = state.photoUrl,
-                level = state.level,
-                levelProgress = state.levelProgress,
                 onEditProfileClick = onEditProfileClick
             )
 
@@ -80,14 +79,12 @@ fun ProfileScreen(
                     totalPoints = state.totalPoints,
                     articlesRead = state.articlesRead,
                     quizzesDone = state.quizzesDone,
-                    achievementsUnlocked = state.achievementsUnlocked,
-                    onDetailsClick = onAchievementsClick
+                    achievementsUnlocked = state.achievementsUnlocked
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 QuickActionsSection(
-                    onAchievementsClick = onAchievementsClick,
                     onSettingsClick = onSettingsClick,
                     onHelpClick = onHelpClick
                 )
@@ -107,8 +104,6 @@ private fun ProfileHeader(
     displayName: String,
     email: String,
     photoUrl: String?,
-    level: Int,
-    levelProgress: Float,
     onEditProfileClick: () -> Unit
 ) {
     val greenGradient = Brush.verticalGradient(
@@ -124,75 +119,61 @@ private fun ProfileHeader(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Profile photo with animation
+        // Container for Avatar + Seal
         Box(
-            modifier = Modifier
-                .size(120.dp)
-                .clip(CircleShape)
-                .background(Color.White),
+            modifier = Modifier.size(120.dp),
             contentAlignment = Alignment.Center
         ) {
-            if (!photoUrl.isNullOrEmpty()) {
-                AsyncImage(
-                    model = photoUrl,
-                    contentDescription = "Foto de Perfil",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                val context = androidx.compose.ui.platform.LocalContext.current
-                val prefs = remember { context.getSharedPreferences("ecolab_prefs", android.content.Context.MODE_PRIVATE) }
-                val equippedRes = prefs.getInt("equipped_avatar_res_id", 0)
-                if (equippedRes != 0) {
-                    AsyncImage(
-                        model = equippedRes,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop,
-                        error = painterResource(id = com.example.ecolab.R.drawable.ic_launcher_foreground)
-                    )
-                } else {
-                    val initial = displayName.firstOrNull()?.uppercase() ?: email.firstOrNull()?.uppercase() ?: "U"
-                    Text(
-                        text = initial,
-                        fontSize = 56.sp,
-                        color = Palette.primary,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+            UserAvatar(
+                modifier = Modifier.fillMaxSize(),
+                displayName = displayName,
+                email = email,
+                photoUrl = photoUrl
+            )
 
+            // Seal logic, moved to the outer Box
             val prefsLocal = androidx.compose.ui.platform.LocalContext.current.getSharedPreferences("ecolab_prefs", android.content.Context.MODE_PRIVATE)
-            val sealRes = prefsLocal.getInt("equipped_seal_res_id", 0)
-            val sealEmoji = prefsLocal.getString("equipped_seal_emoji", "")
-            if (sealRes != 0) {
+            var sealRes by remember { mutableStateOf(prefsLocal.getInt("equipped_seal_res_id", 0)) }
+            var sealEmoji by remember { mutableStateOf(prefsLocal.getString("equipped_seal_emoji", "")) }
+            DisposableEffect(prefsLocal) {
+                val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { sp, key ->
+                    if (key == "equipped_seal_res_id") {
+                        sealRes = sp.getInt("equipped_seal_res_id", 0)
+                    }
+                    if (key == "equipped_seal_emoji") {
+                        sealEmoji = sp.getString("equipped_seal_emoji", "")
+                    }
+                }
+                prefsLocal.registerOnSharedPreferenceChangeListener(listener)
+                onDispose { prefsLocal.unregisterOnSharedPreferenceChangeListener(listener) }
+            }
+            val sealValid = sealRes != 0 && runCatching { androidx.compose.ui.platform.LocalContext.current.resources.getResourceName(sealRes) }.isSuccess
+            val bmpSeal = if (sealValid && sealRes != 0) runCatching { BitmapFactory.decodeResource(androidx.compose.ui.platform.LocalContext.current.resources, sealRes) }.getOrNull() else null
+
+            val sealModifier = Modifier
+                .align(Alignment.TopEnd)
+                .offset(x = (-5).dp, y = 5.dp)
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.9f))
+
+            if (bmpSeal != null) {
                 Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(6.dp)
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.85f)),
+                    modifier = sealModifier,
                     contentAlignment = Alignment.Center
                 ) {
-                    AsyncImage(
-                        model = sealRes,
+                    Image(
+                        bitmap = bmpSeal.asImageBitmap(),
                         contentDescription = null,
-                        modifier = Modifier.size(22.dp),
-                        error = if (!sealEmoji.isNullOrEmpty()) null else painterResource(id = com.example.ecolab.R.drawable.ic_launcher_foreground)
+                        modifier = Modifier.size(32.dp)
                     )
                 }
             } else if (!sealEmoji.isNullOrEmpty()) {
                 Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(6.dp)
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.85f)),
+                    modifier = sealModifier,
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = sealEmoji!!, fontSize = 14.sp)
+                    Text(text = sealEmoji ?: "", fontSize = 20.sp)
                 }
             }
         }
@@ -212,39 +193,6 @@ private fun ProfileHeader(
             fontSize = 16.sp,
             color = Color.White.copy(alpha = 0.9f),
             modifier = Modifier.padding(top = 4.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Level indicator
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Icon(
-                Icons.Default.Star,
-                contentDescription = "Nível",
-                tint = Palette.tertiary,
-                modifier = Modifier.size(20.dp)
-            )
-            Text(
-                text = "Nível $level",
-                color = Color.White,
-                fontWeight = FontWeight.Medium
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Level progress bar
-        LinearProgressIndicator(
-            progress = { levelProgress },
-            modifier = Modifier
-                .fillMaxWidth(0.6f)
-                .height(6.dp)
-                .clip(RoundedCornerShape(3.dp)),
-            color = Palette.tertiary,
-            trackColor = Color.White.copy(alpha = 0.3f)
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -278,8 +226,7 @@ private fun StatsSection(
     totalPoints: Int,
     articlesRead: Int,
     quizzesDone: Int,
-    achievementsUnlocked: Int,
-    onDetailsClick: () -> Unit
+    achievementsUnlocked: Int
 ) {
     Column(
         modifier = Modifier.padding(24.dp)
@@ -331,25 +278,13 @@ private fun StatsSection(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        Icons.Default.Star,
+                        imageVector = Icons.Default.EnergySavingsLeaf,
                         contentDescription = "EcoPoints",
                         tint = Palette.primary,
                         modifier = Modifier.size(32.dp)
                     )
                 }
             }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        OutlinedButton(
-            onClick = onDetailsClick,
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = Palette.primary),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = Palette.primary)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Ver detalhes de conquistas e progresso", color = Palette.primary)
         }
     }
 }
@@ -409,7 +344,6 @@ private fun StatCard(
 
 @Composable
 private fun QuickActionsSection(
-    onAchievementsClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onHelpClick: () -> Unit
 ) {
@@ -428,13 +362,6 @@ private fun QuickActionsSection(
         Column(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            QuickActionButton(
-                title = "Conquistas",
-                description = "Veja suas conquistas desbloqueadas",
-                icon = Icons.Default.EmojiEvents,
-                color = Palette.achievementsIcon,
-                onClick = onAchievementsClick
-            )
             QuickActionButton(
                 title = "Configurações",
                 description = "Personalize sua experiência",

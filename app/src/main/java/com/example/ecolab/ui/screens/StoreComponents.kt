@@ -18,7 +18,8 @@ package com.example.ecolab.ui.screens
     import androidx.compose.ui.geometry.Offset
     import androidx.compose.ui.graphics.*
     import androidx.compose.ui.graphics.drawscope.withTransform
-    import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.painterResource
     import androidx.compose.ui.text.style.TextAlign
     import androidx.compose.ui.unit.dp
     import androidx.compose.ui.unit.sp
@@ -169,21 +170,30 @@ package com.example.ecolab.ui.screens
                         }
                     }
 
-                    // Ícone do item (usando emoji como placeholder)
-                    Text(
-                        text = item.iconRes,
-                        fontSize = 48.sp,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .graphicsLayer(scaleX = 1.2f, scaleY = 1.2f),
-                        color = when (item.rarity) {
-                            Rarity.COMMON -> Palette.text
-                            Rarity.UNCOMMON -> Palette.secondary
-                            Rarity.RARE -> Palette.secondary
-                            Rarity.EPIC -> Palette.tertiary
-                            Rarity.LEGENDARY -> Palette.accent
-                        }
-                    )
+                    if (item.drawableRes != null) {
+                        Image(
+                            painter = painterResource(id = item.drawableRes),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(72.dp)
+                        )
+                    } else {
+                        Text(
+                            text = item.iconRes,
+                            fontSize = 48.sp,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .graphicsLayer(scaleX = 1.2f, scaleY = 1.2f),
+                            color = when (item.rarity) {
+                                Rarity.COMMON -> Palette.text
+                                Rarity.UNCOMMON -> Palette.secondary
+                                Rarity.RARE -> Palette.secondary
+                                Rarity.EPIC -> Palette.tertiary
+                                Rarity.LEGENDARY -> Palette.accent
+                            }
+                        )
+                    }
                 }
 
                 // Badge de raridade

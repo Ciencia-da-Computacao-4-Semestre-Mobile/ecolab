@@ -106,7 +106,7 @@ class LibraryViewModel : ViewModel() {
             "radioativo" -> Pair(Color(0xFF673AB7), R.drawable.ic_time)
             "organico" -> Pair(Color(0xFF964B00), R.drawable.ic_ecolab_logo)
             "naoreciclavel" -> Pair(Color(0xFF575757), R.drawable.ic_delete)
-            else -> Pair(Color(0xFF00BCD4), R.drawable.icone_artigo)
+            else -> Pair(Color(0xFF00BCD4), R.drawable.ic_ecolab_logo)
         }
     }
 }

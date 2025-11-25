@@ -7,7 +7,8 @@ data class StoreItem(
     val price: Int,
     val category: StoreCategory,
     val rarity: Rarity,
-    val iconRes: String, // Nome do ícone/avatar
+    val iconRes: String,
+    val drawableRes: Int? = null,
     val isPurchased: Boolean = false,
     val isEquipped: Boolean = false
 )

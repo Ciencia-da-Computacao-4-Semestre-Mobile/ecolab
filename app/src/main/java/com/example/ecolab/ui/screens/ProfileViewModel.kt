@@ -50,7 +50,7 @@ class ProfileViewModel @Inject constructor(
                         displayName = user.displayName ?: userData?.name ?: "",
                         email = user.email ?: userData?.email ?: "",
                         photoUrl = user.photoUrl?.toString(),
-                        totalPoints = calculateTotalPoints(userData),
+                        totalPoints = userData?.totalPoints ?: 0,
                         articlesRead = calculateArticlesRead(userData),
                         quizzesDone = calculateQuizzesDone(userData),
                         achievementsUnlocked = calculateAchievementsUnlocked(userData),
@@ -63,11 +63,6 @@ class ProfileViewModel @Inject constructor(
                 _state.update { it.copy(isLoading = false) }
             }
         }
-    }
-
-    private fun calculateTotalPoints(userData: com.example.ecolab.data.model.User?): Int {
-        // Lógica para calcular pontos totais baseado em quizzes, conquistas, etc.
-        return userData?.favoritedPoints?.size?.times(10) ?: 0
     }
 
     private fun calculateArticlesRead(userData: com.example.ecolab.data.model.User?): Int {
@@ -87,13 +82,13 @@ class ProfileViewModel @Inject constructor(
 
     private fun calculateLevel(userData: com.example.ecolab.data.model.User?): Int {
         // Lógica para calcular nível baseado em pontos
-        val points = calculateTotalPoints(userData)
+        val points = userData?.totalPoints ?: 0
         return (points / 100) + 1
     }
 
     private fun calculateLevelProgress(userData: com.example.ecolab.data.model.User?): Float {
         // Lógica para calcular progresso para próximo nível
-        val points = calculateTotalPoints(userData)
+        val points = userData?.totalPoints ?: 0
         return (points % 100) / 100f
     }
 }

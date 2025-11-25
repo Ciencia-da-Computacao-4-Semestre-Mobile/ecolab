@@ -496,8 +496,8 @@ private fun LibraryItemCard(
                                 )
                                 .crossfade(true)
                                 .build(),
-                            placeholder = painterResource(R.drawable.icone_artigo),
-                            error = painterResource(R.drawable.icone_artigo)
+                            placeholder = painterResource(R.drawable.ic_ecolab_logo),
+                            error = painterResource(R.drawable.ic_ecolab_logo)
                         ),
                         contentDescription = null,
                         modifier = Modifier

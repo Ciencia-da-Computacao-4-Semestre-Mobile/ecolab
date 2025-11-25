@@ -40,12 +40,18 @@ import androidx.compose.ui.unit.dp
 import com.example.ecolab.R
 import com.example.ecolab.ui.theme.EcoLabTheme
 import com.example.ecolab.ui.theme.Palette
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(onNavigateUp: () -> Unit) {
-    var username by remember { mutableStateOf("UserTeste1") }
-    var email by remember { mutableStateOf("user.teste@gmail.com") }
+    val user = remember { com.google.firebase.auth.FirebaseAuth.getInstance().currentUser }
+    var username by remember { mutableStateOf(user?.displayName ?: "") }
+    var email by remember { mutableStateOf(user?.email ?: "") }
+    val scope = rememberCoroutineScope()
+    val ctx = androidx.compose.ui.platform.LocalContext.current
 
     Scaffold(
         topBar = {
@@ -57,7 +63,27 @@ fun EditProfileScreen(onNavigateUp: () -> Unit) {
                     }
                 },
                 actions = {
-                    TextButton(onClick = { /* TODO: Save logic */ }) {
+                    TextButton(onClick = {
+                        scope.launch {
+                            val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+                            val current = auth.currentUser
+                            if (current != null) {
+                                val profileUpdate = com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                                    .setDisplayName(username.trim())
+                                    .build()
+                                runCatching { current.updateProfile(profileUpdate).await() }
+                                if (email.trim().isNotEmpty() && email.trim() != current.email) {
+                                    runCatching { current.updateEmail(email.trim()).await() }
+                                }
+                                val fs = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                                val map = hashMapOf<String, Any?>()
+                                map["name"] = username.trim()
+                                map["email"] = email.trim()
+                                runCatching { fs.collection("users").document(current.uid).update(map).await() }
+                            }
+                            onNavigateUp()
+                        }
+                    }) {
                         Text("SAVE", color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 },
@@ -89,15 +115,21 @@ fun EditProfileScreen(onNavigateUp: () -> Unit) {
                             .clip(CircleShape)
                             .background(Color.White)
                     )
-                    IconButton(onClick = { /* TODO: Photo picker logic */ }) {
-                        Icon(
-                            imageVector = Icons.Default.PhotoCamera,
-                            contentDescription = "Change Profile Picture",
-                            tint = Color.White,
-                            modifier = Modifier
-                                .background(Palette.primary, CircleShape)
-                                .padding(8.dp)
-                        )
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(Palette.primary),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        IconButton(onClick = { }) {
+                            Icon(
+                                imageVector = Icons.Default.PhotoCamera,
+                                contentDescription = "Change Profile Picture",
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 }
             }

@@ -429,8 +429,14 @@ fun RegisterScreen(
 
                             OutlinedButton(
                                 onClick = {
+                                    val clientIdRes = context.resources.getIdentifier("default_web_client_id", "string", context.packageName)
+                                    val clientId = runCatching { if (clientIdRes != 0) context.getString(clientIdRes) else "" }.getOrDefault("")
+                                    if (clientId.isBlank()) {
+                                        android.widget.Toast.makeText(context, "Configuração do Google Sign-In ausente. Verifique google-services.json", android.widget.Toast.LENGTH_LONG).show()
+                                        return@OutlinedButton
+                                    }
                                     val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                                        .requestIdToken(context.getString(R.string.default_web_client_id))
+                                        .requestIdToken(clientId)
                                         .requestEmail()
                                         .build()
                                     val googleSignInClient = GoogleSignIn.getClient(context, gso)

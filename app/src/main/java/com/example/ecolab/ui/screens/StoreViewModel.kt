@@ -27,24 +27,24 @@ class StoreViewModel @Inject constructor() : ViewModel() {
         val items = listOf(
             // ===== AVATARES NATUREZA =====
             // Comuns (50-200 pontos)
-            StoreItem("avatar_nature_1", "Guardião da Floresta", "Avatar com tema de floresta tropical", 150, StoreCategory.AVATAR, Rarity.COMMON, "🌳"),
-            StoreItem("avatar_nature_2", "Espírito do Verde", "Avatar com aura natural", 180, StoreCategory.AVATAR, Rarity.COMMON, "🌿"),
-            StoreItem("avatar_nature_3", "Filho da Terra", "Avatar com conexão profunda com a natureza", 120, StoreCategory.AVATAR, Rarity.COMMON, "🌱"),
-            StoreItem("avatar_nature_4", "Aprendiz Verde", "Avatar iniciante na jornada ecológica", 80, StoreCategory.AVATAR, Rarity.COMMON, "🌿"),
-            StoreItem("avatar_nature_5", "Herói da Mata", "Avatar protetor das florestas", 200, StoreCategory.AVATAR, Rarity.COMMON, "🌲"),
+            StoreItem("avatar_nature_1", "Guardião da Floresta", "Avatar com tema de floresta tropical", 150, StoreCategory.AVATAR, Rarity.COMMON, "🌳", drawableRes = com.example.ecolab.R.drawable.avatar_02),
+            StoreItem("avatar_nature_2", "Espírito do Verde", "Avatar com aura natural", 180, StoreCategory.AVATAR, Rarity.COMMON, "🌿", drawableRes = com.example.ecolab.R.drawable.avatar_03),
+            StoreItem("avatar_nature_3", "Filho da Terra", "Avatar com conexão profunda com a natureza", 120, StoreCategory.AVATAR, Rarity.COMMON, "🌱", drawableRes = com.example.ecolab.R.drawable.avatar_04),
+            StoreItem("avatar_nature_4", "Aprendiz Verde", "Avatar iniciante na jornada ecológica", 80, StoreCategory.AVATAR, Rarity.COMMON, "🌿", drawableRes = com.example.ecolab.R.drawable.avatar_05),
+            StoreItem("avatar_nature_5", "Herói da Mata", "Avatar protetor das florestas", 200, StoreCategory.AVATAR, Rarity.COMMON, "🌲", drawableRes = com.example.ecolab.R.drawable.avatar_06),
             
             // Raros (250-400 pontos)
-            StoreItem("avatar_nature_6", "Avatar Ancião", "Avatar com sabedoria da natureza", 350, StoreCategory.AVATAR, Rarity.RARE, "🍃"),
-            StoreItem("avatar_nature_7", "Druida Moderno", "Avatar com poderes naturais antigos", 400, StoreCategory.AVATAR, Rarity.RARE, "🌿"),
-            StoreItem("avatar_nature_8", "Guardião das Águas", "Avatar protetor dos oceanos", 300, StoreCategory.AVATAR, Rarity.RARE, "🌊"),
-            StoreItem("avatar_nature_9", "Senhor dos Ventos", "Avatar com domínio dos ventos limpos", 380, StoreCategory.AVATAR, Rarity.RARE, "💨"),
-            StoreItem("avatar_nature_10", "Curandeiro da Terra", "Avatar com poder de curar a natureza", 320, StoreCategory.AVATAR, Rarity.RARE, "🌿"),
+            StoreItem("avatar_nature_6", "Avatar Ancião", "Avatar com sabedoria da natureza", 350, StoreCategory.AVATAR, Rarity.RARE, "🍃", drawableRes = com.example.ecolab.R.drawable.avatar_07),
+            StoreItem("avatar_nature_7", "Druida Moderno", "Avatar com poderes naturais antigos", 400, StoreCategory.AVATAR, Rarity.RARE, "🌿", drawableRes = com.example.ecolab.R.drawable.avatar_08),
+            StoreItem("avatar_nature_8", "Guardião das Águas", "Avatar protetor dos oceanos", 300, StoreCategory.AVATAR, Rarity.RARE, "🌊", drawableRes = com.example.ecolab.R.drawable.avatar_09),
+            StoreItem("avatar_nature_9", "Senhor dos Ventos", "Avatar com domínio dos ventos limpos", 380, StoreCategory.AVATAR, Rarity.RARE, "💨", drawableRes = com.example.ecolab.R.drawable.avatar_10),
+            StoreItem("avatar_nature_10", "Curandeiro da Terra", "Avatar com poder de curar a natureza", 320, StoreCategory.AVATAR, Rarity.RARE, "🌿", drawableRes = com.example.ecolab.R.drawable.avatar_11),
             
             // Épicos (500-700 pontos)
-            StoreItem("avatar_nature_11", "Avatar Elemental", "Avatar mestre dos quatro elementos", 650, StoreCategory.AVATAR, Rarity.EPIC, "🔥🌊🌪️🌍"),
-            StoreItem("avatar_nature_12", "Guardião Sagrado", "Avatar protetor de todos os ecossistemas", 700, StoreCategory.AVATAR, Rarity.EPIC, "🌟"),
-            StoreItem("avatar_nature_13", "Espírito da Floresta", "Avatar uma com a floresta", 550, StoreCategory.AVATAR, Rarity.EPIC, "🌳✨"),
-            StoreItem("avatar_nature_14", "Avatar da Harmonia", "Avatar que equilibra natureza e tecnologia", 600, StoreCategory.AVATAR, Rarity.EPIC, "🌿⚡"),
+            StoreItem("avatar_nature_11", "Avatar Elemental", "Avatar mestre dos quatro elementos", 650, StoreCategory.AVATAR, Rarity.EPIC, "🔥🌊🌪️🌍", drawableRes = com.example.ecolab.R.drawable.avatar_12),
+            StoreItem("avatar_nature_12", "Guardião Sagrado", "Avatar protetor de todos os ecossistemas", 700, StoreCategory.AVATAR, Rarity.EPIC, "🌟", drawableRes = com.example.ecolab.R.drawable.avatar_13),
+            StoreItem("avatar_nature_13", "Espírito da Floresta", "Avatar uma com a floresta", 550, StoreCategory.AVATAR, Rarity.EPIC, "🌳✨", drawableRes = com.example.ecolab.R.drawable.avatar_14),
+            StoreItem("avatar_nature_14", "Avatar da Harmonia", "Avatar que equilibra natureza e tecnologia", 600, StoreCategory.AVATAR, Rarity.EPIC, "🌿⚡", drawableRes = com.example.ecolab.R.drawable.avatar_15),
             
             // Lendários (800-1200 pontos)
             StoreItem("avatar_nature_15", "Avatar Supremo", "Avatar supremo da ecologia", 1200, StoreCategory.AVATAR, Rarity.LEGENDARY, "👑🌿"),

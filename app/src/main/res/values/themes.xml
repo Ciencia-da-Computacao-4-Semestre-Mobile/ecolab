@@ -7,10 +7,14 @@
         Usa a API moderna de SplashScreen e já define o tema principal após o carregamento.
     -->
     <style name="Theme.EcoLab.Splash" parent="Theme.SplashScreen">
+        <!-- Cor de fundo da Splash Screen -->
         <item name="windowSplashScreenBackground">@color/background_primary</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
-        <item name="android:statusBarColor" tools:targetApi="l">@color/background_primary</item>
-        <item name="android:navigationBarColor" tools:targetApi="l">@color/background_primary</item>
+
+        <!-- Ícone animado -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/anim_loading_spinner</item>
+        
+        <!-- Duração da animação -->
+        <item name="windowSplashScreenAnimationDuration">1000</item>
 
         <!-- Tema que será aplicado após a splash -->
         <item name="postSplashScreenTheme">@style/Theme.EcoLab.Fullscreen</item>

@@ -208,6 +208,7 @@
     -->
     <color name="error_primary">#B3261E</color>
     <color name="error_secondary">#F2B8B5</color>
+    <color name="splash_background">#DFE6DE</color>
     
     <!-- 
         ALIASES - COMPATIBILIDADE E CONVENIÊNCIA

@@ -57,7 +57,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -89,6 +91,7 @@ fun LoginScreen(
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     var isVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
@@ -333,8 +336,15 @@ fun LoginScreen(
 
                                 Surface(
                                     onClick = {
+                                        val clientIdRes = context.resources.getIdentifier("default_web_client_id", "string", context.packageName)
+                                        val clientId = runCatching { if (clientIdRes != 0) context.getString(clientIdRes) else "" }.getOrDefault("")
+                                        if (clientId.isBlank()) {
+                                            Log.e("LoginScreen", "default_web_client_id ausente ou inválido")
+                                            scope.launch { snackbarHostState.showSnackbar("Configuração do Google Sign-In ausente. Verifique google-services.json") }
+                                            return@Surface
+                                        }
                                         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                                            .requestIdToken(context.getString(R.string.default_web_client_id))
+                                            .requestIdToken(clientId)
                                             .requestEmail()
                                             .build()
                                         val googleSignInClient = GoogleSignIn.getClient(context, gso)

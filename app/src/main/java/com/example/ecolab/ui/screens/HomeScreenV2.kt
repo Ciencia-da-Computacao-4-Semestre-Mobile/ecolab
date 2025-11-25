@@ -18,6 +18,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.EnergySavingsLeaf
 import androidx.compose.material.icons.filled.Quiz
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.ShoppingBag
@@ -29,9 +30,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import android.graphics.BitmapFactory
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,6 +51,7 @@ import kotlin.math.sin
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import com.example.ecolab.ui.components.AnimatedParticles
+import com.example.ecolab.ui.components.UserAvatar
 import coil.compose.AsyncImage
 
 @Composable
@@ -120,6 +124,34 @@ private fun AnimatedHeader() {
 
     LaunchedEffect(Unit) {
         visible = true
+    }
+
+    val context = androidx.compose.ui.platform.LocalContext.current
+    LaunchedEffect("sync_equipped_assets") {
+        runCatching {
+            val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+            val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+            val uid = auth.currentUser?.uid
+            if (uid != null) {
+                firestore.collection("users").document(uid).collection("store").document("state").get()
+                    .addOnSuccessListener { stateDoc ->
+                        if (stateDoc.exists()) {
+                            val equippedAvatarResId = stateDoc.getLong("equippedAvatarResId")?.toInt()
+                            val equippedSealEmoji = stateDoc.getString("equippedSealEmoji")
+                            val prefs = context.getSharedPreferences("ecolab_prefs", android.content.Context.MODE_PRIVATE)
+                            equippedAvatarResId?.let { resId ->
+                                if (resId != 0 && runCatching { context.resources.getResourceName(resId) }.isSuccess) {
+                                    prefs.edit().putInt("equipped_avatar_res_id", resId).apply()
+                                }
+                            }
+                            if (!equippedSealEmoji.isNullOrEmpty()) {
+                                prefs.edit().putString("equipped_seal_emoji", equippedSealEmoji).apply()
+                                prefs.edit().remove("equipped_seal_res_id").apply()
+                            }
+                        }
+                    }
+            }
+        }
     }
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -314,70 +346,67 @@ private fun AnimatedHeader() {
 
                 Box(
                     modifier = Modifier
-                        .size(headerHeight * 0.9f)
-                        .scale(avatarScale)
-                        .clip(CircleShape)
-                        .background(Color.White, CircleShape)
-                        .border(
-                            width = 4.dp,
-                            color = Palette.primary,
-                            shape = CircleShape
-                        ),
+                        .size(120.dp)
+                        .scale(avatarScale),
                     contentAlignment = Alignment.Center
                 ) {
+                    val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+                    UserAvatar(
+                        modifier = Modifier.fillMaxSize(),
+                        displayName = user?.displayName,
+                        email = user?.email,
+                        photoUrl = user?.photoUrl?.toString()
+                    )
+
                     val context = androidx.compose.ui.platform.LocalContext.current
                     val prefs = remember { context.getSharedPreferences("ecolab_prefs", android.content.Context.MODE_PRIVATE) }
-                    val equippedRes = prefs.getInt("equipped_avatar_res_id", 0)
-                    if (equippedRes != 0) {
-                        AsyncImage(
-                            model = equippedRes,
-                            contentDescription = "Avatar",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(4.dp),
-                            contentScale = ContentScale.Crop,
-                            error = painterResource(id = R.drawable.ic_launcher_foreground)
-                        )
-                    } else {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                            contentDescription = "Avatar",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(4.dp)
-                        )
+                    var sealRes by remember { mutableStateOf(prefs.getInt("equipped_seal_res_id", 0)) }
+                    var sealEmoji by remember { mutableStateOf(prefs.getString("equipped_seal_emoji", "")) }
+
+                    androidx.compose.runtime.DisposableEffect(prefs) {
+                        val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { sp, key ->
+                            if (key == "equipped_seal_res_id") {
+                                sealRes = sp.getInt("equipped_seal_res_id", 0)
+                            }
+                            if (key == "equipped_seal_emoji") {
+                                sealEmoji = sp.getString("equipped_seal_emoji", "")
+                            }
+                        }
+                        prefs.registerOnSharedPreferenceChangeListener(listener)
+                        onDispose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
                     }
 
-                    val sealRes = prefs.getInt("equipped_seal_res_id", 0)
-                    val sealEmoji = prefs.getString("equipped_seal_emoji", "")
-                    if (sealRes != 0) {
+                    val sealValid = sealRes != 0 && runCatching { context.resources.getResourceName(sealRes) }.isSuccess
+                    val bmpSeal = if (sealValid && sealRes != 0) runCatching { BitmapFactory.decodeResource(context.resources, sealRes) }.getOrNull() else null
+
+                    val sealModifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = (-5).dp, y = 5.dp)
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.9f), CircleShape)
+
+                    if (bmpSeal != null) {
                         Box(
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(8.dp)
-                                .size(32.dp)
-                                .clip(CircleShape)
-                                .background(Color.White.copy(alpha = 0.8f), CircleShape),
+                            modifier = sealModifier,
                             contentAlignment = Alignment.Center
                         ) {
-                            AsyncImage(
-                                model = sealRes,
+                            Image(
+                                bitmap = bmpSeal.asImageBitmap(),
                                 contentDescription = null,
-                                modifier = Modifier.size(24.dp),
-                                error = if (!sealEmoji.isNullOrEmpty()) null else painterResource(id = R.drawable.ic_launcher_foreground)
+                                modifier = Modifier.size(32.dp)
                             )
                         }
                     } else if (!sealEmoji.isNullOrEmpty()) {
                         Box(
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(8.dp)
-                                .size(32.dp)
-                                .clip(CircleShape)
-                                .background(Color.White.copy(alpha = 0.8f), CircleShape),
+                            modifier = sealModifier,
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = sealEmoji!!, fontSize = 16.sp)
+                            androidx.compose.material3.Text(text = sealEmoji ?: "", fontSize = 20.sp)
+                        }
+                    } else {
+                        if (sealRes != 0 && !sealValid) {
+                            prefs.edit().remove("equipped_seal_res_id").apply()
                         }
                     }
                 }
@@ -520,7 +549,7 @@ private fun AnimatedStatsSection(uiState: HomeUiState) {
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Star,
+                        imageVector = Icons.Default.EnergySavingsLeaf,
                         contentDescription = "Seus EcoPoints",
                         tint = Palette.tertiary,
                         modifier = Modifier.size(20.dp)
@@ -550,28 +579,7 @@ private fun AnimatedStatsSection(uiState: HomeUiState) {
                     lineHeight = 18.sp
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Barra de progresso menor
-                LinearProgressIndicator(
-                    progress = { uiState.levelProgress },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(8.dp)
-                        .clip(RoundedCornerShape(4.dp)),
-                    color = Palette.secondary,
-                    trackColor = Palette.divider
-                )
-
                 Spacer(modifier = Modifier.height(8.dp))
-
-                // Texto do nível menor
-                Text(
-                    text = uiState.levelText,
-                    fontSize = 12.sp,
-                    color = Palette.textMuted,
-                    fontWeight = FontWeight.SemiBold
-                )
             }
         }
     }
@@ -677,28 +685,7 @@ private fun AnimatedFeatureCard(
                     fontWeight = FontWeight.Medium
                 )
 
-                if (progress != null && progressText != null && !completed) {
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    LinearProgressIndicator(
-                        progress = { progress },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(6.dp)
-                            .clip(RoundedCornerShape(3.dp)),
-                        color = color,
-                        trackColor = color.copy(alpha = 0.2f)
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = progressText,
-                        fontSize = 12.sp,
-                        color = Palette.textMuted,
-                        modifier = Modifier.align(Alignment.End)
-                    )
-                } else if (completed) {
+                if (completed) {
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Row(
@@ -738,8 +725,8 @@ private fun AnimatedFeatureCard(
 private fun HomeScreenV2Preview() {
     EcoLabTheme {
         HomeScreenV2(
-            onQuizClick = {},
-            onStoreClick = {}
+            onQuizClick = { },
+            onStoreClick = { }
         )
     }
 }
