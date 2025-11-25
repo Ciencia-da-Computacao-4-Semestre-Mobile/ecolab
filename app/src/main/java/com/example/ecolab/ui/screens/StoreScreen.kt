@@ -281,26 +281,7 @@ fun StoreScreen(
                     )
                 }
 
-                val equippedAvatarItem = avatarItems.find { it.isEquipped }
-                val equippedSealItem = sealItems.find { it.isEquipped }
-                EquippedSection(
-                    equippedAvatar = equippedAvatarItem,
-                    equippedSeal = equippedSealItem,
-                    onUnequipAvatar = {
-                        avatarItems = avatarItems.map { it.copy(isEquipped = false) }
-                        val prefs = context.getSharedPreferences("ecolab_prefs", Context.MODE_PRIVATE)
-                        prefs.edit().remove("equipped_avatar_res_id").apply()
-                        coroutineScope.launch { saveState() }
-                    },
-                    onUnequipSeal = {
-                        sealItems = sealItems.map { it.copy(isEquipped = false) }
-                        val prefs = context.getSharedPreferences("ecolab_prefs", Context.MODE_PRIVATE)
-                        prefs.edit().remove("equipped_seal_res_id").apply()
-                        prefs.edit().remove("equipped_seal_emoji").apply()
-                        applySealEffectOnEquipV2(context, UiStoreItem(0, "", "", 0, "Selos"))
-                        coroutineScope.launch { saveState() }
-                    }
-                )
+                
 
                 Box(
                     modifier = Modifier
@@ -1429,20 +1410,7 @@ private fun EquippedSection(
                                 .padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            val context = LocalContext.current
-                            val res = equippedAvatar.iconRes
-                            val isValidRes = res != null && res != 0 && runCatching { context.resources.getResourceName(res) }.isSuccess
-                            val bmp = if (isValidRes && res != null) runCatching { BitmapFactory.decodeResource(context.resources, res) }.getOrNull() else null
-                            if (bmp != null) {
-                                Image(
-                                    bitmap = bmp.asImageBitmap(),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp))
-                                )
-                            } else {
-                                Text(text = equippedAvatar.icon, fontSize = 24.sp)
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
                             Text(equippedAvatar.name, fontWeight = FontWeight.SemiBold)
                             Spacer(modifier = Modifier.width(12.dp))
                             OutlinedButton(onClick = onUnequipAvatar, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)) {
@@ -1459,20 +1427,10 @@ private fun EquippedSection(
                                 .padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            val context = LocalContext.current
-                            val res = equippedSeal.iconRes
-                            val isValidRes = res != null && res != 0 && runCatching { context.resources.getResourceName(res) }.isSuccess
-                            val bmp = if (isValidRes && res != null) runCatching { BitmapFactory.decodeResource(context.resources, res) }.getOrNull() else null
-                            if (bmp != null) {
-                                Image(
-                                    bitmap = bmp.asImageBitmap(),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp))
-                                )
-                            } else {
-                                Text(text = equippedSeal.icon, fontSize = 24.sp)
+                            if (equippedSeal.icon.isNotEmpty()) {
+                                Text(text = equippedSeal.icon, fontSize = 20.sp)
+                                Spacer(modifier = Modifier.width(8.dp))
                             }
-                            Spacer(modifier = Modifier.width(8.dp))
                             Text(equippedSeal.name, fontWeight = FontWeight.SemiBold)
                             Spacer(modifier = Modifier.width(12.dp))
                             OutlinedButton(onClick = onUnequipSeal, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)) {

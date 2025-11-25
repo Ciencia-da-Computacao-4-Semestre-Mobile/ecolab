@@ -306,7 +306,8 @@ fun QuizScreen(
                     )
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    question.options.forEach { option ->
+                    val optionsShuffled = remember(currentQuestionIndex) { question.options.shuffled() }
+                    optionsShuffled.forEach { option ->
                         QuizOptionCard(
                             optionText = option,
                             isSelected = (selectedOption == option),

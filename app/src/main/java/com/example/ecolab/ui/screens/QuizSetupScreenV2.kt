@@ -41,10 +41,12 @@ fun QuizSetupScreenV2(
     val quizViewModel: QuizViewModel = viewModel()
     val quizState by quizViewModel.uiState.collectAsState()
     var navigated by rememberSaveable { mutableStateOf(false) }
+    var shouldStart by rememberSaveable { mutableStateOf(false) }
     val ctx = LocalContext.current
     LaunchedEffect(Unit) {
         quizViewModel.attachCache(ctx)
         navigated = false
+        shouldStart = false
         quizViewModel.reset()
     }
 
@@ -119,13 +121,14 @@ fun QuizSetupScreenV2(
                 .background(backgroundGradient)
                 .padding(paddingValues)
         ) {
-            LaunchedEffect(quizState, navigated) {
-                if (!navigated) {
+            LaunchedEffect(quizState, navigated, shouldStart) {
+                if (shouldStart && !navigated) {
                     val s = quizState
                     if (s is QuizUiState.Success && s.quiz.questions.isNotEmpty()) {
                         val theme = uiState.selectedTheme?.name ?: "Default"
                         val gameMode = if (uiState.selectedGameMode?.name == "Speed Run") GameMode.SPEEDRUN else GameMode.NORMAL
                         navigated = true
+                        shouldStart = false
                         onStartQuiz(theme, gameMode)
                     }
                 }
@@ -173,6 +176,7 @@ fun QuizSetupScreenV2(
                             val theme = uiState.selectedTheme?.name ?: "Default"
                             val gameMode = if (uiState.selectedGameMode?.name == "Speed Run") GameMode.SPEEDRUN else GameMode.NORMAL
                             navigated = false
+                            shouldStart = true
                             quizViewModel.generateQuiz(theme, 10)
                         }
                     )

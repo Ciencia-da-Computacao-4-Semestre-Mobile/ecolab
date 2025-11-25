@@ -95,14 +95,14 @@ fun QuizOptionCard(
     )
 
     val targetBorderColor = when {
-        isSelected && isAnswered && isCorrect -> Palette.success
+        isAnswered && isCorrect -> Palette.success
         isSelected && isAnswered && !isCorrect -> Palette.error
         isSelected -> themeColor
         else -> Palette.textMuted.copy(alpha = 0.2f)
     }
 
     val targetBackgroundColor = when {
-        isSelected && isAnswered && isCorrect -> Palette.success.copy(alpha = 0.15f)
+        isAnswered && isCorrect -> Palette.success.copy(alpha = 0.15f)
         isSelected && isAnswered && !isCorrect -> Palette.error.copy(alpha = 0.15f)
         else -> Palette.surface
     }
@@ -199,11 +199,21 @@ fun QuizOptionCard(
                     color = Palette.text
                 )
 
-                if (isAnswered && isSelected) {
+                if (isAnswered) {
                     Spacer(modifier = Modifier.width(16.dp))
-                    val icon = if (isCorrect) Icons.Default.CheckCircle else Icons.Default.Close
-                    val tint = if (isCorrect) themeColor else Palette.error
-                    Icon(imageVector = icon, contentDescription = "Status da resposta", tint = tint)
+                    if (isCorrect) {
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = "Resposta correta",
+                            tint = Palette.success
+                        )
+                    } else if (isSelected) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Resposta incorreta",
+                            tint = Palette.error
+                        )
+                    }
                 }
             }
         }

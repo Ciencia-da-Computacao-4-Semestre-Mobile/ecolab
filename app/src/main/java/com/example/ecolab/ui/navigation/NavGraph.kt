@@ -152,7 +152,12 @@ fun AppNavHost(
                 }
 
                 QuizScreen(
-                    onClose = { navController.popBackStack() },
+                    onClose = {
+                        navController.navigate("quiz_setup") {
+                            popUpTo("quiz_setup") { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    },
                     theme = theme,
                     gameMode = gameMode
                 )
