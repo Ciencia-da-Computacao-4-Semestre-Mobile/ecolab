@@ -78,19 +78,98 @@ fun StoreScreen(
     var avatarItems by remember { mutableStateOf(getAvatarStoreItems(context)) }
     var sealItems by remember { mutableStateOf(getSealStoreItemsV2()) }
     var inventory by remember { mutableStateOf(listOf<UiInventoryItem>()) }
+    var lastSaveError by remember { mutableStateOf<String?>(null) }
     val auth = FirebaseAuth.getInstance()
     val firestore = FirebaseFirestore.getInstance()
 
+    suspend fun saveState() {
+        try {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
+                val uid = auth.currentUser?.uid
+                if (uid != null) {
+                    val purchasedAvatars = avatarItems.filter { it.isPurchased }.map { it.id }
+                    val purchasedSeals = sealItems.filter { it.isPurchased }.map { it.id }
+                    val equippedAvatar = avatarItems.find { it.isEquipped }?.id
+                    val equippedSeal = sealItems.find { it.isEquipped }?.id
+                    val inventoryCounts = inventory.associate { it.id.toString() to it.quantity }
+                    val equippedAvatarResId = avatarItems.find { it.isEquipped }?.iconRes
+                    val equippedSealEmoji = sealItems.find { it.isEquipped && it.iconRes == null }?.icon
+                    val data = hashMapOf(
+                        "purchasedAvatars" to purchasedAvatars,
+                        "purchasedSeals" to purchasedSeals,
+                        "equippedAvatar" to equippedAvatar,
+                        "equippedSeal" to equippedSeal,
+                        "inventoryCounts" to inventoryCounts,
+                        "equippedAvatarResId" to equippedAvatarResId,
+                        "equippedSealEmoji" to equippedSealEmoji
+                    )
+                    firestore.collection("users").document(uid).collection("store").document("state").set(data).await()
+                    firestore.collection("users").document(uid).update(
+                        mapOf(
+                            "purchasedAvatars" to purchasedAvatars,
+                            "purchasedSeals" to purchasedSeals
+                        )
+                    ).await()
+                    val purchasedItemNames = (avatarItems.filter { it.isPurchased && it.iconRes != null }.map {
+                        runCatching { context.resources.getResourceEntryName(it.iconRes!!) }.getOrNull()
+                    } + sealItems.filter { it.isPurchased && it.iconRes != null }.map {
+                        runCatching { context.resources.getResourceEntryName(it.iconRes!!) }.getOrNull()
+                    }).filterNotNull()
+                    if (purchasedItemNames.isNotEmpty()) {
+                        firestore.collection("users").document(uid)
+                            .update("purchasedItems", com.google.firebase.firestore.FieldValue.arrayUnion(*purchasedItemNames.toTypedArray()))
+                            .await()
+                    }
+                    writeInventoryCache(context, inventory)
+                }
+            }
+        } catch (e: Exception) {
+            lastSaveError = e.message
+            android.util.Log.e("StoreSave", "saveState error", e)
+        }
+    }
+
     LaunchedEffect(Unit) {
         try {
+            val cacheInv = readInventoryCache(context)
+            if (cacheInv.isNotEmpty()) {
+                inventory = cacheInv
+                val cachedIdsAv = cacheInv.filter { it.category == "Avatares" }.map { it.id }.toSet()
+                val cachedIdsSe = cacheInv.filter { it.category == "Selos" }.map { it.id }.toSet()
+                avatarItems = avatarItems.map { it.copy(isPurchased = cachedIdsAv.contains(it.id)) }
+                sealItems = sealItems.map { it.copy(isPurchased = cachedIdsSe.contains(it.id)) }
+            }
             val uid = auth.currentUser?.uid
             if (uid != null) {
                 val userDoc = firestore.collection("users").document(uid).get().await()
                 ecoPoints = userDoc.getLong("totalPoints")?.toInt() ?: 0
                 val stateDoc = firestore.collection("users").document(uid).collection("store").document("state").get().await()
                 if (stateDoc.exists()) {
-                    val purchasedAvatars = (stateDoc.get("purchasedAvatars") as? List<*>)?.mapNotNull { (it as? Number)?.toInt() } ?: emptyList()
-                    val purchasedSeals = (stateDoc.get("purchasedSeals") as? List<*>)?.mapNotNull { (it as? Number)?.toInt() } ?: emptyList()
+                    val purchasedAvatarsState = (stateDoc.get("purchasedAvatars") as? List<*>)?.mapNotNull { (it as? Number)?.toInt() } ?: emptyList()
+                    val purchasedSealsState = (stateDoc.get("purchasedSeals") as? List<*>)?.mapNotNull { (it as? Number)?.toInt() } ?: emptyList()
+                    val purchasedAvatarsUser = (userDoc.get("purchasedAvatars") as? List<*>)?.mapNotNull { (it as? Number)?.toInt() } ?: emptyList()
+                    val purchasedSealsUser = (userDoc.get("purchasedSeals") as? List<*>)?.mapNotNull { (it as? Number)?.toInt() } ?: emptyList()
+                    val purchasedItemStrings = (userDoc.get("purchasedItems") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList()
+                    val purchasedFromStringsAv = purchasedItemStrings.filter { it.startsWith("avatar_") }
+                        .mapNotNull { name ->
+                            runCatching {
+                                val f = com.example.ecolab.R.drawable::class.java.getDeclaredField(name)
+                                f.getInt(null)
+                            }.getOrNull()
+                        }
+                    val purchasedFromStringsSe = purchasedItemStrings.filter { it.startsWith("seal_") }
+                        .mapNotNull { name ->
+                            runCatching {
+                                val f = com.example.ecolab.R.drawable::class.java.getDeclaredField(name)
+                                f.getInt(null)
+                            }.getOrNull()
+                        }
+                    val purchasedAvatars = (purchasedAvatarsState + purchasedAvatarsUser + purchasedFromStringsAv)
+                        .map { normalizeAvatarId(context, it) }
+                        .distinct()
+                    val purchasedSeals = (purchasedSealsState + purchasedSealsUser + purchasedFromStringsSe)
+                        .map { normalizeSealId(context, it) }
+                        .distinct()
                     val equippedAvatar = stateDoc.getLong("equippedAvatar")?.toInt()
                     val equippedSeal = stateDoc.getLong("equippedSeal")?.toInt()
                     val equippedAvatarResId = stateDoc.getLong("equippedAvatarResId")?.toInt()
@@ -105,6 +184,7 @@ fun StoreScreen(
                     val invFromAvatars = avatarItems.filter { it.isPurchased }.map { UiInventoryItem(it.id, it.name, countsMap[it.id] ?: 1, it.icon, it.iconRes, "Avatares") }
                     val invFromSeals = sealItems.filter { it.isPurchased }.map { UiInventoryItem(it.id, it.name, countsMap[it.id] ?: 1, it.icon, it.iconRes, "Selos") }
                     inventory = (invFromAvatars + invFromSeals)
+                    writeInventoryCache(context, inventory)
 
                     val prefs = context.getSharedPreferences("ecolab_prefs", Context.MODE_PRIVATE)
                     equippedAvatarResId?.let { resId ->
@@ -122,35 +202,44 @@ fun StoreScreen(
                             prefs.edit().remove("equipped_seal_emoji").apply()
                         }
                     }
+                    coroutineScope.launch { saveState() }
+                } else {
+                    val purchasedAvatarsUser = (userDoc.get("purchasedAvatars") as? List<*>)?.mapNotNull { (it as? Number)?.toInt() } ?: emptyList()
+                    val purchasedSealsUser = (userDoc.get("purchasedSeals") as? List<*>)?.mapNotNull { (it as? Number)?.toInt() } ?: emptyList()
+                    val purchasedItemStrings = (userDoc.get("purchasedItems") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList()
+                    val purchasedFromStringsAv = purchasedItemStrings.filter { it.startsWith("avatar_") }
+                        .mapNotNull { name ->
+                            runCatching {
+                                val f = com.example.ecolab.R.drawable::class.java.getDeclaredField(name)
+                                f.getInt(null)
+                            }.getOrNull()
+                        }
+                    val purchasedFromStringsSe = purchasedItemStrings.filter { it.startsWith("seal_") }
+                        .mapNotNull { name ->
+                            runCatching {
+                                val f = com.example.ecolab.R.drawable::class.java.getDeclaredField(name)
+                                f.getInt(null)
+                            }.getOrNull()
+                        }
+                    val normalizedAv = purchasedAvatarsUser.map { normalizeAvatarId(context, it) }.toSet()
+                    val normalizedSe = purchasedSealsUser.map { normalizeSealId(context, it) }.toSet()
+                    val normalizedAvFromStrings = purchasedFromStringsAv.map { normalizeAvatarId(context, it) }.toSet()
+                    val normalizedSeFromStrings = purchasedFromStringsSe.map { normalizeSealId(context, it) }.toSet()
+                    avatarItems = avatarItems.map { it.copy(isPurchased = normalizedAv.contains(it.id) || normalizedAvFromStrings.contains(it.id)) }
+                    sealItems = sealItems.map { it.copy(isPurchased = normalizedSe.contains(it.id) || normalizedSeFromStrings.contains(it.id)) }
+                    val invFromAvatars = avatarItems.filter { it.isPurchased }.map { UiInventoryItem(it.id, it.name, 1, it.icon, it.iconRes, "Avatares") }
+                    val invFromSeals = sealItems.filter { it.isPurchased }.map { UiInventoryItem(it.id, it.name, 1, it.icon, it.iconRes, "Selos") }
+                    inventory = (invFromAvatars + invFromSeals)
+                    coroutineScope.launch { saveState() }
+                    writeInventoryCache(context, inventory)
                 }
             }
-        } catch (_: Exception) { }
+        } catch (e: Exception) {
+            lastSaveError = e.message
+            android.util.Log.e("StoreLoad", "load error", e)
+        }
     }
 
-    suspend fun saveState() {
-        try {
-            val uid = auth.currentUser?.uid
-            if (uid != null) {
-                val purchasedAvatars = avatarItems.filter { it.isPurchased }.map { it.id }
-                val purchasedSeals = sealItems.filter { it.isPurchased }.map { it.id }
-                val equippedAvatar = avatarItems.find { it.isEquipped }?.id
-                val equippedSeal = sealItems.find { it.isEquipped }?.id
-                val inventoryCounts = inventory.associate { it.id to it.quantity }
-                val equippedAvatarResId = avatarItems.find { it.isEquipped }?.iconRes
-                val equippedSealEmoji = sealItems.find { it.isEquipped && it.iconRes == null }?.icon
-                val data = hashMapOf(
-                    "purchasedAvatars" to purchasedAvatars,
-                    "purchasedSeals" to purchasedSeals,
-                    "equippedAvatar" to equippedAvatar,
-                    "equippedSeal" to equippedSeal,
-                    "inventoryCounts" to inventoryCounts,
-                    "equippedAvatarResId" to equippedAvatarResId,
-                    "equippedSealEmoji" to equippedSealEmoji
-                )
-                firestore.collection("users").document(uid).collection("store").document("state").set(data).await()
-            }
-        } catch (_: Exception) { }
-    }
 
     Scaffold(
         topBar = {
@@ -184,6 +273,13 @@ fun StoreScreen(
                     .fillMaxSize()
             ) {
                 EcoPointsHeader(points = ecoPoints)
+                if (lastSaveError != null) {
+                    androidx.compose.material3.Text(
+                        text = "Falha ao salvar/carregar: ${lastSaveError}",
+                        color = Color.Red,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
 
                 val equippedAvatarItem = avatarItems.find { it.isEquipped }
                 val equippedSealItem = sealItems.find { it.isEquipped }
@@ -1106,7 +1202,7 @@ fun getAvatarStoreItems(context: Context): List<UiStoreItem> {
             val rarity = rarityForNumber(if (num > 0) num else 10)
             val price = priceForNumber(if (num > 0) num else 10)
             items += UiStoreItem(
-                id = if (num > 0) num else resId,
+                id = resId,
                 name = "Avatar #${if (num > 0) num else namePart}",
                 description = "Avatar ${rarity.name.lowercase()} número ${if (num > 0) num else namePart}",
                 price = price,
@@ -1205,7 +1301,7 @@ fun getSealStoreItemsV2(): List<UiStoreItem> {
             val rarity = rarityForNumber(num)
             val price = priceForNumber(num)
             items += UiStoreItem(
-                id = num,
+                id = resId,
                 name = "Selo #$namePart",
                 description = "Selo visual",
                 price = price,
@@ -1240,6 +1336,65 @@ fun getSealStoreItemsV2(): List<UiStoreItem> {
         )
         items.addAll(more)
         return items.sortedBy { it.id }
+}
+
+private fun normalizeAvatarId(context: Context, id: Int): Int {
+    val valid = id != 0 && runCatching { context.resources.getResourceName(id) }.isSuccess
+    if (valid) return id
+    val name = "avatar_${id}"
+    return runCatching {
+        val field = com.example.ecolab.R.drawable::class.java.getDeclaredField(name)
+        field.getInt(null)
+    }.getOrElse { id }
+}
+
+private fun normalizeSealId(context: Context, id: Int): Int {
+    val valid = id != 0 && runCatching { context.resources.getResourceName(id) }.isSuccess
+    if (valid) return id
+    val name = "seal_${id}"
+    return runCatching {
+        val field = com.example.ecolab.R.drawable::class.java.getDeclaredField(name)
+        field.getInt(null)
+    }.getOrElse { id }
+}
+
+private fun writeInventoryCache(context: Context, inventory: List<UiInventoryItem>) {
+    try {
+        val arr = org.json.JSONArray()
+        inventory.forEach {
+            val obj = org.json.JSONObject()
+            obj.put("id", it.id)
+            obj.put("name", it.name)
+            obj.put("quantity", it.quantity)
+            obj.put("icon", it.icon)
+            obj.put("iconRes", it.iconRes ?: 0)
+            obj.put("category", it.category)
+            arr.put(obj)
+        }
+        val prefs = context.getSharedPreferences("ecolab_prefs", Context.MODE_PRIVATE)
+        prefs.edit().putString("inventory_json", arr.toString()).apply()
+    } catch (_: Exception) { }
+}
+
+private fun readInventoryCache(context: Context): List<UiInventoryItem> {
+    return try {
+        val prefs = context.getSharedPreferences("ecolab_prefs", Context.MODE_PRIVATE)
+        val json = prefs.getString("inventory_json", null) ?: return emptyList()
+        val arr = org.json.JSONArray(json)
+        val out = mutableListOf<UiInventoryItem>()
+        for (i in 0 until arr.length()) {
+            val obj = arr.getJSONObject(i)
+            out += UiInventoryItem(
+                id = obj.optInt("id", 0),
+                name = obj.optString("name", ""),
+                quantity = obj.optInt("quantity", 1),
+                icon = obj.optString("icon", ""),
+                iconRes = obj.optInt("iconRes", 0).let { if (it == 0) null else it },
+                category = obj.optString("category", "")
+            )
+        }
+        out
+    } catch (_: Exception) { emptyList() }
 }
 
 @Composable

@@ -20,17 +20,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
 import android.graphics.BitmapFactory
+import androidx.compose.ui.graphics.asImageBitmap
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 import com.example.ecolab.ui.components.UserAvatar
 import com.example.ecolab.ui.theme.EcoLabTheme
 import com.example.ecolab.ui.theme.Palette
@@ -45,13 +46,46 @@ fun ProfileScreen(
     onHelpClick: () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val prefs = remember { context.getSharedPreferences("ecolab_prefs", android.content.Context.MODE_PRIVATE) }
+    val equippedResId = prefs.getInt("equipped_avatar_res_id", 0)
+    val isValidRes = equippedResId != 0 && runCatching { context.resources.getResourceName(equippedResId) }.isSuccess
+
+    androidx.compose.runtime.LaunchedEffect("sync_equipped_profile") {
+        runCatching {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+            if (uid != null) {
+                val stateDoc = FirebaseFirestore.getInstance()
+                    .collection("users").document(uid)
+                    .collection("store").document("state")
+                    .get().await()
+                if (stateDoc.exists()) {
+                    val equippedAvatarResId = stateDoc.getLong("equippedAvatarResId")?.toInt()
+                    val equippedSealEmoji = stateDoc.getString("equippedSealEmoji")
+                    equippedAvatarResId?.let { resId ->
+                        if (resId != 0 && runCatching { context.resources.getResourceName(resId) }.isSuccess) {
+                            prefs.edit().putInt("equipped_avatar_res_id", resId).apply()
+                        }
+                    }
+                    if (!equippedSealEmoji.isNullOrEmpty()) {
+                        prefs.edit().putString("equipped_seal_emoji", equippedSealEmoji).apply()
+                        prefs.edit().remove("equipped_seal_res_id").apply()
+                    } else {
+                        val equippedSealId = stateDoc.getLong("equippedSeal")?.toInt() ?: 0
+                        if (equippedSealId != 0) {
+                            prefs.edit().remove("equipped_seal_emoji").apply()
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Palette.background)
     ) {
-        
 
         Column(
             modifier = Modifier
@@ -61,7 +95,7 @@ fun ProfileScreen(
             ProfileHeader(
                 displayName = state.displayName,
                 email = state.email,
-                photoUrl = state.photoUrl,
+                photoUrl = if (isValidRes) equippedResId else state.photoUrl,
                 onEditProfileClick = onEditProfileClick
             )
 
@@ -103,7 +137,7 @@ fun ProfileScreen(
 private fun ProfileHeader(
     displayName: String,
     email: String,
-    photoUrl: String?,
+    photoUrl: Any?,
     onEditProfileClick: () -> Unit
 ) {
     val greenGradient = Brush.verticalGradient(
@@ -119,7 +153,6 @@ private fun ProfileHeader(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Container for Avatar + Seal
         Box(
             modifier = Modifier.size(120.dp),
             contentAlignment = Alignment.Center
@@ -131,31 +164,19 @@ private fun ProfileHeader(
                 photoUrl = photoUrl
             )
 
-            // Seal logic, moved to the outer Box
-            val prefsLocal = androidx.compose.ui.platform.LocalContext.current.getSharedPreferences("ecolab_prefs", android.content.Context.MODE_PRIVATE)
-            var sealRes by remember { mutableStateOf(prefsLocal.getInt("equipped_seal_res_id", 0)) }
-            var sealEmoji by remember { mutableStateOf(prefsLocal.getString("equipped_seal_emoji", "")) }
-            DisposableEffect(prefsLocal) {
-                val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { sp, key ->
-                    if (key == "equipped_seal_res_id") {
-                        sealRes = sp.getInt("equipped_seal_res_id", 0)
-                    }
-                    if (key == "equipped_seal_emoji") {
-                        sealEmoji = sp.getString("equipped_seal_emoji", "")
-                    }
-                }
-                prefsLocal.registerOnSharedPreferenceChangeListener(listener)
-                onDispose { prefsLocal.unregisterOnSharedPreferenceChangeListener(listener) }
-            }
-            val sealValid = sealRes != 0 && runCatching { androidx.compose.ui.platform.LocalContext.current.resources.getResourceName(sealRes) }.isSuccess
-            val bmpSeal = if (sealValid && sealRes != 0) runCatching { BitmapFactory.decodeResource(androidx.compose.ui.platform.LocalContext.current.resources, sealRes) }.getOrNull() else null
+            val context = androidx.compose.ui.platform.LocalContext.current
+            val prefs = remember { context.getSharedPreferences("ecolab_prefs", android.content.Context.MODE_PRIVATE) }
+            val sealRes = prefs.getInt("equipped_seal_res_id", 0)
+            val sealEmoji = prefs.getString("equipped_seal_emoji", "")
+            val sealValid = sealRes != 0 && runCatching { context.resources.getResourceName(sealRes) }.isSuccess
+            val bmpSeal = if (sealValid && sealRes != 0) runCatching { BitmapFactory.decodeResource(context.resources, sealRes) }.getOrNull() else null
 
             val sealModifier = Modifier
                 .align(Alignment.TopEnd)
                 .offset(x = (-5).dp, y = 5.dp)
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.9f))
+                .background(Color.White.copy(alpha = 0.9f), CircleShape)
 
             if (bmpSeal != null) {
                 Box(
@@ -180,7 +201,6 @@ private fun ProfileHeader(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // User info with animations
         Text(
             text = displayName,
             fontSize = 28.sp,
@@ -197,7 +217,6 @@ private fun ProfileHeader(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Edit profile button
         OutlinedButton(
             onClick = onEditProfileClick,
             colors = ButtonDefaults.outlinedButtonColors(
@@ -240,7 +259,6 @@ private fun StatsSection(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Main stat - EcoPoints
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),

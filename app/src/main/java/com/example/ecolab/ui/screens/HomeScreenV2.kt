@@ -78,7 +78,7 @@ fun HomeScreenV2(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                AnimatedHeader()
+                AnimatedHeader(uiState)
 
                 Column(
                     modifier = Modifier
@@ -119,7 +119,7 @@ fun HomeScreenV2(
 }
 
 @Composable
-private fun AnimatedHeader() {
+private fun AnimatedHeader(uiState: HomeUiState) {
     var visible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -355,7 +355,13 @@ private fun AnimatedHeader() {
                         modifier = Modifier.fillMaxSize(),
                         displayName = user?.displayName,
                         email = user?.email,
-                        photoUrl = user?.photoUrl?.toString()
+                        photoUrl = run {
+                            val context = androidx.compose.ui.platform.LocalContext.current
+                            val prefs = context.getSharedPreferences("ecolab_prefs", android.content.Context.MODE_PRIVATE)
+                            val resId = prefs.getInt("equipped_avatar_res_id", 0)
+                            val isValid = resId != 0 && runCatching { context.resources.getResourceName(resId) }.isSuccess
+                            if (isValid) resId else uiState.avatar ?: user?.photoUrl?.toString()
+                        }
                     )
 
                     val context = androidx.compose.ui.platform.LocalContext.current

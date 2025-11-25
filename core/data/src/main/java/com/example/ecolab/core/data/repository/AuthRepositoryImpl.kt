@@ -113,13 +113,17 @@ class AuthRepositoryImpl @Inject constructor(
     private suspend fun saveUserProfileToDatabase(user: FirebaseUser) {
         val userUID = user.uid
 
-        val profileData = mapOf(
+        val profileData = mutableMapOf(
             "name" to (user.displayName ?: "Novo Usuário"),
             "email" to user.email,
             "created_at" to System.currentTimeMillis(),
             "is_active" to true,
             "favoritePoints" to emptyList<String>()
         )
+
+        user.photoUrl?.let {
+            profileData["photoUrl"] = it.toString()
+        }
 
         val userDocRef = firestore.collection("users").document(userUID)
 

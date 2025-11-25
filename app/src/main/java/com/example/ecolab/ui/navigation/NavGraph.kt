@@ -1,18 +1,23 @@
 package com.example.ecolab.ui.navigation
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.background
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,12 +26,10 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -36,24 +39,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.ecolab.ui.screens.StoreScreen
-import com.example.ecolab.ui.screens.EditProfileScreen
-import com.example.ecolab.ui.screens.GameMode
-import com.example.ecolab.ui.screens.HelpScreen
-import com.example.ecolab.ui.screens.HomeScreenV2
-import com.example.ecolab.ui.screens.LibraryScreen
-import com.example.ecolab.ui.screens.LoginScreen
-import com.example.ecolab.ui.screens.MapScreen
-import com.example.ecolab.ui.screens.ProfileScreen
-import com.example.ecolab.ui.screens.QuizScreen
-import com.example.ecolab.ui.screens.QuizSetupScreenV2
-import com.example.ecolab.ui.screens.RegisterScreen
-import com.example.ecolab.ui.screens.SettingsScreen
+import com.example.ecolab.ui.screens.*
 import com.example.ecolab.ui.theme.Palette
-import android.content.Intent
-import android.net.Uri
-import androidx.compose.ui.platform.LocalContext
-import com.example.ecolab.ui.screens.ForgotPasswordScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -108,8 +95,12 @@ fun AppNavHost(
                     onStoreClick = { navController.navigate("store") }
                 )
             }
-            composable(BottomNavItem.Map.route) { MapScreen() }
-            composable(BottomNavItem.Library.route) { LibraryScreen(onGuideClick = openUrl) }
+            composable(BottomNavItem.Map.route) {
+                MapScreen()
+            }
+            composable(BottomNavItem.Library.route) {
+                LibraryScreen(onGuideClick = openUrl)
+            }
             composable(BottomNavItem.Profile.route) {
                 ProfileScreen(
                     onEditProfileClick = { navController.navigate("edit_profile") },
@@ -131,6 +122,13 @@ fun AppNavHost(
             }
             composable("achievements") {
                 // TODO: Implement AchievementsScreen
+                Box(
+                    modifier = Modifier
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Tela de Conquistas - Em Desenvolvimento")
+                }
             }
             composable("settings") {
                 SettingsScreen(navController = navController)
