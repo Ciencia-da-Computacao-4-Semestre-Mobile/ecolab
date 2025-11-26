@@ -47,9 +47,9 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("C:/Ecolab/ecolab/release.jks")
+            storeFile = rootProject.file("release.jks")
             storePassword = "@ecolab2025"
-            keyAlias = "key"
+            keyAlias = "key0"
             keyPassword = "@ecolab2025"
         }
     }

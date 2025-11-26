@@ -29,6 +29,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -286,42 +288,35 @@ private fun GameModeCard(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val scale by animateFloatAsState(
-        targetValue = if (isSelected) 1.02f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
-        label = "scale"
-    )
-
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
     Card(
         onClick = onClick,
         modifier = Modifier
-            .fillMaxWidth()
-            .scale(scale),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) item.color.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surface,
+            containerColor = if (isSelected) item.color.copy(alpha = 0.15f) else if (isPressed) item.color.copy(alpha = 0.08f) else MaterialTheme.colorScheme.surface,
             contentColor = item.color
         ),
-        border = if (isSelected) BorderStroke(2.dp, item.color) else BorderStroke(1.dp, item.color.copy(alpha = 0.2f)),
+        border = BorderStroke(2.dp, item.color.copy(alpha = 0.3f)),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isSelected) 10.dp else 5.dp,
-            pressedElevation = 14.dp
-        )
+            defaultElevation = 0.dp,
+            pressedElevation = 0.dp
+        ),
+        interactionSource = interactionSource
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 22.dp, vertical = 18.dp),
+                .padding(horizontal = 20.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             // Ícone simples
             Box(
                 modifier = Modifier
-                    .size(46.dp)
+                    .size(40.dp)
                     .background(item.color.copy(alpha = 0.15f), CircleShape)
                     .border(1.dp, item.color.copy(alpha = 0.4f), CircleShape),
                 contentAlignment = Alignment.Center
@@ -329,7 +324,7 @@ private fun GameModeCard(
                 Icon(
                     imageVector = item.icon,
                     contentDescription = null,
-                    modifier = Modifier.size(28.dp),
+                    modifier = Modifier.size(24.dp),
                     tint = item.color
                 )
             }
@@ -349,20 +344,22 @@ private fun GameModeCard(
                 )
             }
 
-            // Indicador de seleção simples
-            if (isSelected) {
-                Surface(
-                    shape = CircleShape,
-                    color = item.color,
-                    modifier = Modifier.size(22.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            Icons.Default.Check,
-                            contentDescription = "Selecionado",
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
-                        )
+            // Indicador de seleção com espaço reservado
+            Box(modifier = Modifier.size(22.dp), contentAlignment = Alignment.Center) {
+                if (isSelected) {
+                    Surface(
+                        shape = CircleShape,
+                        color = item.color,
+                        modifier = Modifier.size(22.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = "Selecionado",
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -377,80 +374,60 @@ private fun ThemeCard(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val scale by animateFloatAsState(
-        targetValue = if (isSelected) 1.05f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
-        label = "scale"
-    )
-
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
     Card(
         onClick = onClick,
         modifier = Modifier
-            .width(160.dp)
-            .scale(scale),
+            .width(160.dp),
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) item.color.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surface,
+            containerColor = if (isSelected) item.color.copy(alpha = 0.15f) else if (isPressed) item.color.copy(alpha = 0.08f) else MaterialTheme.colorScheme.surface,
             contentColor = item.color
         ),
-        border = if (isSelected) BorderStroke(2.dp, item.color) else BorderStroke(1.dp, item.color.copy(alpha = 0.2f)),
+        border = BorderStroke(2.dp, item.color.copy(alpha = 0.3f)),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isSelected) 8.dp else 4.dp,
-            pressedElevation = 12.dp
-        )
+            defaultElevation = 0.dp,
+            pressedElevation = 0.dp
+        ),
+        interactionSource = interactionSource
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(12.dp)
         ) {
-            // Ícone simples
-            Box(
-                modifier = Modifier
-                    .size(46.dp)
-                    .background(item.color.copy(alpha = 0.15f), CircleShape)
-                    .border(1.dp, item.color.copy(alpha = 0.3f), CircleShape),
-                contentAlignment = Alignment.Center
+            Column(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Icon(
-                    imageVector = item.icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(28.dp),
-                    tint = item.color
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(item.color.copy(alpha = 0.15f), CircleShape)
+                        .border(1.dp, item.color.copy(alpha = 0.3f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = item.icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = item.color
+                    )
+                }
+
+                Text(
+                    text = item.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = item.color,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1
                 )
             }
 
-            Text(
-                text = item.name,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = item.color,
-                textAlign = TextAlign.Center,
-                maxLines = 1
-            )
-
-            // Indicador de seleção simples
-            if (isSelected) {
-                Surface(
-                    shape = CircleShape,
-                    color = item.color,
-                    modifier = Modifier.size(20.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            Icons.Default.Check,
-                            contentDescription = "Selecionado",
-                            tint = Color.White,
-                            modifier = Modifier.size(14.dp)
-                        )
-                    }
-                }
-            }
+            
         }
     }
 }
