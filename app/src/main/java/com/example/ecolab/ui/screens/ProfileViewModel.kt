@@ -57,9 +57,14 @@ class ProfileViewModel @Inject constructor(
                     val unlockedCount = userData?.unlockedAchievements?.size ?: 0
 
 
+                    val preferredName = userData?.name?.takeIf { it.isNotBlank() }
+                        ?: authUser.displayName?.takeIf { it.isNotBlank() }
+                        ?: authUser.email?.substringBefore("@")
+                        ?: ""
+
                     _state.update {
                         it.copy(
-                            displayName = authUser.displayName ?: userData?.name ?: "",
+                            displayName = preferredName,
                             email = authUser.email ?: userData?.email ?: "",
                             photoUrl = equippedAvatar?.drawableRes ?: authUser.photoUrl,
                             totalPoints = userData?.totalPoints ?: 0,
@@ -74,6 +79,18 @@ class ProfileViewModel @Inject constructor(
                 }
             } else {
                 _state.update { it.copy(isLoading = false) }
+            }
+        }
+    }
+
+    fun refreshAuthSnapshot() {
+        viewModelScope.launch {
+            val authUser = authRepository.getCurrentUser()
+            _state.update { current ->
+                current.copy(
+                    displayName = authUser?.displayName ?: current.displayName,
+                    email = authUser?.email ?: current.email
+                )
             }
         }
     }

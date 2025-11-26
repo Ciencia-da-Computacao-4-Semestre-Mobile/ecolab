@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 data class RegisterState(
@@ -223,9 +224,20 @@ class RegisterViewModel @Inject constructor(
                             if (userId != null) {
                                 viewModelScope.launch {
                                     try {
-                                        Log.d("RegisterViewModel", "Criando documento no Firestore")
-                                        
-                                        // Criar objeto User com validação extra
+                                        Log.d("RegisterViewModel", "Sincronizando displayName do Auth e criando documento no Firestore")
+
+                                        val current = auth.currentUser
+                                        if (current != null) {
+                                            runCatching {
+                                                val profile = com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                                                    .setDisplayName(name.trim())
+                                                    .build()
+                                                current.updateProfile(profile).await()
+                                            }.onFailure {
+                                                Log.w("RegisterViewModel", "Falha ao atualizar displayName no Auth: ${it.message}")
+                                            }
+                                        }
+
                                         val user = com.example.ecolab.data.model.User(
                                             id = userId,
                                             name = name,
@@ -233,11 +245,11 @@ class RegisterViewModel @Inject constructor(
                                             favoritedPoints = emptyList(),
                                             unlockedAchievements = emptyList()
                                         )
-                                        
+
                                         Log.d("RegisterViewModel", "Objeto User criado: ID=$userId, Nome='$name', Email='$email'")
-                                        
+
                                         userRepository.createUser(user)
-                                        
+
                                         Log.d("RegisterViewModel", "Documento criado com sucesso")
                                         _eventChannel.send(RegisterEvent.RegistrationSuccess)
                                     } catch (e: Exception) {

@@ -268,7 +268,15 @@ fun StoreScreen(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                EcoPointsHeader(points = ecoPoints)
+                val equippedAvatarResId = avatarItems.find { it.isEquipped }?.iconRes
+                val equippedSealResId = sealItems.find { it.isEquipped }?.iconRes
+                val equippedSealEmoji = sealItems.find { it.isEquipped && it.iconRes == null }?.icon
+                EcoPointsHeader(
+                    points = ecoPoints,
+                    equippedAvatarResId = equippedAvatarResId,
+                    equippedSealResId = equippedSealResId,
+                    equippedSealEmoji = equippedSealEmoji
+                )
                 if (lastSaveError != null) {
                     androidx.compose.material3.Text(
                         text = "Falha ao salvar/carregar: ${lastSaveError}",
@@ -457,12 +465,7 @@ fun StoreScreen(
                                     prefs.edit().remove("equipped_seal_res_id").apply()
                                 }
 
-                                equippedSeal?.let {
-                                    applySealEffectOnEquipV2(
-                                        context,
-                                        it
-                                    )
-                                }
+                                
                                 coroutineScope.launch { saveState() }
                     }
                 }
@@ -472,6 +475,8 @@ fun StoreScreen(
                             inventory = inventory,
                             equippedAvatarId = avatarItems.find { it.isEquipped }?.id,
                             equippedSealId = sealItems.find { it.isEquipped }?.id,
+                            storeAvatarItems = avatarItems,
+                            storeSealItems = sealItems,
                             onEquipItem = { item: UiInventoryItem ->
                                 if (item.category == "Avatares") {
                                     avatarItems = avatarItems.map {
@@ -501,7 +506,7 @@ fun StoreScreen(
                                         prefs.edit().putString("equipped_seal_emoji", equippedSeal?.icon ?: "").apply()
                                         prefs.edit().remove("equipped_seal_res_id").apply()
                                     }
-                                    equippedSeal?.let { applySealEffectOnEquipV2(context, it) }
+                                    
                                 }
                                 coroutineScope.launch { saveState() }
                             },
@@ -515,7 +520,7 @@ fun StoreScreen(
                                     val prefs = context.getSharedPreferences("ecolab_prefs", Context.MODE_PRIVATE)
                                     prefs.edit().remove("equipped_seal_res_id").apply()
                                     prefs.edit().remove("equipped_seal_emoji").apply()
-                                    applySealEffectOnEquipV2(context, UiStoreItem(0, "", "", 0, "Selos"))
+                                    
                                 }
                                 coroutineScope.launch { saveState() }
                             }
@@ -554,16 +559,18 @@ private fun StoreTopBar(onNavigateBack: () -> Unit) {
 }
 
 @Composable
-private fun EcoPointsHeader(points: Int) {
+private fun EcoPointsHeader(
+    points: Int,
+    equippedAvatarResId: Int?,
+    equippedSealResId: Int?,
+    equippedSealEmoji: String?
+) {
     val context = LocalContext.current
-    val prefs = remember { context.getSharedPreferences("ecolab_prefs", Context.MODE_PRIVATE) }
-    val equippedAvatarRes = prefs.getInt("equipped_avatar_res_id", 0)
-    val equippedSealRes = prefs.getInt("equipped_seal_res_id", 0)
-    val equippedSealEmoji = prefs.getString("equipped_seal_emoji", "")
     val resources = LocalContext.current.resources
+    val equippedAvatarRes = equippedAvatarResId ?: 0
+    val equippedSealRes = equippedSealResId ?: 0
     val isValidAvatarRes = equippedAvatarRes != 0 && runCatching { resources.getResourceName(equippedAvatarRes) }.isSuccess
     val isValidSealRes = equippedSealRes != 0 && runCatching { resources.getResourceName(equippedSealRes) }.isSuccess
-    val discount = getStoreDiscountPercent(context)
 
     Card(
         modifier = Modifier
@@ -588,7 +595,7 @@ private fun EcoPointsHeader(points: Int) {
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -670,23 +677,7 @@ private fun EcoPointsHeader(points: Int) {
                     }
                 }
 
-                if (discount > 0) {
-                    AssistChip(
-                        onClick = {},
-                        label = { Text(text = "Desconto ${discount}%") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.LocalOffer,
-                                contentDescription = null,
-                                tint = Color.White
-                            )
-                        },
-                        colors = AssistChipDefaults.assistChipColors(
-                            containerColor = Color.White.copy(alpha = 0.15f),
-                            labelColor = Color.White
-                        )
-                    )
-                }
+                
             }
         }
     }
@@ -897,7 +888,8 @@ private fun UiStoreItemCard(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Surface(
                             shape = RoundedCornerShape(12.dp),
@@ -911,12 +903,18 @@ private fun UiStoreItemCard(
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                             )
                         }
-                        Text(
-                            text = "• ${item.rarity.name}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = rarityColor,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = rarityColor.copy(alpha = 0.12f)
+                        ) {
+                            Text(
+                                text = item.rarity.name,
+                                fontSize = 12.sp,
+                                color = rarityColor,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
                     }
                 }
 
@@ -985,19 +983,22 @@ private fun InventoryPage(
         inventory: List<UiInventoryItem>,
         equippedAvatarId: Int?,
         equippedSealId: Int?,
+        storeAvatarItems: List<UiStoreItem>,
+        storeSealItems: List<UiStoreItem>,
         onEquipItem: (UiInventoryItem) -> Unit,
         onUnequipItem: (UiInventoryItem) -> Unit
     ) {
-        if (inventory.isEmpty()) {
+        val avatars = inventory.filter { it.category == "Avatares" }
+        val seals = inventory.filter { it.category == "Selos" }
+
+        if (avatars.isEmpty() && seals.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
                         imageVector = Icons.Default.Inventory,
                         contentDescription = null,
@@ -1018,20 +1019,57 @@ private fun InventoryPage(
                 }
             }
         } else {
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(inventory) { item ->
-                    UiInventoryItemCard(
-                        item = item,
-                        equippedAvatarId = equippedAvatarId,
-                        equippedSealId = equippedSealId,
-                        onEquip = { onEquipItem(item) },
-                        onUnequip = { onUnequipItem(item) }
-                    )
+                val storeMap = remember(storeAvatarItems, storeSealItems) { (storeAvatarItems + storeSealItems).associateBy { it.id } }
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    if (avatars.isNotEmpty()) {
+                        item {
+                            Text(
+                                text = "Avatares",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = com.example.ecolab.ui.theme.Palette.text
+                            )
+                        }
+                        items(avatars) { item ->
+                            UiInventoryItemCard(
+                                item = item,
+                                equippedAvatarId = equippedAvatarId,
+                                equippedSealId = equippedSealId,
+                                storeItem = storeMap[item.id],
+                                onEquip = { onEquipItem(item) },
+                                onUnequip = { onUnequipItem(item) }
+                            )
+                        }
+                    }
+                    if (seals.isNotEmpty()) {
+                        item {
+                            Text(
+                                text = "Selos",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = com.example.ecolab.ui.theme.Palette.text
+                            )
+                        }
+                        items(seals) { item ->
+                            UiInventoryItemCard(
+                                item = item,
+                                equippedAvatarId = equippedAvatarId,
+                                equippedSealId = equippedSealId,
+                                storeItem = storeMap[item.id],
+                                onEquip = { onEquipItem(item) },
+                                onUnequip = { onUnequipItem(item) }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -1042,6 +1080,7 @@ private fun UiInventoryItemCard(
         item: UiInventoryItem,
         equippedAvatarId: Int?,
         equippedSealId: Int?,
+        storeItem: UiStoreItem?,
         onEquip: () -> Unit,
         onUnequip: () -> Unit
     ) {
@@ -1086,7 +1125,7 @@ private fun UiInventoryItemCard(
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                // Nome e quantidade
+                // Nome e detalhes
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
@@ -1095,8 +1134,57 @@ private fun UiInventoryItemCard(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    
+                    val desc = storeItem?.description.orEmpty()
+                    if (desc.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = desc,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val categoryText = storeItem?.category ?: item.category
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = com.example.ecolab.ui.theme.Palette.secondary.copy(alpha = 0.1f)
+                        ) {
+                            Text(
+                                text = categoryText,
+                                fontSize = 12.sp,
+                                color = com.example.ecolab.ui.theme.Palette.secondary,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                maxLines = 1,
+                                softWrap = false
+                            )
+                        }
+                        val rarityColor = when (storeItem?.rarity ?: UiRarity.COMMON) {
+                            UiRarity.COMMON -> Color(0xFF9E9E9E)
+                            UiRarity.UNCOMMON -> Color(0xFF4CAF50)
+                            UiRarity.RARE -> Color(0xFF2196F3)
+                            UiRarity.EPIC -> Color(0xFF9C27B0)
+                            UiRarity.LEGENDARY -> Color(0xFFFF9800)
+                        }
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = rarityColor.copy(alpha = 0.12f)
+                        ) {
+                            Text(
+                                text = (storeItem?.rarity ?: UiRarity.COMMON).name,
+                                fontSize = 12.sp,
+                                color = rarityColor,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                maxLines = 1,
+                                softWrap = false
+                            )
+                        }
+                    }
                 }
 
                 if (item.category == "Avatares" || item.category == "Selos") {
@@ -1104,12 +1192,13 @@ private fun UiInventoryItemCard(
                         (item.category == "Selos" && equippedSealId == item.id)
                     OutlinedButton(
                         onClick = if (isEquipped) onUnequip else onEquip,
-                        modifier = Modifier.height(36.dp)
+                        modifier = Modifier.height(36.dp).wrapContentWidth(),
+                        contentPadding = PaddingValues(horizontal = 12.dp)
                     ) {
                         Icon(
                             imageVector = if (isEquipped) Icons.Default.CheckCircle else Icons.Default.Star,
                             contentDescription = null,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(if (isEquipped) "Desequipar" else "Equipar")
@@ -1232,12 +1321,10 @@ private fun getStoreDiscountPercent(context: Context): Int {
     }
 
 private fun finalPriceFor(item: UiStoreItem, context: Context): Int {
-        val discount = getStoreDiscountPercent(context).coerceIn(0, 90)
-        val discounted = (item.price * (100 - discount)) / 100
-        return discounted
+        return item.price
     }
 
-private fun applySealEffectOnEquipV2(context: Context, item: UiStoreItem) {
+fun applySealEffectOnEquipV2(context: Context, item: UiStoreItem) {
         val prefs = context.getSharedPreferences("ecolab_prefs", Context.MODE_PRIVATE)
         prefs.edit().putInt("equipped_seal_effect_discount_percent", item.discountPercent.coerceIn(0, 90)).apply()
         prefs.edit().putInt("equipped_seal_effect_quiz_boost_percent", item.quizBoostPercent.coerceIn(0, 100)).apply()
@@ -1255,7 +1342,7 @@ fun getSealStoreItemsV2(): List<UiStoreItem> {
             items += UiStoreItem(
                 id = resId,
                 name = "Selo #$namePart",
-                description = "Selo visual",
+                description = "",
                 price = price,
                 category = "Selos",
                 icon = "",
@@ -1265,26 +1352,26 @@ fun getSealStoreItemsV2(): List<UiStoreItem> {
         }
 
         val more = listOf(
-            UiStoreItem(101, "Reciclagem", "5% desconto na Loja", 250, "Selos", "♻️", UiRarity.UNCOMMON, null, false, false, 5, 0),
-            UiStoreItem(102, "Energia Solar", "+5% pontos no Quiz", 400, "Selos", "☀️", UiRarity.RARE, null, false, false, 0, 5),
-            UiStoreItem(103, "Eco Warrior", "10% desconto e +10% pontos", 800, "Selos", "🛡️", UiRarity.EPIC, null, false, false, 10, 10),
-            UiStoreItem(104, "Água Limpa", "3% desconto", 220, "Selos", "💧", UiRarity.COMMON, null, false, false, 3, 0),
-            UiStoreItem(105, "Floresta Viva", "+3% pontos", 260, "Selos", "🌲", UiRarity.COMMON, null, false, false, 0, 3),
-            UiStoreItem(106, "Eco Chef", "+4% pontos", 320, "Selos", "🥗", UiRarity.UNCOMMON, null, false, false, 0, 4),
-            UiStoreItem(107, "Bike Lover", "4% desconto", 340, "Selos", "🚲", UiRarity.UNCOMMON, null, false, false, 4, 0),
-            UiStoreItem(108, "Sol & Vento", "+6% pontos", 480, "Selos", "🌬️", UiRarity.RARE, null, false, false, 0, 6),
-            UiStoreItem(109, "Plástico Zero", "6% desconto", 520, "Selos", "🧴", UiRarity.RARE, null, false, false, 6, 0),
-            UiStoreItem(110, "Guardião Verde", "8% desconto", 700, "Selos", "🛡️", UiRarity.EPIC, null, false, false, 8, 0),
-            UiStoreItem(111, "Sábio Sustentável", "+8% pontos", 720, "Selos", "📚", UiRarity.EPIC, null, false, false, 0, 8),
-            UiStoreItem(112, "Lenda Eco", "12% desconto e +12% pontos", 1200, "Selos", "🏆", UiRarity.LEGENDARY, null, false, false, 12, 12),
-            UiStoreItem(113, "Compostagem Pro", "5% desconto", 400, "Selos", "🪱", UiRarity.RARE, null, false, false, 5, 0),
-            UiStoreItem(114, "Mar Limpo", "+5% pontos", 450, "Selos", "🌊", UiRarity.RARE, null, false, false, 0, 5),
-            UiStoreItem(115, "Cidade Verde", "7% desconto", 600, "Selos", "🏙️", UiRarity.EPIC, null, false, false, 7, 0),
-            UiStoreItem(116, "Agricultura Orgânica", "+7% pontos", 650, "Selos", "🌾", UiRarity.EPIC, null, false, false, 0, 7),
-            UiStoreItem(117, "Eco Tech", "+6% pontos", 550, "Selos", "💡", UiRarity.RARE, null, false, false, 0, 6),
-            UiStoreItem(118, "Guerreiro da Natureza", "9% desconto", 780, "Selos", "🗡️", UiRarity.EPIC, null, false, false, 9, 0),
-            UiStoreItem(119, "Fauna & Flora", "+9% pontos", 820, "Selos", "🦋", UiRarity.EPIC, null, false, false, 0, 9),
-            UiStoreItem(120, "Eco Mestre", "15% desconto e +15% pontos", 1500, "Selos", "👑", UiRarity.LEGENDARY, null, false, false, 15, 15)
+            UiStoreItem(101, "Reciclagem", "", 250, "Selos", "♻️", UiRarity.UNCOMMON, null, false, false, 0, 0),
+            UiStoreItem(102, "Energia Solar", "", 400, "Selos", "☀️", UiRarity.RARE, null, false, false, 0, 0),
+            UiStoreItem(103, "Eco Warrior", "", 800, "Selos", "🛡️", UiRarity.EPIC, null, false, false, 0, 0),
+            UiStoreItem(104, "Água Limpa", "", 220, "Selos", "💧", UiRarity.COMMON, null, false, false, 0, 0),
+            UiStoreItem(105, "Floresta Viva", "", 260, "Selos", "🌲", UiRarity.COMMON, null, false, false, 0, 0),
+            UiStoreItem(106, "Eco Chef", "", 320, "Selos", "🥗", UiRarity.UNCOMMON, null, false, false, 0, 0),
+            UiStoreItem(107, "Bike Lover", "", 340, "Selos", "🚲", UiRarity.UNCOMMON, null, false, false, 0, 0),
+            UiStoreItem(108, "Sol & Vento", "", 480, "Selos", "🌬️", UiRarity.RARE, null, false, false, 0, 0),
+            UiStoreItem(109, "Plástico Zero", "", 520, "Selos", "🧴", UiRarity.RARE, null, false, false, 0, 0),
+            UiStoreItem(110, "Guardião Verde", "", 700, "Selos", "🛡️", UiRarity.EPIC, null, false, false, 0, 0),
+            UiStoreItem(111, "Sábio Sustentável", "", 720, "Selos", "📚", UiRarity.EPIC, null, false, false, 0, 0),
+            UiStoreItem(112, "Lenda Eco", "", 1200, "Selos", "🏆", UiRarity.LEGENDARY, null, false, false, 0, 0),
+            UiStoreItem(113, "Compostagem Pro", "", 400, "Selos", "🪱", UiRarity.RARE, null, false, false, 0, 0),
+            UiStoreItem(114, "Mar Limpo", "", 450, "Selos", "🌊", UiRarity.RARE, null, false, false, 0, 0),
+            UiStoreItem(115, "Cidade Verde", "", 600, "Selos", "🏙️", UiRarity.EPIC, null, false, false, 0, 0),
+            UiStoreItem(116, "Agricultura Orgânica", "", 650, "Selos", "🌾", UiRarity.EPIC, null, false, false, 0, 0),
+            UiStoreItem(117, "Eco Tech", "", 550, "Selos", "💡", UiRarity.RARE, null, false, false, 0, 0),
+            UiStoreItem(118, "Guerreiro da Natureza", "", 780, "Selos", "🗡️", UiRarity.EPIC, null, false, false, 0, 0),
+            UiStoreItem(119, "Fauna & Flora", "", 820, "Selos", "🦋", UiRarity.EPIC, null, false, false, 0, 0),
+            UiStoreItem(120, "Eco Mestre", "", 1500, "Selos", "👑", UiRarity.LEGENDARY, null, false, false, 0, 0)
         )
         items.addAll(more)
         return items.sortedBy { it.id }

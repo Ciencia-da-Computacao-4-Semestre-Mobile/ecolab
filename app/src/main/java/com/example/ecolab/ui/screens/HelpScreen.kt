@@ -82,20 +82,20 @@ fun HelpScreen(
                     title = "Perguntas Frequentes",
                     items = listOf(
                         HelpItem(
-                            question = "Como ganhar pontos?",
-                            answer = "Você ganha pontos completando quizzes, lendo artigos e concluindo missões."
+                            question = "Como ganho EcoPoints?",
+                            answer = "Você ganha pontos respondendo quizzes. Cada quiz concluído soma EcoPoints."
                         ),
                         HelpItem(
-                            question = "O que são as conquistas?",
-                            answer = "Conquistas são prêmios por atingir metas específicas no aplicativo."
+                            question = "Como editar meu nome?",
+                            answer = "Abra Perfil e toque em 'Editar Nome'. Salve para sincronizar."
                         ),
                         HelpItem(
-                            question = "Como acessar a loja?",
-                            answer = "A loja pode ser acessada pela tela inicial ou pelo menu de navegação."
+                            question = "Como equipar Avatares e Selos?",
+                            answer = "Vá em Loja, compre o item e toque em 'Equipar'. O inventário agora mostra Avatares e Selos separados."
                         ),
                         HelpItem(
-                            question = "Como editar meu perfil?",
-                            answer = "Vá para a tela de perfil e clique no botão 'Editar Perfil'."
+                            question = "Onde vejo meus EcoPoints?",
+                            answer = "No topo da Loja e na seção 'Estatísticas' do Perfil."
                         )
                     )
                 )
@@ -105,11 +105,11 @@ fun HelpScreen(
                     items = listOf(
                         HelpItem(
                             question = "Reportar Problema",
-                            answer = "Se você encontrar algum problema, entre em contato conosco pelo email suporte@ecolab.com"
+                            answer = "Se você encontrar algum problema, entre em contato conosco pelo email ecolabmanager7@gmail.com"
                         ),
                         HelpItem(
                             question = "Sugerir Melhorias",
-                            answer = "Adoramos receber sugestões! Envie suas ideias para feedback@ecolab.com"
+                            answer = "Adoramos receber sugestões! Envie suas ideias para ecolabmanager7@gmail.com"
                         ),
                         HelpItem(
                             question = "Versão do App",
@@ -118,54 +118,7 @@ fun HelpScreen(
                     )
                 )
 
-                // Contact card
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Palette.surface.copy(alpha = 0.8f)
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Email,
-                            contentDescription = "Email",
-                            tint = Palette.primary,
-                            modifier = Modifier.size(32.dp)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Precisa de ajuda?",
-                            color = Palette.text,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
-                        )
-                        Text(
-                            text = "Entre em contato conosco",
-                            color = Palette.textMuted,
-                            fontSize = 14.sp
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(
-                            onClick = { /* TODO: Open email client */ },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Palette.primary
-                            ),
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Email,
-                                contentDescription = "Enviar Email",
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Enviar Email")
-                        }
-                    }
-                }
+                
             }
         }
     }

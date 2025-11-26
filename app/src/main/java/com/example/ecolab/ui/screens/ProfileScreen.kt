@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.launch
 import com.example.ecolab.ui.components.UserAvatar
 import com.example.ecolab.ui.theme.EcoLabTheme
 import com.example.ecolab.ui.theme.Palette
@@ -39,7 +40,6 @@ import com.example.ecolab.ui.theme.Palette
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
-    onEditProfileClick: () -> Unit,
     onSignOutClick: () -> Unit,
     onAchievementsClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
@@ -96,7 +96,7 @@ fun ProfileScreen(
                 displayName = state.displayName,
                 email = state.email,
                 photoUrl = if (isValidRes) equippedResId else state.photoUrl,
-                onEditProfileClick = onEditProfileClick
+                onProfileRefresh = { viewModel.refreshAuthSnapshot() }
             )
 
             if (state.isLoading) {
@@ -138,7 +138,7 @@ private fun ProfileHeader(
     displayName: String,
     email: String,
     photoUrl: Any?,
-    onEditProfileClick: () -> Unit
+    onProfileRefresh: () -> Unit
 ) {
     val greenGradient = Brush.verticalGradient(
         colors = listOf(Palette.primary.copy(alpha = 0.9f), Palette.primary)
@@ -201,15 +201,86 @@ private fun ProfileHeader(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        val auth = FirebaseAuth.getInstance()
+        val effectiveEmail by remember(displayName, email) {
+            mutableStateOf(if (email.isNotBlank()) email else auth.currentUser?.email.orEmpty())
+        }
+        val currentName by remember(displayName, effectiveEmail) {
+            mutableStateOf(
+                when {
+                    displayName.isNotBlank() -> displayName
+                    effectiveEmail.isNotBlank() -> effectiveEmail.substringBefore("@")
+                    else -> "Usuário"
+                }
+            )
+        }
+        var editedName by remember(currentName) { mutableStateOf(currentName) }
+        var showNameDialog by remember { mutableStateOf(false) }
+        val scope = rememberCoroutineScope()
+
+        if (showNameDialog) {
+            AlertDialog(
+                onDismissRequest = { showNameDialog = false },
+                title = { Text("Editar Nome") },
+                text = {
+                    OutlinedTextField(
+                        value = editedName,
+                        onValueChange = { editedName = it },
+                        label = { Text("Nome Completo") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        scope.launch {
+                            val auth = FirebaseAuth.getInstance()
+                            val current = auth.currentUser
+                            if (current != null) {
+                                val newName = editedName.trim()
+                                if (newName.isNotEmpty()) {
+                                    val oldName = current.displayName ?: ""
+                                    val profileUpdate = com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                                        .setDisplayName(newName)
+                                        .build()
+                                    val authOk = runCatching { current.updateProfile(profileUpdate).await() }.isSuccess
+                                    val fs = FirebaseFirestore.getInstance()
+                                    val data = hashMapOf<String, Any?>("name" to newName)
+                                    var fsOk = runCatching { fs.collection("users").document(current.uid).update(data).await() }.isSuccess
+                                    if (!fsOk) {
+                                        fsOk = runCatching { fs.collection("users").document(current.uid).set(data, com.google.firebase.firestore.SetOptions.merge()).await() }.isSuccess
+                                    }
+                                    if (authOk && !fsOk) {
+                                        val revert = com.google.firebase.auth.UserProfileChangeRequest.Builder().setDisplayName(oldName).build()
+                                        runCatching { current.updateProfile(revert).await() }
+                                    }
+                                    if (authOk && fsOk) {
+                                        onProfileRefresh()
+                                    }
+                                }
+                            }
+                            showNameDialog = false
+                        }
+                    }) {
+                        Text("SALVAR")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showNameDialog = false }) {
+                        Text("CANCELAR")
+                    }
+                }
+            )
+        }
+
         Text(
-            text = displayName,
+            text = currentName,
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White,
             modifier = Modifier.animateContentSize()
         )
         Text(
-            text = email,
+            text = if (email.isNotBlank()) email else FirebaseAuth.getInstance().currentUser?.email ?: "",
             fontSize = 16.sp,
             color = Color.White.copy(alpha = 0.9f),
             modifier = Modifier.padding(top = 4.dp)
@@ -218,7 +289,7 @@ private fun ProfileHeader(
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedButton(
-            onClick = onEditProfileClick,
+            onClick = { showNameDialog = true },
             colors = ButtonDefaults.outlinedButtonColors(
                 contentColor = Color.White,
                 containerColor = Color.White.copy(alpha = 0.1f)
@@ -233,7 +304,7 @@ private fun ProfileHeader(
         ) {
             Icon(Icons.Default.Edit, contentDescription = "Editar", tint = Color.White, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Editar Perfil", color = Color.White, fontWeight = FontWeight.Medium)
+            Text("Editar Nome", color = Color.White, fontWeight = FontWeight.Medium)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -515,7 +586,6 @@ private fun AccountSection(
 private fun ProfileScreenPreview() {
     EcoLabTheme {
         ProfileScreen(
-            onEditProfileClick = {},
             onSignOutClick = {},
             onAchievementsClick = {},
             onSettingsClick = {},

@@ -91,12 +91,6 @@ fun SettingsScreen(
                             hasSwitch = true,
                             switchState = uiState.isDarkMode,
                             onSwitchChange = { viewModel.toggleTheme() }
-                        ),
-                        SettingsItem(
-                            title = "Limpar Dados",
-                            description = "Limpar cache e dados do app",
-                            icon = Icons.Default.ClearAll,
-                            onClick = { viewModel.clearAppData() }
                         )
                     )
                 )
@@ -143,41 +137,7 @@ fun SettingsScreen(
                     )
                 )
 
-                SettingsSection(
-                    title = "Suporte",
-                    items = listOf(
-                        SettingsItem(
-                            title = "Ajuda",
-                            description = "Central de ajuda",
-                            icon = Icons.Default.Help,
-                            onClick = { navController.navigate("help") }
-                        ),
-                        SettingsItem(
-                            title = "Feedback",
-                            description = "Enviar feedback",
-                            icon = Icons.Default.Feedback,
-                            onClick = {
-                                val intent = android.content.Intent(android.content.Intent.ACTION_SENDTO)
-                                intent.data = android.net.Uri.parse("mailto:")
-                                intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf("suporte@ecolab.app"))
-                                intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Feedback EcoLab")
-                                context.startActivity(intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
-                            }
-                        ),
-                        SettingsItem(
-                            title = "Reportar Problema",
-                            description = "Reportar um bug",
-                            icon = Icons.Default.BugReport,
-                            onClick = {
-                                val intent = android.content.Intent(android.content.Intent.ACTION_SENDTO)
-                                intent.data = android.net.Uri.parse("mailto:")
-                                intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf("bugs@ecolab.app"))
-                                intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Bug no EcoLab")
-                                context.startActivity(intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
-                            }
-                        )
-                    )
-                )
+                
 
                 if (showAbout) {
                     androidx.compose.material3.AlertDialog(

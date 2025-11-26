@@ -103,7 +103,6 @@ fun AppNavHost(
             }
             composable(BottomNavItem.Profile.route) {
                 ProfileScreen(
-                    onEditProfileClick = { navController.navigate("edit_profile") },
                     onSignOutClick = {
                         viewModel.signOut()
                         navController.navigate("login") {
@@ -116,9 +115,6 @@ fun AppNavHost(
                     onSettingsClick = { navController.navigate("settings") },
                     onHelpClick = { navController.navigate("help") }
                 )
-            }
-            composable("edit_profile") {
-                EditProfileScreen(onNavigateUp = { navController.navigateUp() })
             }
             composable("achievements") {
                 // TODO: Implement AchievementsScreen
