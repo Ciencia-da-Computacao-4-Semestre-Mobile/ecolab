@@ -264,7 +264,10 @@ private fun ThemeSection(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
             verticalArrangement = Arrangement.spacedBy(14.dp),
-            maxItemsInEachRow = 3
+            maxItemsInEachRow = run {
+                val w = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp
+                if (w < 380) 2 else 3
+            }
         ) {
             uiState.themes.forEachIndexed { index, theme ->
                 AnimatedVisibility(
@@ -383,7 +386,13 @@ private fun ThemeCard(
     Card(
         onClick = onClick,
         modifier = Modifier
-            .width(160.dp),
+            .let {
+                val cfg = androidx.compose.ui.platform.LocalConfiguration.current
+                val columns = if (cfg.screenWidthDp < 380) 2 else 3
+                val available = cfg.screenWidthDp.dp - 48.dp
+                val cardWidth = (available / columns) - 12.dp
+                it.width(cardWidth.coerceAtMost(180.dp))
+            },
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) item.color.copy(alpha = 0.15f) else if (isPressed) item.color.copy(alpha = 0.08f) else MaterialTheme.colorScheme.surface,
@@ -423,11 +432,13 @@ private fun ThemeCard(
 
                 Text(
                     text = item.name,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 14.sp),
                     fontWeight = FontWeight.Bold,
                     color = item.color,
                     textAlign = TextAlign.Center,
-                    maxLines = 1
+                    maxLines = 2,
+                    softWrap = true,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
             }
 

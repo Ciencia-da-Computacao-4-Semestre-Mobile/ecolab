@@ -80,20 +80,7 @@ fun SettingsScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                SettingsSection(
-                    title = "Geral",
-                    items = listOf(
-                        SettingsItem(
-                            title = "Tema",
-                            description = if (uiState.isDarkMode) "Escuro" else "Claro",
-                            icon = Icons.Default.Brightness6,
-                            onClick = { viewModel.toggleTheme() },
-                            hasSwitch = true,
-                            switchState = uiState.isDarkMode,
-                            onSwitchChange = { viewModel.toggleTheme() }
-                        )
-                    )
-                )
+                
 
                 
 

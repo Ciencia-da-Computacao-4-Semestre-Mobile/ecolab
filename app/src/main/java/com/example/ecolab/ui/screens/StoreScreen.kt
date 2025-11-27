@@ -296,11 +296,12 @@ fun StoreScreen(
                         .padding(vertical = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    TabRow(
+                    ScrollableTabRow(
                         selectedTabIndex = pagerState.currentPage,
                         containerColor = Color.Transparent,
                         indicator = {},
-                        divider = {}
+                        divider = {},
+                        edgePadding = 16.dp
                     ) {
                         tabs.forEachIndexed { index, title ->
                             val isSelected = pagerState.currentPage == index
@@ -850,13 +851,7 @@ private fun UiStoreItemCard(
         val finalPrice = finalPriceFor(item, context)
         val canAfford = userCoins >= finalPrice && !item.isPurchased
 
-        val rarityColor = when (item.rarity) {
-            UiRarity.COMMON -> Color(0xFF9E9E9E)
-            UiRarity.UNCOMMON -> Color(0xFF4CAF50)
-            UiRarity.RARE -> Color(0xFF2196F3)
-            UiRarity.EPIC -> Color(0xFF9C27B0)
-            UiRarity.LEGENDARY -> Color(0xFFFFC107)
-        }
+        
 
         Card(
             modifier = Modifier
@@ -953,21 +948,13 @@ private fun UiStoreItemCard(
                                 fontSize = 12.sp,
                                 color = com.example.ecolab.ui.theme.Palette.secondary,
                                 fontWeight = FontWeight.Medium,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                maxLines = 1,
+                                softWrap = false,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                             )
                         }
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = rarityColor.copy(alpha = 0.12f)
-                        ) {
-                            Text(
-                                text = item.rarity.name,
-                                fontSize = 12.sp,
-                                color = rarityColor,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                            )
-                        }
+                        
                     }
                 }
 
@@ -1225,27 +1212,7 @@ private fun UiInventoryItemCard(
                                 softWrap = false
                             )
                         }
-                        val rarityColor = when (storeItem?.rarity ?: UiRarity.COMMON) {
-                            UiRarity.COMMON -> Color(0xFF9E9E9E)
-                            UiRarity.UNCOMMON -> Color(0xFF4CAF50)
-                            UiRarity.RARE -> Color(0xFF2196F3)
-                            UiRarity.EPIC -> Color(0xFF9C27B0)
-                            UiRarity.LEGENDARY -> Color(0xFFFF9800)
-                        }
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = rarityColor.copy(alpha = 0.12f)
-                        ) {
-                            Text(
-                                text = (storeItem?.rarity ?: UiRarity.COMMON).name,
-                                fontSize = 12.sp,
-                                color = rarityColor,
-                                fontWeight = FontWeight.Medium,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                maxLines = 1,
-                                softWrap = false
-                            )
-                        }
+                        
                     }
                 }
 

@@ -196,13 +196,7 @@ import androidx.compose.ui.res.painterResource
                     }
                 }
 
-                // Badge de raridade
-                StoreRarityBadge(
-                    rarity = item.rarity,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp)
-                )
+                
 
                 // Conteúdo principal
                 Column(

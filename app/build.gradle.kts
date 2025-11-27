@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
-    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.google.services)
 }
 
@@ -262,7 +261,3 @@ val convertPngToWebp = tasks.register("convertPngToWebp") {
     }
 }
 tasks.named("preBuild").configure { dependsOn(convertPngToWebp) }
-
-kapt {
-    correctErrorTypes = true
-}

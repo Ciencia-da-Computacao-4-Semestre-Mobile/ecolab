@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.ecolab.ui.screens.SelectionItem
 
 @Composable
@@ -62,11 +63,13 @@ fun NewThemeCard(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 item.name,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
                 fontWeight = FontWeight.Bold,
                 color = contentColor,
                 textAlign = TextAlign.Center,
-                maxLines = 1
+                maxLines = 2,
+                softWrap = true,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
             )
         }
     }

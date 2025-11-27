@@ -3,7 +3,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
-    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.ksp)
 }
 
@@ -46,8 +45,4 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore-ktx:24.10.0")
-}
-
-kapt {
-    correctErrorTypes = true
 }

@@ -59,8 +59,11 @@ fun AwesomeThemeCard(
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 item.name,
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.ExtraBold, fontSize = 16.sp),
-                color = Color.White
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.ExtraBold, fontSize = 14.sp),
+                color = Color.White,
+                maxLines = 2,
+                softWrap = true,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
             )
         }
     }
