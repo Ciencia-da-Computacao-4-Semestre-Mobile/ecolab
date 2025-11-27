@@ -314,7 +314,7 @@ fun StoreScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
                                         .padding(horizontal = 12.dp, vertical = 8.dp)
-                                        .clip(RoundedCornerShape(20.dp))
+                                        .clip(RoundedCornerShape(24.dp))
                                         .background(if (isSelected) com.example.ecolab.ui.theme.Palette.primary else Color.Transparent)
                                         .padding(horizontal = 12.dp, vertical = 8.dp)
                                 ) {
@@ -333,8 +333,9 @@ fun StoreScreen(
                                         text = title,
                                         color = if (isSelected) Color.White else com.example.ecolab.ui.theme.Palette.primary,
                                         fontWeight = FontWeight.SemiBold,
-                                        style = MaterialTheme.typography.labelLarge,
-                                        maxLines = 1
+                                        style = MaterialTheme.typography.labelMedium,
+                                        maxLines = 1,
+                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                                     )
                                 }
                             }

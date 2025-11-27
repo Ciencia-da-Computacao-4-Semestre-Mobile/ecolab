@@ -143,10 +143,10 @@ fun LibraryScreen(
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
-                                    .padding(horizontal = 12.dp, vertical = 8.dp)
-                                    .clip(RoundedCornerShape(20.dp))
+                                    .padding(horizontal = 16.dp, vertical = 10.dp)
+                                    .clip(RoundedCornerShape(24.dp))
                                     .background(if (isSelected) Palette.primary else Color.Transparent)
-                                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                                    .padding(horizontal = 16.dp, vertical = 10.dp)
                             ) {
                                 Icon(
                                     imageVector = when (index) {
@@ -156,7 +156,7 @@ fun LibraryScreen(
                                     },
                                     contentDescription = null,
                                     tint = if (isSelected) Color.White else Palette.primary,
-                                    modifier = Modifier.size(20.dp)
+                                    modifier = Modifier.size(22.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
