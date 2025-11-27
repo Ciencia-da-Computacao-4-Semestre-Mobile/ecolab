@@ -46,6 +46,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import com.google.firebase.firestore.Query
 import coil.request.ImageRequest
+import coil.compose.AsyncImage
+import coil.compose.LocalImageLoader
+import android.graphics.Bitmap
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -133,7 +136,7 @@ fun LibraryScreen(
                         val isSelected = pagerState.currentPage == index
                         Tab(
                             selected = isSelected,
-                            onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
+                            onClick = { coroutineScope.launch { pagerState.scrollToPage(index) } },
                             selectedContentColor = Color.White,
                             unselectedContentColor = Palette.primary
                         ) {
@@ -339,6 +342,34 @@ private fun ArticlesSection(onItemClick: (String) -> Unit) {
             }
         }
         else -> {
+            val imageLoader = LocalImageLoader.current
+            val density = androidx.compose.ui.platform.LocalDensity.current
+            val ctx = LocalContext.current
+            LaunchedEffect(itemsState) {
+                val px = with(density) { 28.dp.roundToPx() }
+                itemsState.take(24).forEach { item ->
+                    val u = item.url
+                    if (!u.isNullOrBlank()) {
+                        val dataUrl = try {
+                            val host = java.net.URI(u).host
+                            if (!host.isNullOrBlank()) {
+                                "https://www.google.com/s2/favicons?sz=64&domain_url=https://$host"
+                            } else {
+                                "https://www.google.com/s2/favicons?sz=64&domain_url=$u"
+                            }
+                        } catch (_: Exception) {
+                            "https://www.google.com/s2/favicons?sz=64&domain_url=$u"
+                        }
+                        val req = ImageRequest.Builder(ctx)
+                            .data(dataUrl)
+                            .size(px, px)
+                            .bitmapConfig(Bitmap.Config.RGB_565)
+                            .allowHardware(true)
+                            .build()
+                        imageLoader.enqueue(req)
+                    }
+                }
+            }
             LibraryItemList(items = itemsState, onItemClick = onItemClick, showPostedTime = false)
         }
 }
@@ -388,6 +419,34 @@ private fun TutorialsSection(onItemClick: (String) -> Unit) {
             LibraryItemList(items = itemsState, onItemClick = onItemClick, showPostedTime = false)
         }
         else -> {
+            val imageLoader = LocalImageLoader.current
+            val density = androidx.compose.ui.platform.LocalDensity.current
+            val ctx = LocalContext.current
+            LaunchedEffect(itemsState) {
+                val px = with(density) { 28.dp.roundToPx() }
+                itemsState.take(24).forEach { item ->
+                    val u = item.url
+                    if (!u.isNullOrBlank()) {
+                        val dataUrl = try {
+                            val host = java.net.URI(u).host
+                            if (!host.isNullOrBlank()) {
+                                "https://www.google.com/s2/favicons?sz=64&domain_url=https://$host"
+                            } else {
+                                "https://www.google.com/s2/favicons?sz=64&domain_url=$u"
+                            }
+                        } catch (_: Exception) {
+                            "https://www.google.com/s2/favicons?sz=64&domain_url=$u"
+                        }
+                        val req = ImageRequest.Builder(ctx)
+                            .data(dataUrl)
+                            .size(px, px)
+                            .bitmapConfig(Bitmap.Config.RGB_565)
+                            .allowHardware(true)
+                            .build()
+                        imageLoader.enqueue(req)
+                    }
+                }
+            }
             LibraryItemList(items = itemsState, onItemClick = onItemClick, showPostedTime = false)
         }
 }
@@ -473,32 +532,47 @@ private fun LibraryItemCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    androidx.compose.foundation.Image(
-                        painter = coil.compose.rememberAsyncImagePainter(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(
-                                    item.imageUrl ?: (item.url?.let { u ->
-                                        try {
-                                            val host = java.net.URI(u).host
-                                            if (!host.isNullOrBlank()) {
-                                                "https://www.google.com/s2/favicons?sz=64&domain_url=https://$host"
-                                            } else {
-                                                "https://www.google.com/s2/favicons?sz=64&domain_url=$u"
-                                            }
-                                        } catch (_: Exception) {
+                    AsyncImage(
+                        model = run {
+                            val ctx = LocalContext.current
+                            val faviconOnly = !showPostedTime
+                            val url = item.url
+                            val dataUrl = if (faviconOnly && url != null) {
+                                try {
+                                    val host = java.net.URI(url).host
+                                    if (!host.isNullOrBlank()) {
+                                        "https://www.google.com/s2/favicons?sz=64&domain_url=https://$host"
+                                    } else {
+                                        "https://www.google.com/s2/favicons?sz=64&domain_url=$url"
+                                    }
+                                } catch (_: Exception) {
+                                    "https://www.google.com/s2/favicons?sz=64&domain_url=$url"
+                                }
+                            } else {
+                                item.imageUrl ?: (url?.let { u ->
+                                    try {
+                                        val host = java.net.URI(u).host
+                                        if (!host.isNullOrBlank()) {
+                                            "https://www.google.com/s2/favicons?sz=64&domain_url=https://$host"
+                                        } else {
                                             "https://www.google.com/s2/favicons?sz=64&domain_url=$u"
                                         }
-                                    } ?: "")
-                                )
+                                    } catch (_: Exception) {
+                                        "https://www.google.com/s2/favicons?sz=64&domain_url=$u"
+                                    }
+                                } ?: "")
+                            }
+                            ImageRequest.Builder(ctx)
+                                .data(dataUrl)
                                 .crossfade(true)
-                                .build(),
-                            placeholder = painterResource(R.drawable.ic_ecolab_logo),
-                            error = painterResource(R.drawable.ic_ecolab_logo)
-                        ),
+                                .build()
+                        },
                         contentDescription = null,
                         modifier = Modifier
                             .size(28.dp)
-                            .clip(RoundedCornerShape(6.dp))
+                            .clip(RoundedCornerShape(6.dp)),
+                        placeholder = painterResource(R.drawable.ic_ecolab_logo),
+                        error = painterResource(R.drawable.ic_ecolab_logo)
                     )
                     Surface(
                         shape = RoundedCornerShape(12.dp),

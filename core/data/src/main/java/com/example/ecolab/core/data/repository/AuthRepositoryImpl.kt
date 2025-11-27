@@ -93,6 +93,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun sendPasswordResetEmail(email: String): Result<Unit> {
         return try {
+            firebaseAuth.useAppLanguage()
             firebaseAuth.sendPasswordResetEmail(email).await()
             Result.Success(Unit)
         } catch (e: Exception) {

@@ -185,6 +185,73 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 
+// Converter PNGs para WebP automaticamente em avatares e fundos grandes
+val convertPngToWebp = tasks.register("convertPngToWebp") {
+    doLast {
+        val resDir = file("src/main/res/drawable")
+        if (!resDir.exists()) return@doLast
+        val pngs = resDir.listFiles()?.filter { f ->
+            f.extension.equals("png", ignoreCase = true) && (
+                f.name.startsWith("avatar_") ||
+                f.name.equals("plano_de_fundo.png", ignoreCase = true) ||
+                f.name.equals("ic_splash_home.png", ignoreCase = true)
+            )
+        } ?: emptyList()
+
+        fun findExecutableOnPath(cmd: String): String? {
+            val isWin = System.getProperty("os.name").lowercase().contains("win")
+            val which = if (isWin) arrayOf("where", cmd) else arrayOf("which", cmd)
+            return try {
+                val p = ProcessBuilder(*which).redirectErrorStream(true).start()
+                val out = p.inputStream.bufferedReader().readText()
+                p.waitFor()
+                out.lineSequence().firstOrNull()?.trim()?.takeIf { it.isNotBlank() }
+            } catch (e: Exception) { null }
+        }
+
+        val cwebp = findExecutableOnPath("cwebp")
+        if (pngs.isEmpty()) {
+            println("[webp] Nenhum PNG elegível encontrado para conversão")
+            return@doLast
+        }
+        if (cwebp == null) {
+            println("[webp] Ferramenta cwebp não encontrada no PATH. Skipping conversão.")
+            return@doLast
+        }
+
+        var converted = 0
+        pngs.forEach { png ->
+            val webp = File(png.parentFile, png.nameWithoutExtension + ".webp")
+            if (webp.exists()) {
+                // Se WebP já existe, remove PNG para evitar duplicidade de recurso
+                println("[webp] ${png.name} já possui WebP. Removendo PNG.")
+                png.delete()
+            } else {
+                val lossless = png.name.startsWith("ic_")
+                val quality = if (png.name.startsWith("avatar_")) "85" else "88"
+                val args = if (lossless) arrayOf(cwebp, "-lossless", png.absolutePath, "-o", webp.absolutePath)
+                else arrayOf(cwebp, "-q", quality, png.absolutePath, "-o", webp.absolutePath)
+                try {
+                    val proc = ProcessBuilder(*args).inheritIO().start()
+                    val code = proc.waitFor()
+                    if (code == 0 && webp.exists()) {
+                        println("[webp] Convertido: ${png.name} -> ${webp.name}")
+                        // Remove PNG após conversão bem-sucedida
+                        png.delete()
+                        converted += 1
+                    } else {
+                        println("[webp] Falha na conversão: ${png.name}")
+                    }
+                } catch (e: Exception) {
+                    println("[webp] Erro ao converter ${png.name}: ${e.message}")
+                }
+            }
+        }
+        println("[webp] Total convertidos: $converted")
+    }
+}
+tasks.named("preBuild").configure { dependsOn(convertPngToWebp) }
+
 kapt {
     correctErrorTypes = true
 }

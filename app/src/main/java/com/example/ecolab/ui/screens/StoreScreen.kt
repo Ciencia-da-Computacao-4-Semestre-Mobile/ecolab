@@ -20,9 +20,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import android.graphics.BitmapFactory
+import coil.request.ImageRequest
+import coil.compose.LocalImageLoader
+import android.graphics.Bitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -75,6 +76,8 @@ fun StoreScreen(
     val tabs = listOf("Avatares", "Selos", "Inventário")
     var ecoPoints by remember { mutableStateOf(0) }
     val context = LocalContext.current
+    val imageLoader = LocalImageLoader.current
+    val density = androidx.compose.ui.platform.LocalDensity.current
     var avatarItems by remember { mutableStateOf(getAvatarStoreItems(context)) }
     var sealItems by remember { mutableStateOf(getSealStoreItemsV2()) }
     var inventory by remember { mutableStateOf(listOf<UiInventoryItem>()) }
@@ -303,7 +306,7 @@ fun StoreScreen(
                             val isSelected = pagerState.currentPage == index
                             Tab(
                                 selected = isSelected,
-                                onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
+                                    onClick = { coroutineScope.launch { pagerState.scrollToPage(index) } },
                                 selectedContentColor = Color.White,
                                 unselectedContentColor = com.example.ecolab.ui.theme.Palette.primary
                             ) {
@@ -336,8 +339,30 @@ fun StoreScreen(
                                 }
                             }
                         }
+                }
+            }
+
+            LaunchedEffect(pagerState.currentPage, avatarItems, sealItems) {
+                val size40 = with(density) { 40.dp.roundToPx() }
+                val size48 = with(density) { 48.dp.roundToPx() }
+                val pagesToPrefetch = listOf(pagerState.currentPage, (pagerState.currentPage + 1) % 3)
+                pagesToPrefetch.forEach { p ->
+                    val ids = when (p) {
+                        0 -> avatarItems.mapNotNull { it.iconRes }
+                        1 -> sealItems.mapNotNull { it.iconRes }
+                        else -> emptyList()
+                    }
+                    ids.take(16).forEach { id ->
+                        val req = ImageRequest.Builder(context)
+                            .data(id)
+                            .size(size48, size48)
+                            .bitmapConfig(Bitmap.Config.RGB_565)
+                            .allowHardware(true)
+                            .build()
+                        imageLoader.enqueue(req)
                     }
                 }
+            }
 
                 HorizontalPager(
                     state = pagerState,
@@ -605,12 +630,21 @@ private fun EcoPointsHeader(
                             .clip(RoundedCornerShape(12.dp))
                             .background(Color.White)
                     ) {
-                        val bmpAvatar = if (isValidAvatarRes && equippedAvatarRes != 0) runCatching { BitmapFactory.decodeResource(context.resources, equippedAvatarRes) }.getOrNull() else null
-                        if (bmpAvatar != null) {
-                            Image(
-                                bitmap = bmpAvatar.asImageBitmap(),
+                        if (isValidAvatarRes && equippedAvatarRes != 0) {
+                            AsyncImage(
+                                model = run {
+                                    val px = with(androidx.compose.ui.platform.LocalDensity.current) { 48.dp.roundToPx() }
+                                    ImageRequest.Builder(context)
+                                        .data(equippedAvatarRes)
+                                        .size(px, px)
+                                        .bitmapConfig(Bitmap.Config.RGB_565)
+                                        .allowHardware(true)
+                                        .crossfade(true)
+                                        .build()
+                                },
                                 contentDescription = null,
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = androidx.compose.ui.layout.ContentScale.Crop
                             )
                         } else {
                             Icon(
@@ -631,12 +665,21 @@ private fun EcoPointsHeader(
                                     .background(Color.White.copy(alpha = 0.85f)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                val bmpSeal = if (isValidSealRes && equippedSealRes != 0) runCatching { BitmapFactory.decodeResource(context.resources, equippedSealRes) }.getOrNull() else null
-                                if (bmpSeal != null) {
-                                    Image(
-                                        bitmap = bmpSeal.asImageBitmap(),
+                                if (isValidSealRes && equippedSealRes != 0) {
+                                    AsyncImage(
+                                        model = run {
+                                            val px = with(androidx.compose.ui.platform.LocalDensity.current) { 16.dp.roundToPx() }
+                                            ImageRequest.Builder(context)
+                                                .data(equippedSealRes)
+                                                .size(px, px)
+                                                .bitmapConfig(Bitmap.Config.RGB_565)
+                                                .allowHardware(true)
+                                                .crossfade(true)
+                                                .build()
+                                        },
                                         contentDescription = null,
-                                        modifier = Modifier.size(16.dp)
+                                        modifier = Modifier.size(16.dp),
+                                        contentScale = androidx.compose.ui.layout.ContentScale.Fit
                                     )
                                 } else {
                                     Text(text = (equippedSealEmoji ?: ""), fontSize = 12.sp)
@@ -784,7 +827,7 @@ private fun StoreItemsPage(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(storeItems) { item ->
+            items(items = storeItems, key = { it.id }) { item ->
                 UiStoreItemCard(
                     item = item,
                     userCoins = userCoins,
@@ -842,12 +885,21 @@ private fun UiStoreItemCard(
                     ) {
                     val res = item.iconRes
                     val isValidRes = res != null && res != 0 && runCatching { context.resources.getResourceName(res) }.isSuccess
-                    val bmp = if (isValidRes && res != null) runCatching { BitmapFactory.decodeResource(context.resources, res) }.getOrNull() else null
-                    if (bmp != null) {
-                        Image(
-                            bitmap = bmp.asImageBitmap(),
+                    if (isValidRes && res != null) {
+                        AsyncImage(
+                            model = run {
+                                val px = with(androidx.compose.ui.platform.LocalDensity.current) { 40.dp.roundToPx() }
+                                ImageRequest.Builder(context)
+                                    .data(res)
+                                    .size(px, px)
+                                    .bitmapConfig(Bitmap.Config.RGB_565)
+                                    .allowHardware(true)
+                                    .crossfade(true)
+                                    .build()
+                            },
                             contentDescription = null,
-                            modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp))
+                            modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
                         )
                     } else {
                         Text(
@@ -1039,7 +1091,7 @@ private fun InventoryPage(
                                 color = com.example.ecolab.ui.theme.Palette.text
                             )
                         }
-                        items(avatars) { item ->
+                        items(items = avatars, key = { it.id }) { item ->
                             UiInventoryItemCard(
                                 item = item,
                                 equippedAvatarId = equippedAvatarId,
@@ -1059,7 +1111,7 @@ private fun InventoryPage(
                                 color = com.example.ecolab.ui.theme.Palette.text
                             )
                         }
-                        items(seals) { item ->
+                        items(items = seals, key = { it.id }) { item ->
                             UiInventoryItemCard(
                                 item = item,
                                 equippedAvatarId = equippedAvatarId,
@@ -1108,12 +1160,21 @@ private fun UiInventoryItemCard(
                     val context = LocalContext.current
                     val res = item.iconRes
                     val isValidRes = res != null && res != 0 && runCatching { context.resources.getResourceName(res) }.isSuccess
-                    val bmp = if (isValidRes && res != null) runCatching { BitmapFactory.decodeResource(context.resources, res) }.getOrNull() else null
-                    if (bmp != null) {
-                        Image(
-                            bitmap = bmp.asImageBitmap(),
+                    if (isValidRes && res != null) {
+                        AsyncImage(
+                            model = run {
+                                val px = with(androidx.compose.ui.platform.LocalDensity.current) { 48.dp.roundToPx() }
+                                ImageRequest.Builder(context)
+                                    .data(res)
+                                    .size(px, px)
+                                    .bitmapConfig(Bitmap.Config.RGB_565)
+                                    .allowHardware(true)
+                                    .crossfade(true)
+                                    .build()
+                            },
                             contentDescription = null,
-                            modifier = Modifier.size(48.dp)
+                            modifier = Modifier.size(48.dp),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
                         )
                     } else {
                         Text(

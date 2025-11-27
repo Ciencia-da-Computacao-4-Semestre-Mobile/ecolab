@@ -31,15 +31,17 @@ class ForgotPasswordViewModel @Inject constructor(
 
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
-            
-            try {
-                authRepository.sendPasswordResetEmail(email)
-                _state.value = _state.value.copy(isLoading = false, isSuccess = true)
-            } catch (e: Exception) {
-                _state.value = _state.value.copy(
-                    isLoading = false,
-                    error = "Erro ao enviar email: ${e.message}"
-                )
+            val result = authRepository.sendPasswordResetEmail(email)
+            when (result) {
+                is com.example.ecolab.core.util.Result.Success -> {
+                    _state.value = _state.value.copy(isLoading = false, isSuccess = true)
+                }
+                is com.example.ecolab.core.util.Result.Error -> {
+                    _state.value = _state.value.copy(isLoading = false, error = result.message)
+                }
+                else -> {
+                    _state.value = _state.value.copy(isLoading = false)
+                }
             }
         }
     }
