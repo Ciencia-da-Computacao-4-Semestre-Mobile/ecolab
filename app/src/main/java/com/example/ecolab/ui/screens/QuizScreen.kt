@@ -131,12 +131,13 @@ enum class GameMode { NORMAL, SPEEDRUN }
 fun QuizScreen(
     onClose: () -> Unit = {},
     theme: String = "Default",
-    gameMode: GameMode = GameMode.NORMAL
+    gameMode: GameMode = GameMode.NORMAL,
+    initialQuizJson: String? = null
 ) {
     val ctx = LocalContext.current
     val aiQuestions = remember(theme) {
         val prefs = ctx.getSharedPreferences("quiz_cache", android.content.Context.MODE_PRIVATE)
-        val jsonStr = prefs.getString("latest_ai_quiz", null)
+        val jsonStr = initialQuizJson ?: prefs.getString("latest_ai_quiz", null)
         if (!jsonStr.isNullOrBlank()) {
             try {
                 val data = Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true; allowTrailingComma = true }
@@ -348,6 +349,12 @@ fun QuizScreen(
                     }
                 }
             } else {
+                // Limpa cache ao finalizar o quiz
+                val prefs = ctx.getSharedPreferences("quiz_cache", android.content.Context.MODE_PRIVATE)
+                androidx.compose.runtime.LaunchedEffect(theme, questionsForTheme.size) {
+                    val key = theme.trim().lowercase() + ":" + questionsForTheme.size
+                    prefs.edit().remove("latest_ai_quiz").remove(key).commit()
+                }
                 QuizResultScreen(
                     score = score,
                     totalQuestions = questionsForTheme.size,

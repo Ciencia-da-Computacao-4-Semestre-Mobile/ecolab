@@ -46,16 +46,27 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            storeFile = rootProject.file("release.jks")
-            storePassword = "@ecolab2025"
-            keyAlias = "key0"
-            keyPassword = "@ecolab2025"
+        val releaseStoreFilePath = localProperties.getProperty("RELEASE_STORE_FILE")
+        val releaseStorePassword = localProperties.getProperty("RELEASE_STORE_PASSWORD")
+        val releaseKeyAlias = localProperties.getProperty("RELEASE_KEY_ALIAS")
+        val releaseKeyPassword = localProperties.getProperty("RELEASE_KEY_PASSWORD")
+
+        if (!releaseStoreFilePath.isNullOrBlank() &&
+            !releaseStorePassword.isNullOrBlank() &&
+            !releaseKeyAlias.isNullOrBlank() &&
+            !releaseKeyPassword.isNullOrBlank()
+        ) {
+            create("release") {
+                storeFile = rootProject.file(releaseStoreFilePath)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
         }
     }
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfigs.findByName("release")?.let { signingConfig = it }
             isMinifyEnabled = false
             isShrinkResources = false
             isDebuggable = false

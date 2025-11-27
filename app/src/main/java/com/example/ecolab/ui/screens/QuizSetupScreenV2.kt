@@ -35,7 +35,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuizSetupScreenV2(
-    onStartQuiz: (theme: String, gameMode: GameMode) -> Unit,
+    onStartQuiz: (theme: String, gameMode: GameMode, quizJson: String?) -> Unit,
     onBack: () -> Unit,
     viewModel: QuizSetupViewModel = hiltViewModel()
 ) {
@@ -129,9 +129,10 @@ fun QuizSetupScreenV2(
                     if (s is QuizUiState.Success && s.quiz.questions.isNotEmpty()) {
                         val theme = uiState.selectedTheme?.name ?: "Default"
                         val gameMode = if (uiState.selectedGameMode?.name == "Speed Run") GameMode.SPEEDRUN else GameMode.NORMAL
+                        val quizJson = kotlinx.serialization.json.Json.encodeToString(com.example.ecolab.ui.screens.AiQuizData.serializer(), s.quiz)
                         navigated = true
                         shouldStart = false
-                        onStartQuiz(theme, gameMode)
+                        onStartQuiz(theme, gameMode, quizJson)
                     }
                 }
             }
@@ -140,10 +141,11 @@ fun QuizSetupScreenV2(
                 modifier = Modifier
                     .fillMaxSize()
                     .let { if (!isSuccess) it.verticalScroll(rememberScrollState()) else it }
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = 24.dp)
+                    .padding(top = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
                 // Seção Modo de Jogo com animação
                 AnimatedVisibility(
@@ -153,7 +155,7 @@ fun QuizSetupScreenV2(
                     GameModeSection(uiState, viewModel)
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
                 // Seção Temas com animação
                 AnimatedVisibility(
@@ -163,7 +165,7 @@ fun QuizSetupScreenV2(
                     ThemeSection(uiState, viewModel)
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
                 // Botão Start com animação - sempre visível, mas desabilitado quando não há seleção
                 AnimatedVisibility(
@@ -179,22 +181,24 @@ fun QuizSetupScreenV2(
                             val gameMode = if (uiState.selectedGameMode?.name == "Speed Run") GameMode.SPEEDRUN else GameMode.NORMAL
                             navigated = false
                             shouldStart = true
-                            quizViewModel.generateQuiz(theme, 10)
+                            quizViewModel.invalidatePrevious(theme, 10)
+                            quizViewModel.generateQuiz(theme, 10, preferFresh = true)
                         }
                     )
+                    
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
                 when (val s = quizState) {
                     is QuizUiState.Loading -> {
-                        Spacer(Modifier.height(12.dp))
+                        Spacer(Modifier.height(24.dp))
                     }
                     is QuizUiState.Error -> {
                         Text("Erro: ${s.error}", color = Palette.error)
                     }
                     is QuizUiState.Success -> {
-                        Spacer(Modifier.height(12.dp))
+                        Spacer(Modifier.height(24.dp))
                     }
                     else -> {}
                 }
@@ -259,7 +263,7 @@ private fun ThemeSection(
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
             maxItemsInEachRow = 3
         ) {
             uiState.themes.forEachIndexed { index, theme ->
@@ -268,7 +272,7 @@ private fun ThemeSection(
                     enter = scaleIn() + fadeIn(
                         animationSpec = tween(400, delayMillis = index * 50)
                     ),
-                    modifier = Modifier.padding(horizontal = 5.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp)
                 ) {
                     ThemeCard(
                         item = theme,
@@ -481,7 +485,7 @@ private fun StartQuizButton(
 fun QuizSetupScreenV2Preview() {
     EcoLabTheme {
         QuizSetupScreenV2(
-            onStartQuiz = { _, _ -> },
+            onStartQuiz = { _, _, _ -> },
             onBack = {}
         )
     }

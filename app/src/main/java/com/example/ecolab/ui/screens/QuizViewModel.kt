@@ -8,6 +8,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.example.ecolab.BuildConfig
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -47,7 +48,7 @@ class QuizViewModel : ViewModel() {
         - Perguntas claras e objetivas, uma correta por item
     """.trimIndent()
 
-    fun generateQuiz(topic: String, numQuestions: Int) {
+    fun generateQuiz(topic: String, numQuestions: Int, preferFresh: Boolean = false) {
         viewModelScope.launch {
             val user = auth.currentUser ?: run {
                 _uiState.value = QuizUiState.Error("Você precisa estar logado para gerar o quiz.")
@@ -72,11 +73,13 @@ class QuizViewModel : ViewModel() {
                         runCatching { safeParsePipeline(rawText, topic, safeCount) }
                             .getOrElse { normalizeQuizData(generateLocalQuiz(topic, safeCount)) }
                     }
+                    runCatching { cache?.put("latest_ai_quiz", json.encodeToString(quiz)) }.onFailure { }
+                    runCatching { cache?.put(cacheKey(topic, safeCount), json.encodeToString(quiz)) }.onFailure { }
                     _uiState.value = QuizUiState.Loading(95)
                     _uiState.value = QuizUiState.Success(quiz)
                 } else {
                     _uiState.value = QuizUiState.Loading(40)
-                    val cached = cache?.get(cacheKey(topic, safeCount))
+                    val cached = if (!preferFresh) cache?.get(cacheKey(topic, safeCount)) else null
                     val fallback = if (!cached.isNullOrBlank()) {
                         try {
                             val data = Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true; allowTrailingComma = true }
@@ -88,6 +91,8 @@ class QuizViewModel : ViewModel() {
                     } else {
                         normalizeQuizData(generateLocalQuiz(topic, safeCount))
                     }
+                    runCatching { cache?.put("latest_ai_quiz", json.encodeToString(fallback)) }.onFailure { }
+                    runCatching { cache?.put(cacheKey(topic, safeCount), json.encodeToString(fallback)) }.onFailure { }
                     _uiState.value = QuizUiState.Success(fallback)
                 }
             } catch (e: Throwable) {
@@ -95,7 +100,7 @@ class QuizViewModel : ViewModel() {
                 Log.e("QuizViewModel", e.stackTraceToString())
                 _uiState.value = QuizUiState.Loading(90)
                 val safeCount = numQuestions.coerceIn(1, 30)
-                val cached = cache?.get(cacheKey(topic, safeCount))
+                val cached = if (!preferFresh) cache?.get(cacheKey(topic, safeCount)) else null
                 val fallback = if (!cached.isNullOrBlank()) {
                     try {
                         val data = Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true; allowTrailingComma = true }
@@ -107,6 +112,8 @@ class QuizViewModel : ViewModel() {
                 } else {
                     normalizeQuizData(generateLocalQuiz(topic, 10))
                 }
+                runCatching { cache?.put("latest_ai_quiz", json.encodeToString(fallback)) }.onFailure { }
+                runCatching { cache?.put(cacheKey(topic, safeCount), json.encodeToString(fallback)) }.onFailure { }
                 _uiState.value = QuizUiState.Success(fallback)
             }
         }
@@ -131,9 +138,20 @@ class QuizViewModel : ViewModel() {
     }
 
     private fun buildPrompt(topic: String, num: Int): String {
+        val nonce = java.util.UUID.randomUUID().toString()
+        val prev = cache?.get("latest_ai_quiz")
+        val avoid = runCatching {
+            if (!prev.isNullOrBlank()) json.decodeFromString<AiQuizData>(prev).questions.map { it.question.trim() }.filter { it.isNotBlank() }.distinct().take(10)
+            else emptyList()
+        }.getOrDefault(emptyList())
+        val avoidLine = if (avoid.isNotEmpty()) "- Evite repetir: ${avoid.joinToString("; ")}" else ""
         return """
             $basePrompt
             - $num perguntas sobre: $topic
+            - Varie a redação e ângulos das perguntas
+            - Evite repetir qualquer pergunta em sessões diferentes
+            $avoidLine
+            - nonce: $nonce
         """.trimIndent()
     }
 
@@ -275,7 +293,7 @@ class QuizViewModel : ViewModel() {
           }],
           "generationConfig": {
             "maxOutputTokens": 1536,
-            "temperature": 0.2
+            "temperature": 0.7
           }
         }
         """.trimIndent()
@@ -385,6 +403,11 @@ class QuizViewModel : ViewModel() {
         cache = QuizCache(context)
     }
 
+    fun invalidatePrevious(topic: String, count: Int) {
+        cache?.remove("latest_ai_quiz")
+        cache?.remove(cacheKey(topic, count.coerceIn(1, 30)))
+    }
+
     fun reset() {
         _uiState.value = QuizUiState.Initial
     }
@@ -396,4 +419,5 @@ private class QuizCache(context: Context) {
     private val prefs = context.getSharedPreferences("quiz_cache", Context.MODE_PRIVATE)
     fun get(key: String): String? = prefs.getString(key, null)
     fun put(key: String, value: String) { prefs.edit().putString(key, value).commit() }
+    fun remove(key: String) { prefs.edit().remove(key).commit() }
 }

@@ -133,10 +133,14 @@ fun AppNavHost(
                 HelpScreen(navController = navController)
             }
             composable(
-                route = "quiz/{theme}/{gameMode}",
+                route = "quiz/{theme}/{gameMode}?quizJson={quizJson}",
                 arguments = listOf(
                     navArgument("theme") { type = NavType.StringType },
-                    navArgument("gameMode") { type = NavType.StringType }
+                    navArgument("gameMode") { type = NavType.StringType },
+                    navArgument("quizJson") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    }
                 )
             ) { backStackEntry ->
                 val theme = backStackEntry.arguments?.getString("theme") ?: "Default"
@@ -146,6 +150,7 @@ fun AppNavHost(
                 } catch (e: IllegalArgumentException) {
                     GameMode.NORMAL
                 }
+                val initialQuizJson = backStackEntry.arguments?.getString("quizJson")?.takeIf { it.isNotBlank() }
 
                 QuizScreen(
                     onClose = {
@@ -155,13 +160,15 @@ fun AppNavHost(
                         }
                     },
                     theme = theme,
-                    gameMode = gameMode
+                    gameMode = gameMode,
+                    initialQuizJson = initialQuizJson
                 )
             }
             composable("quiz_setup") {
                 QuizSetupScreenV2(
-                    onStartQuiz = { theme, gameMode ->
-                        navController.navigate("quiz/$theme/${gameMode.name}")
+                    onStartQuiz = { theme, gameMode, quizJson ->
+                        val encoded = quizJson?.let { Uri.encode(it) } ?: ""
+                        navController.navigate("quiz/$theme/${gameMode.name}?quizJson=$encoded")
                     },
                     onBack = { navController.popBackStack() }
                 )
