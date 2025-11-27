@@ -29,6 +29,7 @@ class MapViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     private val _showFavorites = MutableStateFlow(false)
     private val _searchedLocation = MutableStateFlow<LatLng?>(null)
+    private val _localFavoriteOverrides = MutableStateFlow<Map<Long, Boolean>>(emptyMap())
 
     private val _currentFilteredPoints = MutableStateFlow<List<CollectionPoint>>(emptyList())
     
@@ -36,8 +37,9 @@ class MapViewModel @Inject constructor(
         pointsRepository.observePoints(),
         _selectedCategory,
         _searchQuery,
-        _showFavorites
-    ) { allPoints, selectedCategory, searchQuery, showFavorites ->
+        _showFavorites,
+        _localFavoriteOverrides
+    ) { allPoints, selectedCategory, searchQuery, showFavorites, overrides ->
         Log.d("MapViewModel", "Starting filter process:")
         Log.d("MapViewModel", "- Total points: ${allPoints.size}")
         Log.d("MapViewModel", "- Selected category: $selectedCategory")
@@ -67,7 +69,7 @@ class MapViewModel @Inject constructor(
         val finalFilteredPoints = if (showFavorites) {
             Log.d("MapViewModel", "Applying favorites filter...")
             val favoritePoints = filteredPointsBySearch.filter { 
-                val isFavorite = it.isFavorite
+                val isFavorite = overrides[it.id] ?: it.isFavorite
                 Log.d("MapViewModel", "Point ${it.name} (id: ${it.id}) - isFavorite: $isFavorite")
                 isFavorite
             }
@@ -76,10 +78,19 @@ class MapViewModel @Inject constructor(
         } else {
             filteredPointsBySearch
         }
-        
-        _currentFilteredPoints.value = finalFilteredPoints
-        Log.d("MapViewModel", "Final result: ${finalFilteredPoints.size} points after all filters")
-        finalFilteredPoints
+        val merged = finalFilteredPoints.map { p ->
+            val o = overrides[p.id]
+            if (o != null && o != p.isFavorite) p.copy(isFavorite = o) else p
+        }
+        val toRemove = merged.filter { m -> overrides[m.id] == m.isFavorite }.map { it.id }
+        if (toRemove.isNotEmpty()) {
+            val newMap = overrides.toMutableMap()
+            toRemove.forEach { newMap.remove(it) }
+            _localFavoriteOverrides.value = newMap
+        }
+        _currentFilteredPoints.value = merged
+        Log.d("MapViewModel", "Final result: ${merged.size} points after all filters")
+        merged
     }
 
     val uiState: StateFlow<MapUiState> = combine(
@@ -163,6 +174,7 @@ class MapViewModel @Inject constructor(
                 Log.d("MapViewModel", "toggleFavorite called for point: ${point.name} (id: ${point.id}), current favorite: ${point.isFavorite}")
                 val updatedPoint = point.copy(isFavorite = !point.isFavorite)
                 _selectedPoint.value = updatedPoint
+                _localFavoriteOverrides.value = _localFavoriteOverrides.value.toMutableMap().apply { put(point.id, updatedPoint.isFavorite) }
                 pointsRepository.toggleFavorite(point.id)
                 
                 // Atualizar também o ponto na lista de pontos filtrados

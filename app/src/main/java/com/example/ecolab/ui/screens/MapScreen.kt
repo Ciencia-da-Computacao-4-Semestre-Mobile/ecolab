@@ -54,6 +54,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -102,22 +103,21 @@ fun MapScreen(
         position = CameraPosition.fromLatLngZoom(saoPaulo, 10f)
     }
 
-    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+    val fusedLocationClient = androidx.compose.runtime.remember(context) { LocationServices.getFusedLocationProviderClient(context) }
 
     val filterCategories = listOf(
         "Todos",
         "Ecoponto",
         "Cooperativa",
         "Ponto de Entrega",
-        "Pátio de Compostagem",
-        "Favoritos"
+        "Pátio de Compostagem"
     )
 
     LaunchedEffect(uiState.searchedLocation) {
         uiState.searchedLocation?.let {
             cameraPositionState.animate(
                 update = CameraUpdateFactory.newLatLngZoom(it, 15f),
-                durationMs = 1000
+                durationMs = 250
             )
         }
     }
@@ -140,21 +140,60 @@ fun MapScreen(
                 zoomControlsEnabled = false
             )
         ) {
-            val favoritePoints = uiState.collectionPoints.filter { it.isFavorite }
-            Log.d("MapScreen", "Displaying ${uiState.collectionPoints.size} total points on map")
-            Log.d("MapScreen", "Of these ${uiState.collectionPoints.size} points, ${favoritePoints.size} are favorites")
-            
-            uiState.collectionPoints.forEach { point ->
-                Marker(
-                    state = MarkerState(position = LatLng(point.latitude, point.longitude)),
-                    title = point.name,
-                    snippet = point.description,
-                    icon = BitmapDescriptorFactory.defaultMarker(getMarkerHue(point.category)),
-                    onClick = {
-                        viewModel.onMarkerClick(point)
+            val items = androidx.compose.runtime.remember(uiState.collectionPoints) {
+                uiState.collectionPoints.map { p ->
+                    PointItem(
+                        id = p.id,
+                        itemPosition = LatLng(p.latitude, p.longitude),
+                        itemTitle = p.name,
+                        itemSnippet = p.description,
+                        category = p.category,
+                        point = p
+                    )
+                }
+            }
+            var clusterManager by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<com.google.maps.android.clustering.ClusterManager<PointItem>?>(null) }
+            MapEffect(items) { map ->
+                if (clusterManager == null) {
+                    val cm = com.google.maps.android.clustering.ClusterManager<PointItem>(context, map)
+                    cm.renderer = PointRenderer(context, map, cm)
+                    cm.setOnClusterItemClickListener { item ->
+                        viewModel.onMarkerClick(item.point)
                         true
                     }
-                )
+                    cm.setOnClusterClickListener { cluster ->
+                        val b = com.google.android.gms.maps.model.LatLngBounds.Builder()
+                        cluster.items.forEach { b.include(it.position) }
+                        val bounds = b.build()
+                        scope.launch {
+                            cameraPositionState.animate(
+                                update = CameraUpdateFactory.newLatLngBounds(bounds, 64),
+                                durationMs = 250
+                            )
+                        }
+                        true
+                    }
+                    clusterManager = cm
+                }
+                // Filtra por bounds visíveis para reduzir carga de renderização
+                val visibleBounds = map.projection.visibleRegion.latLngBounds
+                val visibleItems = items.filter { visibleBounds.contains(it.position) }
+                clusterManager?.clearItems()
+                clusterManager?.addItems(visibleItems)
+                clusterManager?.cluster()
+            }
+            androidx.compose.runtime.LaunchedEffect(cameraPositionState.isMoving) {
+                if (!cameraPositionState.isMoving) {
+                    clusterManager?.onCameraIdle()
+                }
+            }
+
+            // Garante re-cluster imediato ao alternar favoritos
+            androidx.compose.runtime.LaunchedEffect(uiState.showFavorites) {
+                clusterManager?.clearItems()
+                // Usa itens já derivados de uiState.collectionPoints
+                clusterManager?.addItems(items)
+                clusterManager?.cluster()
             }
         }
 
@@ -204,11 +243,7 @@ fun MapScreen(
                     .padding(top = 16.dp)
             ) {
                 filterCategories.forEach { category ->
-                    val isSelected = if (category == "Favoritos") {
-                        uiState.showFavorites
-                    } else {
-                        uiState.selectedCategory == category
-                    }
+                    val isSelected = uiState.selectedCategory == category
 
                     val containerColor by animateColorAsState(
                         targetValue = if (isSelected) Palette.primary else Palette.surface,
@@ -228,14 +263,7 @@ fun MapScreen(
                     ) {
                         FilterChip(
                             selected = isSelected,
-                            onClick = {
-                                if (category == "Favoritos") {
-                                    Log.d("MapScreen", "Favoritos filter clicked, current state: ${uiState.showFavorites}, will set to: ${!uiState.showFavorites}")
-                                    viewModel.onToggleFavorites(!uiState.showFavorites)
-                                } else {
-                                    viewModel.onFilterChange(category)
-                                }
-                            },
+                            onClick = { viewModel.onFilterChange(category) },
                             label = { Text(text = category, color = labelColor) },
                             modifier = Modifier,
                             colors = FilterChipDefaults.filterChipColors(
@@ -275,7 +303,9 @@ fun MapScreen(
             scope = scope,
             locationPermissions = locationPermissions,
             cameraPositionState = cameraPositionState,
-            fusedLocationClient = fusedLocationClient
+            fusedLocationClient = fusedLocationClient,
+            isFavoritesEnabled = uiState.showFavorites,
+            onToggleFavorites = { viewModel.onToggleFavorites(!uiState.showFavorites) }
         )
     }
 }
@@ -287,7 +317,9 @@ private fun MapControls(
     scope: CoroutineScope,
     locationPermissions: MultiplePermissionsState,
     cameraPositionState: CameraPositionState,
-    fusedLocationClient: FusedLocationProviderClient
+    fusedLocationClient: FusedLocationProviderClient,
+    isFavoritesEnabled: Boolean,
+    onToggleFavorites: () -> Unit
 ) {
     Column(
         modifier = modifier,
@@ -304,7 +336,7 @@ private fun MapControls(
                                 val userLatLng = LatLng(it.latitude, it.longitude)
                                 cameraPositionState.animate(
                                     update = CameraUpdateFactory.newLatLngZoom(userLatLng, 15f),
-                                    durationMs = 1000
+                                    durationMs = 250
                                 )
                             }
                         } catch (e: Exception) {
@@ -355,6 +387,17 @@ private fun MapControls(
                 contentColor = Palette.primary
             ) {
                 Icon(imageVector = Icons.Default.Remove, contentDescription = "Zoom Out")
+            }
+
+            FloatingActionButton(
+                onClick = onToggleFavorites,
+                containerColor = if (isFavoritesEnabled) Palette.primary else Palette.surface,
+                contentColor = if (isFavoritesEnabled) Color.White else Palette.primary
+            ) {
+                Icon(
+                    imageVector = if (isFavoritesEnabled) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                    contentDescription = "Favoritos"
+                )
             }
         }
     }
@@ -408,5 +451,31 @@ private fun getMockMaterials(category: String): List<String> {
             "Podas de Jardim"
         )
         else -> emptyList()
+    }
+}
+
+private data class PointItem(
+    val id: Long,
+    val itemPosition: LatLng,
+    val itemTitle: String,
+    val itemSnippet: String?,
+    val category: String,
+    val point: com.example.ecolab.core.domain.model.CollectionPoint
+) : com.google.maps.android.clustering.ClusterItem {
+    override fun getPosition(): LatLng = itemPosition
+    override fun getTitle(): String = itemTitle
+    override fun getSnippet(): String? = itemSnippet
+    override fun getZIndex(): Float = 0f
+}
+
+private class PointRenderer(
+    context: android.content.Context,
+    map: com.google.android.gms.maps.GoogleMap,
+    clusterManager: com.google.maps.android.clustering.ClusterManager<PointItem>
+) : com.google.maps.android.clustering.view.DefaultClusterRenderer<PointItem>(context, map, clusterManager) {
+    override fun onBeforeClusterItemRendered(item: PointItem, markerOptions: com.google.android.gms.maps.model.MarkerOptions) {
+        val hue = getMarkerHue(item.category)
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(hue))
+        super.onBeforeClusterItemRendered(item, markerOptions)
     }
 }
