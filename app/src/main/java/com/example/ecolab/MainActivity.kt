@@ -19,6 +19,10 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val launchIntent = intent
+        val scenario = if (launchIntent?.action == "com.google.intent.action.TEST_LOOP") {
+            launchIntent.getIntExtra("scenario", 0)
+        } else 0
         installSplashScreen()
         setContent {
             EcoLabTheme {
