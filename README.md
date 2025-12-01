@@ -2,6 +2,21 @@
 
 EcoLab é um aplicativo Android focado em educação ambiental, mapa de pontos de coleta seletiva, quizzes assistidos por IA e biblioteca de conteúdos. Explore pontos de coleta, acompanhe conquistas, faça quizzes e salve seus favoritos — tudo em um só lugar.
 
+## Tecnologias Utilizadas
+
+[![Kotlin](https://img.shields.io/badge/Kotlin-6F51F5?logo=kotlin&logoColor=white)](https://kotlinlang.org/) 
+[![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-3DDC84?logo=android&logoColor=white)](https://developer.android.com/jetpack/compose) 
+[![Material 3](https://img.shields.io/badge/Material%203-757575?logo=materialdesign&logoColor=white)](https://m3.material.io/) 
+[![Hilt](https://img.shields.io/badge/Hilt-35495E?logo=dagger&logoColor=white)](https://dagger.dev/hilt/) 
+[![Firebase Auth](https://img.shields.io/badge/Firebase%20Auth-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/products/auth) 
+[![Firestore](https://img.shields.io/badge/Firestore-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/docs/firestore) 
+[![Google Maps SDK](https://img.shields.io/badge/Google%20Maps%20SDK-4285F4?logo=googlemaps&logoColor=white)](https://developers.google.com/maps/documentation/android-sdk) 
+[![OkHttp](https://img.shields.io/badge/OkHttp-2D2D2D?logo=square&logoColor=white)](https://square.github.io/okhttp/) 
+[![DataStore](https://img.shields.io/badge/DataStore-3DDC84?logo=android&logoColor=white)](https://developer.android.com/topic/libraries/architecture/datastore) 
+[![Coil](https://img.shields.io/badge/Coil-6F51F5?logo=kotlin&logoColor=white)](https://coil-kt.github.io/coil/) 
+[![Jsoup](https://img.shields.io/badge/Jsoup-007396?logo=java&logoColor=white)](https://jsoup.org/) 
+[![Gemini 1.5 Flash](https://img.shields.io/badge/Gemini%201.5%20Flash-4285F4?logo=google&logoColor=white)](https://ai.google.dev/) 
+
 ## Principais Funcionalidades
 
 **Autenticação**
@@ -31,21 +46,6 @@ EcoLab é um aplicativo Android focado em educação ambiental, mapa de pontos d
 **Aparência**
 - Material 3 e Jetpack Compose
 - Interface moderna com animações
-
-## Tecnologias Utilizadas
-
-[![Kotlin](https://img.shields.io/badge/Kotlin-6F51F5?logo=kotlin&logoColor=white)](https://kotlinlang.org/) 
-[![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-3DDC84?logo=android&logoColor=white)](https://developer.android.com/jetpack/compose) 
-[![Material 3](https://img.shields.io/badge/Material%203-757575?logo=materialdesign&logoColor=white)](https://m3.material.io/) 
-[![Hilt](https://img.shields.io/badge/Hilt-35495E?logo=dagger&logoColor=white)](https://dagger.dev/hilt/) 
-[![Firebase Auth](https://img.shields.io/badge/Firebase%20Auth-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/products/auth) 
-[![Firestore](https://img.shields.io/badge/Firestore-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/docs/firestore) 
-[![Google Maps SDK](https://img.shields.io/badge/Google%20Maps%20SDK-4285F4?logo=googlemaps&logoColor=white)](https://developers.google.com/maps/documentation/android-sdk) 
-[![OkHttp](https://img.shields.io/badge/OkHttp-2D2D2D?logo=square&logoColor=white)](https://square.github.io/okhttp/) 
-[![DataStore](https://img.shields.io/badge/DataStore-3DDC84?logo=android&logoColor=white)](https://developer.android.com/topic/libraries/architecture/datastore) 
-[![Coil](https://img.shields.io/badge/Coil-6F51F5?logo=kotlin&logoColor=white)](https://coil-kt.github.io/coil/) 
-[![Jsoup](https://img.shields.io/badge/Jsoup-007396?logo=java&logoColor=white)](https://jsoup.org/) 
-[![Gemini 1.5 Flash](https://img.shields.io/badge/Gemini%201.5%20Flash-4285F4?logo=google&logoColor=white)](https://ai.google.dev/) 
 
 Arquitetura: Clean Architecture, MVVM, StateFlow, Coroutines
 
